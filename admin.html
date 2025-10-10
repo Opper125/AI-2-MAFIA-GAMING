@@ -1,0 +1,639 @@
+
+<!DOCTYPE html>
+<html lang="my">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div id="loadingScreen" class="loading-screen">
+        <div class="loading-animation">
+            <div class="spinner"></div>
+            <p>Loading Admin Panel...</p>
+        </div>
+    </div>
+
+    <!-- IP Authorization Check Screen -->
+    <div id="ipCheckScreen" class="ip-check-screen" style="display: none;">
+        <div class="ip-check-box">
+            <div class="ip-check-header">
+                <div class="ip-icon">🔐</div>
+                <h1>IP Authorization Check</h1>
+                <p id="ipCheckMessage">Checking your IP address authorization...</p>
+            </div>
+            <div class="ip-info" id="ipInfo">
+                <p><strong>Your IP Address:</strong> <span id="clientIpDisplay">Detecting...</span></p>
+                <p><strong>Status:</strong> <span id="authStatus">Checking...</span></p>
+            </div>
+            <div class="ip-actions" id="ipActions" style="display: none;">
+                <button id="requestAccessBtn" class="btn-request" onclick="requestAccess()">
+                    Request Access
+                </button>
+                <button id="continueLoginBtn" class="btn-login" onclick="showLoginForm()" style="display: none;">
+                    Continue to Login
+                </button>
+            </div>
+            <div class="waiting-approval" id="waitingApproval" style="display: none;">
+                <div class="waiting-animation">
+                    <div class="pulse"></div>
+                </div>
+                <p>Access request sent. Waiting for admin approval...</p>
+                <button onclick="checkApprovalStatus()" class="btn-secondary">Check Status</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Login -->
+    <div id="adminLogin" class="admin-login" style="display: none;">
+        <div class="login-box">
+            <div class="login-header">
+                <div class="login-icon">🔐</div>
+                <h1>Admin Dashboard</h1>
+                <p>Enter your credentials to access the admin panel</p>
+                <div class="authorized-ip">
+                    <span class="ip-badge">✅ Authorized IP</span>
+                    <span id="authorizedIpDisplay"></span>
+                </div>
+            </div>
+            <form class="login-form" onsubmit="adminLogin(event)">
+                <div class="form-group">
+                    <div class="input-group">
+                        <span class="input-icon">🔒</span>
+                        <input type="password" id="adminPassword" placeholder="Enter Admin Password" required>
+                    </div>
+                </div>
+                <div class="error-message" id="loginError"></div>
+                <button type="submit" class="btn-login">
+                    <span class="btn-text">Login</span>
+                    <span class="btn-loader"></span>
+                </button>
+            </form>
+            <div class="login-footer">
+                <p>Secure admin access with IP-based authentication</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Dashboard -->
+    <div id="adminDashboard" class="admin-dashboard" style="display: none;">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo-section">
+                    <div class="admin-avatar">👨‍💼</div>
+                    <div class="admin-info">
+                        <h2>Admin Panel</h2>
+                        <span class="admin-status">Online</span>
+                        <div class="session-info">
+                            <small>IP: <span id="sessionIp"></span></small>
+                        </div>
+                    </div>
+                </div>
+                <button onclick="adminLogout()" class="btn-logout">
+                    <span>🚪</span>
+                    Logout
+                </button>
+            </div>
+            <nav class="sidebar-nav">
+                <button class="nav-btn active" data-section="website-settings" onclick="switchSection('website-settings')">
+                    <span class="nav-icon">🌐</span>
+                    <span class="nav-text">Website Settings</span>
+                </button>
+                <button class="nav-btn" data-section="admin-settings" onclick="switchSection('admin-settings')">
+                    <span class="nav-icon">⚙️</span>
+                    <span class="nav-text">Admin Settings</span>
+                </button>
+                <button class="nav-btn" data-section="ip-management" onclick="switchSection('ip-management')">
+                    <span class="nav-icon">🔒</span>
+                    <span class="nav-text">IP Management</span>
+                    <span class="notification-badge" id="pendingRequestsBadge" style="display: none;"></span>
+                </button>
+                <button class="nav-btn" data-section="banners" onclick="switchSection('banners')">
+                    <span class="nav-icon">🖼️</span>
+                    <span class="nav-text">Banners</span>
+                </button>
+                <button class="nav-btn" data-section="categories" onclick="switchSection('categories')">
+                    <span class="nav-icon">📂</span>
+                    <span class="nav-text">Categories</span>
+                </button>
+                <button class="nav-btn" data-section="buttons" onclick="switchSection('buttons')">
+                    <span class="nav-icon">🎮</span>
+                    <span class="nav-text">Category Buttons</span>
+                </button>
+                <button class="nav-btn" data-section="tables" onclick="switchSection('tables')">
+                    <span class="nav-icon">📝</span>
+                    <span class="nav-text">Input Tables</span>
+                </button>
+                <button class="nav-btn" data-section="menus" onclick="switchSection('menus')">
+                    <span class="nav-icon">🛒</span>
+                    <span class="nav-text">Products (Menus)</span>
+                </button>
+                <button class="nav-btn" data-section="payments" onclick="switchSection('payments')">
+                    <span class="nav-icon">💳</span>
+                    <span class="nav-text">Payment Methods</span>
+                </button>
+                <button class="nav-btn" data-section="contacts" onclick="switchSection('contacts')">
+                    <span class="nav-icon">📞</span>
+                    <span class="nav-text">Contacts</span>
+                </button>
+                <button class="nav-btn" data-section="videos" onclick="switchSection('videos')">
+                    <span class="nav-icon">🎥</span>
+                    <span class="nav-text">YouTube Videos</span>
+                </button>
+                <button class="nav-btn" data-section="animations" onclick="switchSection('animations')">
+                    <span class="nav-icon">✨</span>
+                    <span class="nav-text">Animations/Stickers</span>
+                </button>
+                <button class="nav-btn" data-section="orders" onclick="switchSection('orders')">
+                    <span class="nav-icon">📦</span>
+                    <span class="nav-text">Orders</span>
+                </button>
+                <button class="nav-btn" data-section="users" onclick="switchSection('users')">
+                    <span class="nav-icon">👥</span>
+                    <span class="nav-text">Users</span>
+                </button>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Website Settings Section -->
+            <section id="website-settings" class="content-section active">
+                <div class="section-header">
+                    <h2>🌐 Website Settings</h2>
+                    <p>Manage your website's appearance and configuration</p>
+                </div>
+                
+                <div class="settings-grid">
+                    <div class="setting-card">
+                        <div class="card-header">
+                            <h3>Website Name</h3>
+                            <span class="card-badge">Essential</span>
+                        </div>
+                        <div class="input-with-emoji">
+                            <input type="text" id="websiteName" placeholder="Enter website name">
+                            <button class="emoji-picker-btn" onclick="openEmojiPicker('websiteName')">😀</button>
+                        </div>
+                        <button onclick="updateWebsiteName()" class="btn-primary">Save Changes</button>
+                    </div>
+
+                    <div class="setting-card">
+                        <div class="card-header">
+                            <h3>Website Logo</h3>
+                            <span class="card-badge">Branding</span>
+                        </div>
+                        <div class="image-preview" id="logoPreview"></div>
+                        <input type="file" id="logoFile" accept="image/*" onchange="previewLogo()">
+                        <button onclick="uploadLogo()" class="btn-primary">Upload Logo</button>
+                    </div>
+
+                    <div class="setting-card">
+                        <div class="card-header">
+                            <h3>Background Image</h3>
+                            <span class="card-badge">Design</span>
+                        </div>
+                        <div class="image-preview" id="bgPreview"></div>
+                        <input type="file" id="bgFile" accept="image/*" onchange="previewBackground()">
+                        <button onclick="uploadBackground()" class="btn-primary">Upload Background</button>
+                    </div>
+
+                    <div class="setting-card">
+                        <div class="card-header">
+                            <h3>Loading Animation</h3>
+                            <span class="card-badge">UX</span>
+                        </div>
+                        <div class="image-preview" id="loadingPreview"></div>
+                        <input type="file" id="loadingFile" accept="image/*,.json,.gif,.webm,video/*">
+                        <button onclick="uploadLoadingAnimation()" class="btn-primary">Upload Animation</button>
+                    </div>
+
+                    <div class="setting-card">
+                        <div class="card-header">
+                            <h3>Button Style</h3>
+                            <span class="card-badge">Theme</span>
+                        </div>
+                        <div class="image-preview" id="buttonPreview"></div>
+                        <input type="file" id="buttonFile" accept="image/*">
+                        <button onclick="uploadButtonStyle()" class="btn-primary">Upload Button Style</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Admin Settings Section -->
+            <section id="admin-settings" class="content-section">
+                <div class="section-header">
+                    <h2>⚙️ Admin Settings</h2>
+                    <p>Manage admin panel configuration and security</p>
+                </div>
+                
+                <div class="settings-grid">
+                    <div class="setting-card security-card">
+                        <div class="card-header">
+                            <h3>Change Admin Password</h3>
+                            <span class="card-badge security">Security</span>
+                        </div>
+                        <div class="security-warning">
+                            <span class="warning-icon">⚠️</span>
+                            <p>Changing your password will require you to log in again with the new password.</p>
+                        </div>
+                        <div class="form-group">
+                            <label>Current Password</label>
+                            <input type="password" id="currentPassword" placeholder="Enter current password">
+                        </div>
+                        <div class="form-group">
+                            <label>New Password</label>
+                            <input type="password" id="newPassword" placeholder="Enter new password">
+                        </div>
+                        <div class="form-group">
+                            <label>Confirm New Password</label>
+                            <input type="password" id="confirmPassword" placeholder="Confirm new password">
+                        </div>
+                        <button onclick="changeAdminPassword()" class="btn-security">Change Password</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- IP Management Section -->
+            <section id="ip-management" class="content-section">
+                <div class="section-header">
+                    <h2>🔒 IP Address Management</h2>
+                    <p>Control access and manage authorized IP addresses</p>
+                </div>
+
+                <!-- Pending Requests -->
+                <div class="ip-card pending-requests-card">
+                    <div class="card-header">
+                        <h3>🔔 Pending Authorization Requests</h3>
+                        <button onclick="refreshPendingRequests()" class="btn-refresh">🔄 Refresh</button>
+                    </div>
+                    <div id="pendingRequestsContainer">
+                        <p class="no-data">No pending requests</p>
+                    </div>
+                </div>
+
+                <!-- Create New Admin -->
+                <div class="ip-card">
+                    <div class="card-header">
+                        <h3>➕ Create New Admin Access</h3>
+                        <span class="card-badge">Manual</span>
+                    </div>
+                    <div class="form-group">
+                        <label>IP Address</label>
+                        <input type="text" id="newAdminIp" placeholder="e.g. 192.168.1.10 or fe80::1234:5678:abcd:ef00">
+                        <small>Enter the exact IP address of the device that should have admin access</small>
+                    </div>
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="text" id="newAdminPassword" placeholder="Enter password for this IP">
+                    </div>
+                    <div class="form-group">
+                        <label>Device Info (Optional)</label>
+                        <input type="text" id="newAdminDevice" placeholder="e.g. John's iPhone, Office Computer">
+                    </div>
+                    <button onclick="createNewAdmin()" class="btn-primary">Create Admin Access</button>
+                </div>
+
+                <!-- Active Sessions -->
+                <div class="ip-card">
+                    <div class="card-header">
+                        <h3>👥 Active Admin Sessions</h3>
+                        <button onclick="loadAdminSessions()" class="btn-refresh">🔄 Refresh</button>
+                    </div>
+                    <div id="adminSessionsContainer">
+                        <p class="no-data">Loading sessions...</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- All other sections remain the same as original -->
+            <!-- Banners Section -->
+            <section id="banners" class="content-section">
+                <div class="section-header">
+                    <h2>🖼️ Banners Management</h2>
+                    <p>Add and manage promotional banners for your website</p>
+                </div>
+                
+                <div class="action-card">
+                    <h3>Add New Banner</h3>
+                    <input type="file" id="bannerFile" accept="image/*">
+                    <button onclick="addBanner()" class="btn-primary">Add Banner</button>
+                </div>
+
+                <div class="items-grid" id="bannersContainer"></div>
+            </section>
+
+            <!-- Categories Section -->
+            <section id="categories" class="content-section">
+                <div class="section-header">
+                    <h2>📂 Categories Management</h2>
+                    <p>Organize your products into categories</p>
+                </div>
+                
+                <div class="action-card">
+                    <h3>Add New Category</h3>
+                    <div class="input-with-emoji">
+                        <input type="text" id="categoryTitle" placeholder="Category Title">
+                        <button class="emoji-picker-btn" onclick="openEmojiPicker('categoryTitle')">😀</button>
+                    </div>
+                    <button onclick="addCategory()" class="btn-primary">Add Category</button>
+                </div>
+
+                <div class="items-list" id="categoriesContainer"></div>
+            </section>
+
+            <!-- Category Buttons Section -->
+            <section id="buttons" class="content-section">
+                <div class="section-header">
+                    <h2>🎮 Category Buttons Management</h2>
+                    <p>Create interactive buttons for your categories</p>
+                </div>
+                
+                <div class="action-card">
+                    <h3>Add New Button</h3>
+                    <select id="buttonCategorySelect" class="form-select">
+                        <option value="">Select Category</option>
+                    </select>
+                    <div class="input-with-emoji">
+                        <input type="text" id="buttonName" placeholder="Button Name">
+                        <button class="emoji-picker-btn" onclick="openEmojiPicker('buttonName')">😀</button>
+                    </div>
+                    <input type="file" id="buttonIconFile" accept="image/*">
+                    <button onclick="addCategoryButton()" class="btn-primary">Add Button</button>
+                </div>
+
+                <div class="items-grid" id="buttonsContainer"></div>
+            </section>
+
+            <!-- Input Tables Section -->
+            <section id="tables" class="content-section">
+                <div class="section-header">
+                    <h2>📝 Input Tables Management</h2>
+                    <p>Create form fields for user data collection</p>
+                </div>
+                
+                <div class="action-card">
+                    <h3>Add Input Tables</h3>
+                    <select id="tableCategorySelect" class="form-select" onchange="loadButtonsForTables()">
+                        <option value="">Select Category</option>
+                    </select>
+                    <select id="tableButtonSelect" class="form-select">
+                        <option value="">Select Button</option>
+                    </select>
+                    
+                    <div id="tablesInputContainer">
+                        <div class="table-input-group">
+                            <div class="input-with-emoji">
+                                <input type="text" class="table-name" placeholder="Table Name">
+                                <button class="emoji-picker-btn" onclick="openEmojiPickerForClass(this, 'table-name')">😀</button>
+                            </div>
+                            <div class="input-with-emoji">
+                                <input type="text" class="table-instruction" placeholder="Instruction">
+                                <button class="emoji-picker-btn" onclick="openEmojiPickerForClass(this, 'table-instruction')">😀</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button onclick="addTableInput()" class="btn-secondary">+ Add More Table</button>
+                    <button onclick="saveTables()" class="btn-primary">Save All Tables</button>
+                </div>
+
+                <div class="items-list" id="tablesContainer"></div>
+            </section>
+
+            <!-- Menus Section -->
+            <section id="menus" class="content-section">
+                <div class="section-header">
+                    <h2>🛒 Products (Menus) Management</h2>
+                    <p>Add and manage your products/services</p>
+                </div>
+                
+                <div class="action-card">
+                    <h3>Add Products/Menus</h3>
+                    <select id="menuCategorySelect" class="form-select" onchange="loadButtonsForMenus()">
+                        <option value="">Select Category</option>
+                    </select>
+                    <select id="menuButtonSelect" class="form-select">
+                        <option value="">Select Button</option>
+                    </select>
+                    
+                    <div id="menusInputContainer">
+                        <div class="menu-input-group">
+                            <div class="input-with-emoji">
+                                <input type="text" class="menu-name" placeholder="Product Name">
+                                <button class="emoji-picker-btn" onclick="openEmojiPickerForClass(this, 'menu-name')">😀</button>
+                            </div>
+                            <div class="input-with-emoji">
+                                <input type="text" class="menu-amount" placeholder="Amount/Details">
+                                <button class="emoji-picker-btn" onclick="openEmojiPickerForClass(this, 'menu-amount')">😀</button>
+                            </div>
+                            <input type="number" class="menu-price" placeholder="Price">
+                            <input type="file" class="menu-icon" accept="image/*">
+                        </div>
+                    </div>
+                    
+                    <button onclick="addMenuInput()" class="btn-secondary">+ Add More Product</button>
+                    <button onclick="saveMenus()" class="btn-primary">Save All Products</button>
+                </div>
+
+                <div class="items-grid" id="menusContainer"></div>
+            </section>
+
+            <!-- Payment Methods Section -->
+            <section id="payments" class="content-section">
+                <div class="section-header">
+                    <h2>💳 Payment Methods Management</h2>
+                    <p>Configure payment options for your customers</p>
+                </div>
+                
+                <div class="action-card">
+                    <h3>Add Payment Method</h3>
+                    <div class="input-with-emoji">
+                        <input type="text" id="paymentName" placeholder="Payment Name">
+                        <button class="emoji-picker-btn" onclick="openEmojiPicker('paymentName')">😀</button>
+                    </div>
+                    <input type="text" id="paymentAddress" placeholder="Payment Address">
+                    <div class="textarea-with-emoji">
+                        <textarea id="paymentInstructions" placeholder="Instructions" rows="3"></textarea>
+                        <button class="emoji-picker-btn" onclick="openEmojiPicker('paymentInstructions')">😀</button>
+                    </div>
+                    <input type="file" id="paymentIconFile" accept="image/*">
+                    <button onclick="addPaymentMethod()" class="btn-primary">Add Payment</button>
+                </div>
+
+                <div class="items-grid" id="paymentsContainer"></div>
+            </section>
+
+            <!-- Contacts Section -->
+            <section id="contacts" class="content-section">
+                <div class="section-header">
+                    <h2>📞 Contacts Management</h2>
+                    <p>Manage contact information and social links</p>
+                </div>
+                
+                <div class="action-card">
+                    <h3>Add Contact</h3>
+                    <div class="input-with-emoji">
+                        <input type="text" id="contactName" placeholder="Contact Name">
+                        <button class="emoji-picker-btn" onclick="openEmojiPicker('contactName')">😀</button>
+                    </div>
+                    <div class="textarea-with-emoji">
+                        <textarea id="contactDescription" placeholder="Description" rows="2"></textarea>
+                        <button class="emoji-picker-btn" onclick="openEmojiPicker('contactDescription')">😀</button>
+                    </div>
+                    <input type="text" id="contactLink" placeholder="Link (optional)">
+                    <input type="text" id="contactAddress" placeholder="Address (optional)">
+                    <input type="file" id="contactIconFile" accept="image/*">
+                    <button onclick="addContact()" class="btn-primary">Add Contact</button>
+                </div>
+
+                <div class="items-grid" id="contactsContainer"></div>
+            </section>
+
+            <!-- YouTube Videos Section -->
+            <section id="videos" class="content-section">
+                <div class="section-header">
+                    <h2>🎥 YouTube Videos Management</h2>
+                    <p>Embed and manage YouTube videos</p>
+                </div>
+                
+                <div class="action-card">
+                    <h3>Add YouTube Video</h3>
+                    <select id="videoCategorySelect" class="form-select" onchange="loadButtonsForVideos()">
+                        <option value="">Select Category</option>
+                    </select>
+                    <select id="videoButtonSelect" class="form-select">
+                        <option value="">Select Button</option>
+                    </select>
+                    <input type="file" id="videoBannerFile" accept="image/*">
+                    <input type="text" id="videoUrl" placeholder="YouTube Video URL">
+                    <div class="textarea-with-emoji">
+                        <textarea id="videoDescription" placeholder="Description" rows="2"></textarea>
+                        <button class="emoji-picker-btn" onclick="openEmojiPicker('videoDescription')">😀</button>
+                    </div>
+                    <button onclick="addVideo()" class="btn-primary">Add Video</button>
+                </div>
+
+                <div class="items-grid" id="videosContainer"></div>
+            </section>
+
+            <!-- Animations/Stickers Section -->
+            <section id="animations" class="content-section">
+                <div class="section-header">
+                    <h2>✨ Animations & Stickers Management</h2>
+                    <p>Upload and manage animated content for your website</p>
+                </div>
+                
+                <div class="action-card">
+                    <h3>Upload Animation/Sticker</h3>
+                    <input type="text" id="animationName" placeholder="Animation Name">
+                    <input type="file" id="animationFile" accept="image/*,video/*,.gif,.webm,.json">
+                    <div class="file-info" id="animationFileInfo"></div>
+                    <button onclick="uploadAnimation()" class="btn-primary">Upload Animation</button>
+                    <p class="file-format-info">
+                        📁 Supported: GIF, Video (MP4, WebM), Images (PNG, JPG), JSON (Lottie)
+                    </p>
+                </div>
+
+                <div class="animations-grid" id="animationsContainer"></div>
+            </section>
+
+            <!-- Orders Section -->
+            <section id="orders" class="content-section">
+                <div class="section-header">
+                    <h2>📦 Orders Management</h2>
+                    <p>Review and manage customer orders</p>
+                </div>
+                
+                <div class="orders-filter">
+                    <button class="filter-btn active" onclick="filterOrders('all')">All Orders</button>
+                    <button class="filter-btn" onclick="filterOrders('pending')">Pending</button>
+                    <button class="filter-btn" onclick="filterOrders('approved')">Approved</button>
+                    <button class="filter-btn" onclick="filterOrders('rejected')">Rejected</button>
+                </div>
+
+                <div class="orders-list" id="ordersContainer"></div>
+            </section>
+
+            <!-- Users Section -->
+            <section id="users" class="content-section">
+                <div class="section-header">
+                    <h2>👥 Users Management</h2>
+                    <p>View and manage registered users</p>
+                </div>
+                
+                <div class="users-stats">
+                    <div class="stat-card">
+                        <div class="stat-icon">👥</div>
+                        <div class="stat-content">
+                            <h3 id="totalUsers">0</h3>
+                            <p>Total Users</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">📈</div>
+                        <div class="stat-content">
+                            <h3 id="todayUsers">0</h3>
+                            <p>Today's Registrations</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="users-list" id="usersContainer"></div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Emoji Picker Modal -->
+    <div id="emojiPickerModal" class="modal">
+        <div class="modal-content emoji-picker-content">
+            <div class="modal-header">
+                <h2>Select Animation/Sticker</h2>
+                <span class="close-modal" onclick="closeEmojiPicker()">&times;</span>
+            </div>
+            <div class="emoji-search">
+                <input type="text" id="emojiSearch" placeholder="Search animations..." onkeyup="filterEmojis()">
+            </div>
+            <div class="emoji-grid" id="emojiGrid"></div>
+        </div>
+    </div>
+
+    <!-- Edit Modal -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Edit Item</h2>
+                <span class="close-modal" onclick="closeEditModal()">&times;</span>
+            </div>
+            <div id="modalBody"></div>
+        </div>
+    </div>
+
+    <!-- Order Details Modal -->
+    <div id="orderModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Order Details</h2>
+                <span class="close-modal" onclick="closeOrderModal()">&times;</span>
+            </div>
+            <div id="orderModalBody"></div>
+        </div>
+    </div>
+
+    <!-- IP Request Details Modal -->
+    <div id="ipRequestModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Authorization Request Details</h2>
+                <span class="close-modal" onclick="closeIpRequestModal()">&times;</span>
+            </div>
+            <div id="ipRequestModalBody"></div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="admin.js"></script>
+</body>
+</html>
