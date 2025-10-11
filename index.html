@@ -203,6 +203,20 @@
     <!-- Toast Notifications Container -->
     <div id="toastContainer" class="toast-container"></div>
 
+    <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+<script>
+  window.OneSignalDeferred = window.OneSignalDeferred || [];
+  OneSignalDeferred.push(async function(OneSignal) {
+    await OneSignal.init({
+      appId: "79ba21be-292d-4a62-b39c-b9228ea9e036",
+      safari_web_id: "web.onesignal.auto.514888af-c9d7-482b-90d4-9de98d872128",
+      notifyButton: {
+        enable: true,
+      },
+    });
+  });
+</script>
+
     <!-- Supabase CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="index.js"></script>
