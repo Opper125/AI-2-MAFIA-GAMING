@@ -30,6 +30,76 @@ window.appState = {
     bannerInterval: null
 };
 
+// ========== SOUND EFFECTS SYSTEM ==========
+function playSound(soundId) {
+    try {
+        const sound = document.getElementById(soundId);
+        if (sound) {
+            sound.currentTime = 0; // Reset to beginning
+            sound.play().catch(error => {
+                console.log('Sound play prevented by browser:', error);
+            });
+        }
+    } catch (error) {
+        console.log('Sound error:', error);
+    }
+}
+
+// Add click sound to all clickable elements
+function addClickSounds() {
+    // Add to all buttons
+    document.addEventListener('click', function(e) {
+        if (e.target.matches('button, .nav-item, .category-button, .menu-item, .payment-method, .video-item, .contact-item, .back-button, .close-modal, .toast-close, .banner-dot, .pagination-dot') || 
+            e.target.closest('button, .nav-item, .category-button, .menu-item, .payment-method, .video-item, .contact-item, .back-button, .close-modal, .toast-close, .banner-dot, .pagination-dot')) {
+            playSound('clickSound');
+        }
+    });
+}
+
+// Play welcome sound on page load
+function playWelcomeSound() {
+    setTimeout(() => {
+        playSound('welcomeSound');
+    }, 1000); // Delay to ensure page is loaded
+}
+
+// Order status sound effects
+function playOrderStatusSound(status) {
+    switch(status) {
+        case 'success':
+        case 'submitted':
+            playSound('orderProcessSound');
+            break;
+        case 'approved':
+            playSound('approvedSound');
+            break;
+        case 'rejected':
+            playSound('rejectSound');
+            break;
+    }
+}
+
+// Monitor order status changes (called when order history updates)
+function checkOrderStatusChanges(orders) {
+    if (!orders || orders.length === 0) return;
+    
+    // Get the most recent order
+    const latestOrder = orders[0];
+    const lastStatus = localStorage.getItem('lastOrderStatus');
+    const lastOrderId = localStorage.getItem('lastOrderId');
+    
+    // If this is a new status update for existing order or new order
+    if (latestOrder.id != lastOrderId || latestOrder.status !== lastStatus) {
+        localStorage.setItem('lastOrderStatus', latestOrder.status);
+        localStorage.setItem('lastOrderId', latestOrder.id);
+        
+        // Only play sound if the order status changed (not on first load)
+        if (lastStatus && lastOrderId) {
+            playOrderStatusSound(latestOrder.status);
+        }
+    }
+}
+
 // ========== DISABLE RIGHT CLICK & CONTEXT MENU ==========
 document.addEventListener('contextmenu', function(e) {
     e.preventDefault();
@@ -192,10 +262,12 @@ function addAnimationStyles() {
 document.addEventListener('DOMContentLoaded', async () => {
     console.log('🚀 Gaming Store App initializing...');
     addAnimationStyles();
+    addClickSounds();
     await testDatabaseConnection();
     await loadWebsiteSettings();
     checkAuth();
     hideLoading();
+    playWelcomeSound();
 });
 
 // ========== DATABASE CONNECTION ==========
@@ -274,6 +346,22 @@ function showLogin() {
 function showSignup() {
     document.getElementById('signupForm').classList.add('active');
     document.getElementById('loginForm').classList.remove('active');
+}
+
+// ========== PAGE NAVIGATION ==========
+function switchPage(page) {
+    // Remove active class from all pages and nav items
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+    
+    // Add active class to selected page and nav item
+    document.getElementById(page + 'Page').classList.add('active');
+    document.querySelector(`[data-page="${page}"]`).classList.add('active');
+    
+    // Load page-specific data if needed
+    if (page === 'history') {
+        loadOrderHistory();
+    }
 }
 
 // ========== SIGNUP & LOGIN ==========
@@ -398,11 +486,18 @@ async function handleLogin() {
 
 function handleLogout() {
     localStorage.removeItem('currentUser');
+    localStorage.removeItem('lastOrderStatus');
+    localStorage.removeItem('lastOrderId');
     window.appState.currentUser = null;
     showToast('Successfully logged out', 'success');
     setTimeout(() => {
         location.reload();
     }, 1500);
+}
+
+function validateEmail(email) {
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return re.test(email);
 }
 
 // ========== WEBSITE SETTINGS ==========
@@ -463,15 +558,15 @@ function applyLoadingAnimation(animationUrl) {
 
     if (['gif', 'png', 'jpg', 'jpeg', 'json'].includes(fileExt)) {
         loadingContainer.innerHTML = `
-            <img src="${animationUrl}" alt="Loading" style="max-width: 200px; max-height: 200px; pointer-events: none;">
-            <p style="margin-top: 15px; color: white;">Loading...</p>
+            <img src="${animationUrl}" alt="Loading" style="max-width: 150px; max-height: 150px; pointer-events: none;">
+            <p style="margin-top: 10px; color: white;">Loading...</p>
         `;
     } else if (['webm', 'mp4'].includes(fileExt)) {
         loadingContainer.innerHTML = `
-            <video autoplay loop muted style="max-width: 200px; max-height: 200px; pointer-events: none;">
+            <video autoplay loop muted style="max-width: 150px; max-height: 150px; pointer-events: none;">
                 <source src="${animationUrl}" type="video/${fileExt}">
             </video>
-            <p style="margin-top: 15px; color: white;">Loading...</p>
+            <p style="margin-top: 10px; color: white;">Loading...</p>
         `;
     }
 }
@@ -715,7 +810,7 @@ function showPurchaseModal(tables, menus, videos) {
 
     // Input Tables
     if (tables && tables.length > 0) {
-        html += '<div class="input-tables" style="margin-bottom: 24px;">';
+        html += '<div class="input-tables" style="margin-bottom: 20px;">';
         tables.forEach(table => {
             html += `
                 <div class="form-group">
@@ -733,7 +828,7 @@ function showPurchaseModal(tables, menus, videos) {
 
     // Menu Items - Grid Layout
     if (menus && menus.length > 0) {
-        html += '<h3 style="margin: 20px 0 16px 0; font-size: 20px; font-weight: 700; color: var(--text-primary);">Select Product</h3>';
+        html += '<h3 style="margin: 18px 0 14px 0; font-size: 18px; font-weight: 700; color: var(--text-primary);">Select Product</h3>';
         html += '<div class="menu-items">';
         menus.forEach(menu => {
             html += `
@@ -766,7 +861,7 @@ function showPurchaseModal(tables, menus, videos) {
         html += '</div>';
     }
 
-    html += `<button class="btn-primary" id="buyNowBtn" style="margin-top: 24px; width: 100%;">Continue to Purchase</button>`;
+    html += `<button class="btn-primary" id="buyNowBtn" style="margin-top: 20px; width: 100%;">Continue to Purchase</button>`;
     html += '</div>';
 
     content.innerHTML = html;
@@ -1008,16 +1103,16 @@ async function showPaymentModal() {
     
     // Order Summary
     html += `<div class="order-summary">
-        <h3 data-order-summary-name style="font-size: 18px; font-weight: 700; margin-bottom: 8px;"></h3>
-        <p data-order-summary-amount style="font-size: 14px; color: var(--text-muted); margin-bottom: 12px;"></p>
+        <h3 data-order-summary-name style="font-size: 16px; font-weight: 700; margin-bottom: 6px;"></h3>
+        <p data-order-summary-amount style="font-size: 13px; color: var(--text-muted); margin-bottom: 10px;"></p>
         <p class="price">${menu.price} MMK</p>
     </div>`;
 
-    html += '<h3 style="margin: 24px 0 16px 0; font-size: 20px; font-weight: 700; color: var(--text-primary);">Select Payment Method</h3>';
+    html += '<h3 style="margin: 20px 0 14px 0; font-size: 18px; font-weight: 700; color: var(--text-primary);">Select Payment Method</h3>';
     
     // Payment Methods
     if (payments.length === 0) {
-        html += '<div style="text-align: center; color: var(--warning-color); padding: 40px; background: rgba(245, 158, 11, 0.1); border-radius: var(--border-radius); margin: 20px 0;"><p>⚠️ No payment methods available</p><p style="font-size: 14px; margin-top: 8px; color: var(--text-muted);">Please contact admin to set up payment methods</p></div>';
+        html += '<div style="text-align: center; color: var(--warning-color); padding: 30px; background: rgba(245, 158, 11, 0.1); border-radius: var(--border-radius); margin: 16px 0;"><p>⚠️ No payment methods available</p><p style="font-size: 13px; margin-top: 6px; color: var(--text-muted);">Please contact admin to set up payment methods</p></div>';
     } else {
         html += '<div class="payment-methods">';
         payments.forEach(payment => {
@@ -1032,7 +1127,7 @@ async function showPaymentModal() {
     }
 
     html += '<div id="paymentDetails" style="display:none;"></div>';
-    html += `<button class="btn-primary" id="submitOrderBtn" style="margin-top: 24px; width: 100%;" ${payments.length === 0 ? 'disabled' : ''}>Submit Order</button>`;
+    html += `<button class="btn-primary" id="submitOrderBtn" style="margin-top: 20px; width: 100%;" ${payments.length === 0 ? 'disabled' : ''}>Submit Order</button>`;
     html += '</div>';
 
     content.innerHTML = html;
@@ -1117,11 +1212,11 @@ async function selectPayment(paymentId) {
             detailsDiv.style.display = 'block';
             detailsDiv.innerHTML = `
                 <div class="payment-info">
-                    <h4 data-payment-detail-name style="font-size: 18px; font-weight: 600; margin-bottom: 12px;"></h4>
-                    <p data-payment-detail-instruction style="margin-bottom: 12px; line-height: 1.5;"></p>
-                    <p style="margin-bottom: 16px;"><strong>Payment Address:</strong> <span data-payment-detail-address style="color: var(--accent-color); font-weight: 600;"></span></p>
-                    <div class="form-group" style="margin-top: 20px;">
-                        <label style="font-weight: 600; color: var(--text-primary); margin-bottom: 8px; display: block;">Transaction ID (Last 6 digits)</label>
+                    <h4 data-payment-detail-name style="font-size: 16px; font-weight: 600; margin-bottom: 10px;"></h4>
+                    <p data-payment-detail-instruction style="margin-bottom: 10px; line-height: 1.5;"></p>
+                    <p style="margin-bottom: 14px;"><strong>Payment Address:</strong> <span data-payment-detail-address style="color: var(--accent-color); font-weight: 600;"></span></p>
+                    <div class="form-group" style="margin-top: 16px;">
+                        <label style="font-weight: 600; color: var(--text-primary); margin-bottom: 6px; display: block;">Transaction ID (Last 6 digits)</label>
                         <input type="text" id="transactionCode" maxlength="6" placeholder="Enter last 6 digits" required style="font-family: monospace; letter-spacing: 1px;">
                     </div>
                 </div>
@@ -1207,6 +1302,9 @@ async function submitOrder() {
         hideLoading();
         closePaymentModal();
         
+        // Play order success sound
+        playOrderStatusSound('success');
+        
         const menu = window.appState.currentMenu;
         showToast(`🎉 Order Placed Successfully! Order ID: #${data.id}`, 'success', 8000);
 
@@ -1244,6 +1342,9 @@ async function loadOrderHistory() {
 
         if (error) throw error;
 
+        // Check for status changes and play sounds
+        checkOrderStatusChanges(data || []);
+        
         displayOrderHistory(data || []);
     } catch (error) {
         console.error('❌ Error loading orders:', error);
@@ -1254,7 +1355,7 @@ function displayOrderHistory(orders) {
     const container = document.getElementById('historyContainer');
     
     if (orders.length === 0) {
-        container.innerHTML = '<div style="text-align:center;color:var(--text-muted);padding:60px 20px;"><h3 style="margin-bottom:12px;">No Orders Yet</h3><p>Your order history will appear here once you make your first purchase.</p></div>';
+        container.innerHTML = '<div style="text-align:center;color:var(--text-muted);padding:50px 20px;"><h3 style="margin-bottom:10px;">No Orders Yet</h3><p>Your order history will appear here once you make your first purchase.</p></div>';
         return;
     }
 
@@ -1277,15 +1378,15 @@ function displayOrderHistory(orders) {
 
         item.innerHTML = `
             <div class="history-status ${statusClass}">${statusIcon} ${order.status.toUpperCase()}</div>
-            <h3 data-order-name="${order.id}" style="font-size: 18px; font-weight: 600; margin-bottom: 8px;"></h3>
-            <p data-order-amount="${order.id}" style="color: var(--text-secondary); margin-bottom: 12px;"></p>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 12px;">
+            <h3 data-order-name="${order.id}" style="font-size: 16px; font-weight: 600; margin-bottom: 6px;"></h3>
+            <p data-order-amount="${order.id}" style="color: var(--text-secondary); margin-bottom: 10px;"></p>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 10px;">
                 <p><strong>Price:</strong> <span style="color: var(--success-color); font-weight: 600;">${order.menus?.price || 0} MMK</span></p>
                 <p><strong>Order ID:</strong> #${order.id}</p>
             </div>
-            <p style="margin-bottom: 8px;"><strong>Payment:</strong> <span data-order-payment="${order.id}"></span></p>
-            <p style="margin-bottom: 12px; color: var(--text-muted); font-size: 14px;"><strong>Date:</strong> ${new Date(order.created_at).toLocaleString()}</p>
-            ${order.admin_message ? `<div style="margin-top:16px;padding:16px;background:rgba(245,158,11,0.1);border-radius:var(--border-radius);border:1px solid var(--warning-color);" data-order-message="${order.id}"></div>` : ''}
+            <p style="margin-bottom: 6px;"><strong>Payment:</strong> <span data-order-payment="${order.id}"></span></p>
+            <p style="margin-bottom: 10px; color: var(--text-muted); font-size: 13px;"><strong>Date:</strong> ${new Date(order.created_at).toLocaleString()}</p>
+            ${order.admin_message ? `<div style="margin-top:12px;padding:12px;background:rgba(245,158,11,0.1);border-radius:var(--border-radius);border:1px solid var(--warning-color);" data-order-message="${order.id}"></div>` : ''}
         `;
 
         container.appendChild(item);
@@ -1324,7 +1425,7 @@ function displayContacts(contacts) {
     const container = document.getElementById('contactsContainer');
     
     if (contacts.length === 0) {
-        container.innerHTML = '<div style="text-align:center;color:var(--text-muted);padding:60px 20px;"><h3 style="margin-bottom:12px;">No Contacts Available</h3><p>Contact information will be displayed here.</p></div>';
+        container.innerHTML = '<div style="text-align:center;color:var(--text-muted);padding:50px 20px;"><h3 style="margin-bottom:10px;">No Support Contacts</h3><p>Contact information will appear here when available.</p></div>';
         return;
     }
 
@@ -1333,65 +1434,72 @@ function displayContacts(contacts) {
     contacts.forEach(contact => {
         const item = document.createElement('div');
         item.className = 'contact-item';
-
-        if (contact.link) {
-            item.style.cursor = 'pointer';
-            item.addEventListener('click', () => {
-                window.open(contact.link, '_blank');
-                showToast(`Opening ${contact.name}...`, 'success', 2000);
-            });
-        }
-
+        
         item.innerHTML = `
-            <img src="${contact.icon_url}" class="contact-icon" alt="${contact.name}">
-            <div class="contact-info">
-                <h3 data-contact-name="${contact.id}" style="font-size: 18px; font-weight: 600; margin-bottom: 6px;"></h3>
-                <p data-contact-desc="${contact.id}" style="color: var(--text-secondary); margin-bottom: 4px;"></p>
-                ${!contact.link && contact.address ? `<p data-contact-address="${contact.id}" style="font-size: 14px; color: var(--text-muted);"></p>` : ''}
-                ${contact.link ? '<p style="font-size: 12px; color: var(--accent-color); margin-top: 8px;">👆 Click to open</p>' : ''}
-            </div>
+            <div class="contact-icon">${contact.icon || '📞'}</div>
+            <h3 data-contact-name="${contact.id}" style="font-size: 16px; font-weight: 600; margin-bottom: 6px;"></h3>
+            <p data-contact-info="${contact.id}" class="contact-info"></p>
         `;
 
         container.appendChild(item);
 
+        // Add click handler if there's a URL
+        if (contact.url) {
+            item.style.cursor = 'pointer';
+            item.addEventListener('click', () => {
+                window.open(contact.url, '_blank');
+            });
+        }
+
         setTimeout(() => {
             const nameEl = document.querySelector(`[data-contact-name="${contact.id}"]`);
-            const descEl = document.querySelector(`[data-contact-desc="${contact.id}"]`);
-            const addressEl = document.querySelector(`[data-contact-address="${contact.id}"]`);
-
+            const infoEl = document.querySelector(`[data-contact-info="${contact.id}"]`);
+            
             if (nameEl) applyAnimationRendering(nameEl, contact.name);
-            if (descEl) applyAnimationRendering(descEl, contact.description || '');
-            if (addressEl) applyAnimationRendering(addressEl, contact.address || '');
+            if (infoEl) applyAnimationRendering(infoEl, contact.info);
         }, 50);
     });
 }
 
 // ========== PROFILE ==========
-function loadProfile() {
+async function loadProfile() {
     const user = window.appState.currentUser;
-    document.getElementById('profileName').value = user.name;
-    document.getElementById('profileUsername').value = user.username;
-    document.getElementById('profileEmail').value = user.email;
+    if (!user) return;
 
+    // Set profile avatar
     const avatar = document.getElementById('profileAvatar');
-    const initials = user.name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
-    avatar.textContent = initials;
+    if (avatar) {
+        avatar.textContent = user.name.charAt(0).toUpperCase();
+    }
 
-    const hue = (user.id * 137) % 360;
-    avatar.style.background = `linear-gradient(135deg, hsl(${hue}, 70%, 60%), hsl(${hue + 60}, 70%, 60%))`;
+    // Set profile fields
+    document.getElementById('profileName').value = user.name || '';
+    document.getElementById('profileUsername').value = user.username || '';
+    document.getElementById('profileEmail').value = user.email || '';
 }
 
 async function updateProfile() {
     const currentPassword = document.getElementById('currentPassword').value;
     const newPassword = document.getElementById('newPassword').value;
+    const user = window.appState.currentUser;
+
+    if (!currentPassword) {
+        showToast('Please enter your current password', 'error');
+        return;
+    }
+
+    if (currentPassword !== user.password) {
+        showToast('Current password is incorrect', 'error');
+        return;
+    }
 
     if (!newPassword) {
         showToast('Please enter a new password', 'error');
         return;
     }
 
-    if (currentPassword !== window.appState.currentUser.password) {
-        showToast('Current password is incorrect', 'error');
+    if (newPassword.length < 6) {
+        showToast('New password must be at least 6 characters', 'error');
         return;
     }
 
@@ -1401,78 +1509,26 @@ async function updateProfile() {
         const { data, error } = await supabase
             .from('users')
             .update({ password: newPassword })
-            .eq('id', window.appState.currentUser.id)
+            .eq('id', user.id)
             .select()
             .single();
 
         if (error) throw error;
 
+        // Update local storage
+        window.appState.currentUser.password = newPassword;
+        localStorage.setItem('currentUser', JSON.stringify(window.appState.currentUser));
+
         hideLoading();
-        window.appState.currentUser = data;
-        localStorage.setItem('currentUser', JSON.stringify(data));
+        showToast('Password updated successfully!', 'success');
         
+        // Clear password fields
         document.getElementById('currentPassword').value = '';
         document.getElementById('newPassword').value = '';
-        
-        showToast('Password updated successfully! 🔒', 'success');
 
     } catch (error) {
         hideLoading();
         showToast('Error updating password', 'error');
-        console.error('❌ Update error:', error);
+        console.error('❌ Profile update error:', error);
     }
 }
-
-// ========== NAVIGATION ==========
-function switchPage(pageName) {
-    document.querySelectorAll('.page').forEach(page => {
-        page.classList.remove('active');
-    });
-
-    document.getElementById(pageName + 'Page').classList.add('active');
-
-    document.querySelectorAll('.nav-item').forEach(item => {
-        item.classList.remove('active');
-    });
-    
-    const activeNav = document.querySelector(`[data-page="${pageName}"]`);
-    if (activeNav) activeNav.classList.add('active');
-
-    // Load data when switching to specific pages
-    if (pageName === 'history') {
-        loadOrderHistory();
-    } else if (pageName === 'contacts') {
-        loadContacts();
-    }
-}
-
-// ========== UTILITY FUNCTIONS ==========
-function validateEmail(email) {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-}
-
-function showError(element, message) {
-    if (element) {
-        element.textContent = message;
-        element.classList.add('show');
-        setTimeout(() => element.classList.remove('show'), 5000);
-    }
-}
-
-function showSuccess(element, message) {
-    if (element) {
-        element.textContent = message;
-        element.classList.add('show');
-        setTimeout(() => element.classList.remove('show'), 5000);
-    }
-}
-
-// ========== CLEANUP ==========
-window.addEventListener('beforeunload', () => {
-    // Clear banner interval
-    if (window.appState.bannerInterval) {
-        clearInterval(window.appState.bannerInterval);
-    }
-});
-
-console.log('✅ Enhanced Gaming Store App initialized with improved UI/UX!');
