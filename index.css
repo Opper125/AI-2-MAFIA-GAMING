@@ -705,8 +705,8 @@ button, input, textarea, select, a {
     justify-content: center;
     gap: 8px;
     padding: 10px;
-    width: 220px;  /* Container အရွယ်အစား */
-    height: 220px; /* Container အရွယ်အစား */
+    width: 250px;  /* Container အရွယ်အစား */
+    height: 250px; /* Container အရွယ်အစား */
     background: var(--gradient-card);
     backdrop-filter: blur(20px);
     border: 2px solid var(--border-color);
@@ -752,8 +752,8 @@ button, input, textarea, select, a {
 
 /* FIXED Image Size */
 .category-button img {
-    width: 200px !important;  /* Image အရွယ်အစား */
-    height: 200px !important; /* Image အရွယ်အစား */
+    width: 180px !important;  /* Image အရွယ်အစား */
+    height: 180px !important; /* Image အရွယ်အစား */
     border-radius: var(--border-radius);
     object-fit: cover;
     border: 2px solid var(--primary-color);
