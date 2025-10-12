@@ -247,8 +247,8 @@ button, input, textarea, select, a {
 }
 
 .spinner {
-    width: 60px;
-    height: 60px;
+    width: 20px;
+    height: 20px;
     border: 4px solid rgba(255, 255, 255, 0.2);
     border-top: 4px solid var(--text-primary);
     border-radius: 50%;
@@ -588,7 +588,7 @@ button, input, textarea, select, a {
 
 /* Enhanced Banner Section with Carousel */
 .banner-section {
-    margin-bottom: 30px;
+    margin-bottom: 20px;
     border-radius: var(--border-radius-lg);
     overflow: hidden;
     box-shadow: var(--shadow-xl);
@@ -603,7 +603,7 @@ button, input, textarea, select, a {
 .banner-wrapper {
     display: flex;
     width: 500%;
-    height: 100%;
+    height: 300%;
     transition: transform 0.5s ease-in-out;
 }
 
@@ -614,8 +614,8 @@ button, input, textarea, select, a {
 }
 
 .banner-item img {
-    width: 100%;
-    height: 100%;
+    width: 180%;
+    height: 300%;
     object-fit: cover;
     pointer-events: none;
 }
@@ -624,8 +624,8 @@ button, input, textarea, select, a {
     position: absolute;
     top: 0;
     left: 0;
-    width: 100%;
-    height: 100%;
+    width: 180%;
+    height: 300%;
     opacity: 0;
     transition: opacity 0.5s ease;
     background-size: cover;
@@ -786,9 +786,9 @@ button, input, textarea, select, a {
 }
 
 .category-button img {
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
+    width: 190px;
+    height: 190px;
+    border-radius: 70%;
     object-fit: cover;
     border: 2px solid var(--primary-color);
     pointer-events: none;
@@ -858,8 +858,8 @@ button, input, textarea, select, a {
 }
 
 .category-icon {
-    width: 50px;
-    height: 50px;
+    width: 180px;
+    height: 180px;
     border-radius: 50%;
     background: var(--gradient-button);
     display: flex;
