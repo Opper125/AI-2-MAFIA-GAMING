@@ -615,7 +615,7 @@ button, input, textarea, select, a {
 .banner-wrapper {
     display: flex;
     width: 500%;
-    height: 130%;
+    height: 100%;
     transition: transform 0.5s ease-in-out;
 }
 
@@ -626,8 +626,8 @@ button, input, textarea, select, a {
 }
 
 .banner-item img {
-    width: 80%;
-    height: 80%;
+    width: 120%;
+    height: 120%;
     object-fit: cover;
     pointer-events: none;
 }
