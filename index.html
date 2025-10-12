@@ -4,11 +4,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gaming Store</title>
+    <title>GG Gaming Store</title>
     <link rel="stylesheet" href="index.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
     <!-- Database Connection Status -->
@@ -26,7 +26,7 @@
     <div id="loadingScreen" class="loading-screen">
         <div class="loading-animation" id="loadingAnimation">
             <div class="spinner"></div>
-            <p>Loading...</p>
+            <p>Loading GG Gaming...</p>
         </div>
     </div>
 
@@ -34,46 +34,46 @@
     <div id="authContainer" class="auth-container">
         <div class="auth-box">
             <div class="auth-header">
-                <img id="authLogo" src="" alt="Logo" class="auth-logo" style="display:none;">
-                <h1 id="authWebsiteName">Gaming Store</h1>
+                <img id="authLogo" src="" alt="GG Gaming Logo" class="auth-logo" style="display:none;">
+                <h1 id="authWebsiteName">GG Gaming</h1>
             </div>
 
             <!-- Login Form -->
             <div id="loginForm" class="auth-form active">
-                <h2>Login</h2>
+                <h2>Player Login</h2>
                 <div class="form-group">
-                    <input type="email" id="loginEmail" placeholder="Gmail" required>
+                    <input type="email" id="loginEmail" placeholder="Gaming Email" required>
                 </div>
                 <div class="form-group">
                     <input type="password" id="loginPassword" placeholder="Password" required>
                 </div>
                 <div class="error-message" id="loginError"></div>
-                <button onclick="handleLogin()" class="btn-primary">Login</button>
-                <p class="auth-switch">Don't have an account? <span onclick="showSignup()">Sign Up</span></p>
+                <button onclick="handleLogin()" class="btn-primary">Enter Game</button>
+                <p class="auth-switch">New gamer? <span onclick="showSignup()">Join Now</span></p>
             </div>
 
             <!-- Signup Form -->
             <div id="signupForm" class="auth-form">
-                <h2>Sign Up</h2>
+                <h2>Join Gaming</h2>
                 <div class="form-group">
-                    <input type="text" id="signupName" placeholder="Full Name" required>
+                    <input type="text" id="signupName" placeholder="Gamer Name" required>
                 </div>
                 <div class="form-group">
                     <input type="text" id="signupUsername" placeholder="Username" required>
                 </div>
                 <div class="form-group">
-                    <input type="email" id="signupEmail" placeholder="Gmail" required>
+                    <input type="email" id="signupEmail" placeholder="Gaming Email" required>
                 </div>
                 <div class="form-group">
                     <input type="password" id="signupPassword" placeholder="Password" required>
                 </div>
                 <div class="form-group checkbox-group">
                     <input type="checkbox" id="termsCheckbox" required>
-                    <label for="termsCheckbox">I agree to the Terms and Conditions</label>
+                    <label for="termsCheckbox">I agree to the Gaming Terms and Conditions</label>
                 </div>
                 <div class="error-message" id="signupError"></div>
-                <button onclick="handleSignup()" class="btn-primary">Sign Up</button>
-                <p class="auth-switch">Already have an account? <span onclick="showLogin()">Login</span></p>
+                <button onclick="handleSignup()" class="btn-primary">Start Gaming</button>
+                <p class="auth-switch">Already a gamer? <span onclick="showLogin()">Login</span></p>
             </div>
         </div>
     </div>
@@ -82,8 +82,8 @@
     <div id="appContainer" class="app-container" style="display: none;">
         <!-- Header -->
         <header class="app-header">
-            <img id="appLogo" src="" alt="Logo" class="header-logo" style="display:none;">
-            <h1 id="appWebsiteName">Gaming Store</h1>
+            <img id="appLogo" src="" alt="GG Gaming Logo" class="header-logo" style="display:none;">
+            <h1 id="appWebsiteName">GG Gaming</h1>
         </header>
 
         <!-- Content Pages -->
@@ -102,7 +102,19 @@
 
                 <!-- Categories -->
                 <div id="categoriesContainer" class="categories-container">
-                    <!-- Categories will be loaded here -->
+                    <!-- Categories will be loaded here dynamically -->
+                    <!-- Example structure for categories -->
+                </div>
+            </div>
+
+            <!-- Category Detail Page -->
+            <div id="categoryDetailPage" class="page">
+                <button class="back-button" onclick="showHomePage()">
+                    <span>←</span> Back to Categories
+                </button>
+                <h2 class="page-title" id="categoryDetailTitle">Category Details</h2>
+                <div id="categoryDetailContainer" class="category-detail-container">
+                    <!-- Category items will be loaded here -->
                 </div>
             </div>
 
@@ -116,7 +128,7 @@
 
             <!-- Contacts Page -->
             <div id="contactsPage" class="page">
-                <h2 class="page-title">Contact Us</h2>
+                <h2 class="page-title">Contact Gaming Support</h2>
                 <div id="contactsContainer" class="contacts-container">
                     <!-- Contacts will be loaded here -->
                 </div>
@@ -124,12 +136,12 @@
 
             <!-- Mi Page -->
             <div id="miPage" class="page">
-                <h2 class="page-title">My Account</h2>
+                <h2 class="page-title">Gamer Profile</h2>
                 <div class="profile-container">
                     <div class="profile-avatar" id="profileAvatar"></div>
                     <div class="profile-info">
                         <div class="form-group">
-                            <label>Name</label>
+                            <label>Gamer Name</label>
                             <input type="text" id="profileName" readonly>
                         </div>
                         <div class="form-group">
@@ -137,7 +149,7 @@
                             <input type="text" id="profileUsername" readonly>
                         </div>
                         <div class="form-group">
-                            <label>Gmail</label>
+                            <label>Gaming Email</label>
                             <input type="email" id="profileEmail" readonly>
                         </div>
                         <div class="form-group">
@@ -169,11 +181,11 @@
             </button>
             <button class="nav-item" data-page="contacts" onclick="switchPage('contacts')">
                 <img src="https://spurpwnaeacgwojfpaem.supabase.co/storage/v1/object/public/website-assets/logos/contacts.png" alt="Contacts">
-                <span>Contacts</span>
+                <span>Support</span>
             </button>
             <button class="nav-item" data-page="mi" onclick="switchPage('mi')">
-                <img src="https://spurpwnaeacgwojfpaem.supabase.co/storage/v1/object/public/website-assets/logos/mi.png" alt="Mi">
-                <span>Mi</span>
+                <img src="https://spurpwnaeacgwojfpaem.supabase.co/storage/v1/object/public/website-assets/logos/mi.png" alt="Profile">
+                <span>Profile</span>
             </button>
         </nav>
     </div>
@@ -182,7 +194,7 @@
     <div id="purchaseModal" class="modal">
         <div class="modal-content">
             <span class="close-modal" onclick="closePurchaseModal()">&times;</span>
-            <h2>Purchase Item</h2>
+            <h2>Purchase Gaming Item</h2>
             <div id="purchaseContent">
                 <!-- Purchase form will be loaded here -->
             </div>
@@ -202,20 +214,6 @@
 
     <!-- Toast Notifications Container -->
     <div id="toastContainer" class="toast-container"></div>
-
-    <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
-<script>
-  window.OneSignalDeferred = window.OneSignalDeferred || [];
-  OneSignalDeferred.push(async function(OneSignal) {
-    await OneSignal.init({
-      appId: "79ba21be-292d-4a62-b39c-b9228ea9e036",
-      safari_web_id: "web.onesignal.auto.514888af-c9d7-482b-90d4-9de98d872128",
-      notifyButton: {
-        enable: true,
-      },
-    });
-  });
-</script>
 
     <!-- Supabase CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
