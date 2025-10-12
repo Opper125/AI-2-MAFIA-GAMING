@@ -1345,12 +1345,12 @@ function displayOrderHistory(orders) {
             const amountEl = document.querySelector(`[data-order-amount="${order.id}"]`);
             const paymentEl = document.querySelector(`[data-order-payment="${order.id}"]`);
             const messageEl = document.querySelector(`[data-order-message="${order.id}"]`);
-
+            
             if (nameEl) applyAnimationRendering(nameEl, order.menus?.name || 'Unknown Product');
-            if (amountEl) applyAnimationRendering(amountEl, order.menus?.amount || '');
-            if (paymentEl) applyAnimationRendering(paymentEl, order.payment_methods?.name || 'N/A');
-            if (messageEl) applyAnimationRendering(messageEl, `<strong style="color: var(--warning-color);">📢 Admin Message:</strong><br>${order.admin_message}`);
-        }, 50);
+            if (amountEl) applyAnimationRendering(amountEl, order.menus?.amount || 'No details available');
+            if (paymentEl) applyAnimationRendering(paymentEl, order.payment_methods?.name || 'Unknown Payment');
+            if (messageEl && order.admin_message) applyAnimationRendering(messageEl, order.admin_message);
+        }, 100);
     });
 }
 
@@ -1374,7 +1374,7 @@ function displayContacts(contacts) {
     const container = document.getElementById('contactsContainer');
     
     if (contacts.length === 0) {
-        container.innerHTML = '<div style="text-align:center;color:var(--text-muted);padding:60px 20px;"><h3 style="margin-bottom:12px;">No Contact Information</h3><p>Contact details will be displayed here when available.</p></div>';
+        container.innerHTML = '<div style="text-align:center;color:var(--text-muted);padding:60px 20px;"><h3 style="margin-bottom:12px;">No Support Contacts</h3><p>Contact information will be available soon.</p></div>';
         return;
     }
 
@@ -1387,67 +1387,63 @@ function displayContacts(contacts) {
         item.innerHTML = `
             <div class="contact-icon">${contact.icon || '📞'}</div>
             <h3 data-contact-name="${contact.id}" style="font-size: 18px; font-weight: 600; margin-bottom: 8px;"></h3>
-            <div class="contact-info">
-                <p data-contact-desc="${contact.id}" style="margin-bottom: 12px; line-height: 1.5;"></p>
-                <p style="font-weight: 600; color: var(--primary-color);"><strong>Contact:</strong> <span data-contact-address="${contact.id}"></span></p>
-            </div>
+            <div class="contact-info" data-contact-info="${contact.id}"></div>
         `;
 
         container.appendChild(item);
 
         setTimeout(() => {
             const nameEl = document.querySelector(`[data-contact-name="${contact.id}"]`);
-            const descEl = document.querySelector(`[data-contact-desc="${contact.id}"]`);
-            const addressEl = document.querySelector(`[data-contact-address="${contact.id}"]`);
-
-            if (nameEl) applyAnimationRendering(nameEl, contact.name || 'Support Contact');
-            if (descEl) applyAnimationRendering(descEl, contact.description || 'Get in touch with our support team');
-            if (addressEl) applyAnimationRendering(addressEl, contact.address || 'Contact information not available');
-        }, 50);
+            const infoEl = document.querySelector(`[data-contact-info="${contact.id}"]`);
+            
+            if (nameEl) applyAnimationRendering(nameEl, contact.name);
+            if (infoEl) applyAnimationRendering(infoEl, contact.contact_info);
+        }, 100);
     });
 }
 
-// ========== PROFILE MANAGEMENT ==========
+// ========== PROFILE ==========
 async function loadProfile() {
-    if (!window.appState.currentUser) return;
-
     const user = window.appState.currentUser;
-    
+    if (!user) return;
+
     document.getElementById('profileName').value = user.name || '';
     document.getElementById('profileUsername').value = user.username || '';
     document.getElementById('profileEmail').value = user.email || '';
     
-    // Set avatar with first letter of name
+    // Set avatar initial
     const avatar = document.getElementById('profileAvatar');
-    if (avatar && user.name) {
-        avatar.textContent = user.name.charAt(0).toUpperCase();
+    if (avatar) {
+        avatar.textContent = (user.name || 'U').charAt(0).toUpperCase();
     }
 }
 
 async function updateProfile() {
     const currentPassword = document.getElementById('currentPassword').value;
     const newPassword = document.getElementById('newPassword').value;
+    const errorEl = document.getElementById('profileError');
+    const successEl = document.getElementById('profileSuccess');
     
-    if (!currentPassword && !newPassword) {
-        showToast('No changes to save', 'warning');
-        return;
-    }
-    
-    if (currentPassword && !newPassword) {
-        showToast('Please enter a new password', 'warning');
-        return;
-    }
-    
-    if (!currentPassword && newPassword) {
-        showToast('Please enter your current password first', 'warning');
+    errorEl.textContent = '';
+    successEl.textContent = '';
+
+    if (!currentPassword) {
+        errorEl.textContent = 'Please enter your current password';
         return;
     }
 
-    const user = window.appState.currentUser;
-    
-    // Verify current password
-    if (currentPassword !== user.password) {
-        showToast('Current password is incorrect', 'error');
+    if (currentPassword !== window.appState.currentUser.password) {
+        errorEl.textContent = 'Current password is incorrect';
+        return;
+    }
+
+    if (!newPassword) {
+        errorEl.textContent = 'Please enter a new password';
+        return;
+    }
+
+    if (newPassword.length < 6) {
+        errorEl.textContent = 'New password must be at least 6 characters';
         return;
     }
 
@@ -1457,50 +1453,27 @@ async function updateProfile() {
         const { data, error } = await supabase
             .from('users')
             .update({ password: newPassword })
-            .eq('id', user.id)
+            .eq('id', window.appState.currentUser.id)
             .select()
             .single();
 
         if (error) throw error;
 
-        // Update local state
-        window.appState.currentUser.password = newPassword;
-        localStorage.setItem('currentUser', JSON.stringify(window.appState.currentUser));
-
+        window.appState.currentUser = data;
+        localStorage.setItem('currentUser', JSON.stringify(data));
+        
+        hideLoading();
+        successEl.textContent = 'Password updated successfully!';
+        
         // Clear password fields
         document.getElementById('currentPassword').value = '';
         document.getElementById('newPassword').value = '';
 
-        hideLoading();
-        showToast('Password updated successfully!', 'success');
-
     } catch (error) {
         hideLoading();
+        errorEl.textContent = 'Error updating password: ' + error.message;
         console.error('❌ Profile update error:', error);
-        showToast('Error updating password. Please try again.', 'error');
     }
 }
-
-// ========== UTILITY FUNCTIONS ==========
-function showError(message) {
-    showToast(message, 'error');
-}
-
-function showSuccess(message) {
-    showToast(message, 'success');
-}
-
-// Make functions globally available
-window.showLogin = showLogin;
-window.showSignup = showSignup;
-window.handleSignup = handleSignup;
-window.handleLogin = handleLogin;
-window.handleLogout = handleLogout;
-window.switchPage = switchPage;
-window.showHomePage = showHomePage;
-window.closePurchaseModal = closePurchaseModal;
-window.closePaymentModal = closePaymentModal;
-window.updateProfile = updateProfile;
-window.removeToast = removeToast;
 
 console.log('🎮 GG Gaming Store JavaScript loaded successfully!');
