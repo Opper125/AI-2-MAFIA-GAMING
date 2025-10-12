@@ -608,7 +608,7 @@ button, input, textarea, select, a {
 
 .banner-container {
     position: relative;
-    height: 220px;
+    height: 250px;
     overflow: hidden;
 }
 
@@ -626,8 +626,8 @@ button, input, textarea, select, a {
 }
 
 .banner-item img {
-    width: 120%;
-    height: 120%;
+    width: 100%;
+    height: 100%;
     object-fit: cover;
     pointer-events: none;
 }
