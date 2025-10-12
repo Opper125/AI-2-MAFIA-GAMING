@@ -405,11 +405,6 @@ function handleLogout() {
     }, 1500);
 }
 
-function validateEmail(email) {
-    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return re.test(email);
-}
-
 // ========== WEBSITE SETTINGS ==========
 async function loadWebsiteSettings() {
     try {
@@ -493,7 +488,7 @@ async function loadAppData() {
     ]);
 }
 
-// ========== ENHANCED BANNERS WITH CAROUSEL ==========
+// ========== IMPROVED BANNERS WITH PAGINATION ==========
 async function loadBanners() {
     try {
         const { data, error } = await supabase
@@ -551,7 +546,7 @@ function displayBanners(banners) {
 
 function goToBanner(index, wrapper, totalBanners) {
     window.appState.currentBannerIndex = index;
-    wrapper.style.transform = `translateX(-${index * 20}%)`;
+    wrapper.style.transform = `translateX(-${index * 100}%)`;
     
     // Update pagination dots
     document.querySelectorAll('.banner-dot').forEach((dot, dotIndex) => {
@@ -571,7 +566,7 @@ function startBannerAutoScroll(wrapper, totalBanners) {
     }, 5000);
 }
 
-// ========== ENHANCED CATEGORIES WITH HORIZONTAL SCROLL ==========
+// ========== IMPROVED CATEGORIES WITH HORIZONTAL SCROLL ==========
 async function loadCategories() {
     try {
         const { data, error } = await supabase
@@ -650,7 +645,7 @@ function displayCategoryButtons(categoryId, buttons) {
     });
 }
 
-// ========== ENHANCED PURCHASE MODAL ==========
+// ========== IMPROVED PURCHASE MODAL ==========
 async function openCategoryPage(categoryId, buttonId) {
     console.log('\n🎮 ========== OPENING CATEGORY PAGE ==========');
     console.log('Category ID:', categoryId);
@@ -952,7 +947,7 @@ async function proceedToPurchase() {
     await showPaymentModal();
 }
 
-// ========== ENHANCED PAYMENT MODAL ==========
+// ========== IMPROVED PAYMENT MODAL ==========
 async function loadPayments() {
     try {
         const { data, error } = await supabase
@@ -1234,51 +1229,6 @@ async function submitOrder() {
     }
 }
 
-// ========== PAGE NAVIGATION ==========
-function switchPage(pageName) {
-    console.log('🔀 Switching to page:', pageName);
-    
-    // Update page visibility
-    document.querySelectorAll('.page').forEach(page => {
-        page.classList.remove('active');
-    });
-    
-    const targetPage = document.getElementById(`${pageName}Page`);
-    if (targetPage) {
-        targetPage.classList.add('active');
-    }
-    
-    // Update navigation
-    document.querySelectorAll('.nav-item').forEach(nav => {
-        nav.classList.remove('active');
-    });
-    
-    const targetNav = document.querySelector(`[data-page="${pageName}"]`);
-    if (targetNav) {
-        targetNav.classList.add('active');
-    }
-    
-    // Load page-specific data if needed
-    switch (pageName) {
-        case 'home':
-            // Already loaded
-            break;
-        case 'history':
-            loadOrderHistory();
-            break;
-        case 'contacts':
-            // Already loaded
-            break;
-        case 'mi':
-            // Already loaded
-            break;
-    }
-}
-
-function showHomePage() {
-    switchPage('home');
-}
-
 // ========== ORDER HISTORY ==========
 async function loadOrderHistory() {
     try {
@@ -1374,7 +1324,7 @@ function displayContacts(contacts) {
     const container = document.getElementById('contactsContainer');
     
     if (contacts.length === 0) {
-        container.innerHTML = '<div style="text-align:center;color:var(--text-muted);padding:60px 20px;"><h3 style="margin-bottom:12px;">No Contact Information</h3><p>Contact details will be displayed here when available.</p></div>';
+        container.innerHTML = '<div style="text-align:center;color:var(--text-muted);padding:60px 20px;"><h3 style="margin-bottom:12px;">No Contacts Available</h3><p>Contact information will be displayed here.</p></div>';
         return;
     }
 
@@ -1384,12 +1334,21 @@ function displayContacts(contacts) {
         const item = document.createElement('div');
         item.className = 'contact-item';
 
+        if (contact.link) {
+            item.style.cursor = 'pointer';
+            item.addEventListener('click', () => {
+                window.open(contact.link, '_blank');
+                showToast(`Opening ${contact.name}...`, 'success', 2000);
+            });
+        }
+
         item.innerHTML = `
-            <div class="contact-icon">${contact.icon || '📞'}</div>
-            <h3 data-contact-name="${contact.id}" style="font-size: 18px; font-weight: 600; margin-bottom: 8px;"></h3>
+            <img src="${contact.icon_url}" class="contact-icon" alt="${contact.name}">
             <div class="contact-info">
-                <p data-contact-desc="${contact.id}" style="margin-bottom: 12px; line-height: 1.5;"></p>
-                <p style="font-weight: 600; color: var(--primary-color);"><strong>Contact:</strong> <span data-contact-address="${contact.id}"></span></p>
+                <h3 data-contact-name="${contact.id}" style="font-size: 18px; font-weight: 600; margin-bottom: 6px;"></h3>
+                <p data-contact-desc="${contact.id}" style="color: var(--text-secondary); margin-bottom: 4px;"></p>
+                ${!contact.link && contact.address ? `<p data-contact-address="${contact.id}" style="font-size: 14px; color: var(--text-muted);"></p>` : ''}
+                ${contact.link ? '<p style="font-size: 12px; color: var(--accent-color); margin-top: 8px;">👆 Click to open</p>' : ''}
             </div>
         `;
 
@@ -1400,53 +1359,38 @@ function displayContacts(contacts) {
             const descEl = document.querySelector(`[data-contact-desc="${contact.id}"]`);
             const addressEl = document.querySelector(`[data-contact-address="${contact.id}"]`);
 
-            if (nameEl) applyAnimationRendering(nameEl, contact.name || 'Support Contact');
-            if (descEl) applyAnimationRendering(descEl, contact.description || 'Get in touch with our support team');
-            if (addressEl) applyAnimationRendering(addressEl, contact.address || 'Contact information not available');
+            if (nameEl) applyAnimationRendering(nameEl, contact.name);
+            if (descEl) applyAnimationRendering(descEl, contact.description || '');
+            if (addressEl) applyAnimationRendering(addressEl, contact.address || '');
         }, 50);
     });
 }
 
-// ========== PROFILE MANAGEMENT ==========
-async function loadProfile() {
-    if (!window.appState.currentUser) return;
-
+// ========== PROFILE ==========
+function loadProfile() {
     const user = window.appState.currentUser;
-    
-    document.getElementById('profileName').value = user.name || '';
-    document.getElementById('profileUsername').value = user.username || '';
-    document.getElementById('profileEmail').value = user.email || '';
-    
-    // Set avatar with first letter of name
+    document.getElementById('profileName').value = user.name;
+    document.getElementById('profileUsername').value = user.username;
+    document.getElementById('profileEmail').value = user.email;
+
     const avatar = document.getElementById('profileAvatar');
-    if (avatar && user.name) {
-        avatar.textContent = user.name.charAt(0).toUpperCase();
-    }
+    const initials = user.name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
+    avatar.textContent = initials;
+
+    const hue = (user.id * 137) % 360;
+    avatar.style.background = `linear-gradient(135deg, hsl(${hue}, 70%, 60%), hsl(${hue + 60}, 70%, 60%))`;
 }
 
 async function updateProfile() {
     const currentPassword = document.getElementById('currentPassword').value;
     const newPassword = document.getElementById('newPassword').value;
-    
-    if (!currentPassword && !newPassword) {
-        showToast('No changes to save', 'warning');
-        return;
-    }
-    
-    if (currentPassword && !newPassword) {
-        showToast('Please enter a new password', 'warning');
-        return;
-    }
-    
-    if (!currentPassword && newPassword) {
-        showToast('Please enter your current password first', 'warning');
+
+    if (!newPassword) {
+        showToast('Please enter a new password', 'error');
         return;
     }
 
-    const user = window.appState.currentUser;
-    
-    // Verify current password
-    if (currentPassword !== user.password) {
+    if (currentPassword !== window.appState.currentUser.password) {
         showToast('Current password is incorrect', 'error');
         return;
     }
@@ -1457,50 +1401,78 @@ async function updateProfile() {
         const { data, error } = await supabase
             .from('users')
             .update({ password: newPassword })
-            .eq('id', user.id)
+            .eq('id', window.appState.currentUser.id)
             .select()
             .single();
 
         if (error) throw error;
 
-        // Update local state
-        window.appState.currentUser.password = newPassword;
-        localStorage.setItem('currentUser', JSON.stringify(window.appState.currentUser));
-
-        // Clear password fields
+        hideLoading();
+        window.appState.currentUser = data;
+        localStorage.setItem('currentUser', JSON.stringify(data));
+        
         document.getElementById('currentPassword').value = '';
         document.getElementById('newPassword').value = '';
-
-        hideLoading();
-        showToast('Password updated successfully!', 'success');
+        
+        showToast('Password updated successfully! 🔒', 'success');
 
     } catch (error) {
         hideLoading();
-        console.error('❌ Profile update error:', error);
-        showToast('Error updating password. Please try again.', 'error');
+        showToast('Error updating password', 'error');
+        console.error('❌ Update error:', error);
+    }
+}
+
+// ========== NAVIGATION ==========
+function switchPage(pageName) {
+    document.querySelectorAll('.page').forEach(page => {
+        page.classList.remove('active');
+    });
+
+    document.getElementById(pageName + 'Page').classList.add('active');
+
+    document.querySelectorAll('.nav-item').forEach(item => {
+        item.classList.remove('active');
+    });
+    
+    const activeNav = document.querySelector(`[data-page="${pageName}"]`);
+    if (activeNav) activeNav.classList.add('active');
+
+    // Load data when switching to specific pages
+    if (pageName === 'history') {
+        loadOrderHistory();
+    } else if (pageName === 'contacts') {
+        loadContacts();
     }
 }
 
 // ========== UTILITY FUNCTIONS ==========
-function showError(message) {
-    showToast(message, 'error');
+function validateEmail(email) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
-function showSuccess(message) {
-    showToast(message, 'success');
+function showError(element, message) {
+    if (element) {
+        element.textContent = message;
+        element.classList.add('show');
+        setTimeout(() => element.classList.remove('show'), 5000);
+    }
 }
 
-// Make functions globally available
-window.showLogin = showLogin;
-window.showSignup = showSignup;
-window.handleSignup = handleSignup;
-window.handleLogin = handleLogin;
-window.handleLogout = handleLogout;
-window.switchPage = switchPage;
-window.showHomePage = showHomePage;
-window.closePurchaseModal = closePurchaseModal;
-window.closePaymentModal = closePaymentModal;
-window.updateProfile = updateProfile;
-window.removeToast = removeToast;
+function showSuccess(element, message) {
+    if (element) {
+        element.textContent = message;
+        element.classList.add('show');
+        setTimeout(() => element.classList.remove('show'), 5000);
+    }
+}
 
-console.log('🎮 GG Gaming Store JavaScript loaded successfully!');
+// ========== CLEANUP ==========
+window.addEventListener('beforeunload', () => {
+    // Clear banner interval
+    if (window.appState.bannerInterval) {
+        clearInterval(window.appState.bannerInterval);
+    }
+});
+
+console.log('✅ Enhanced Gaming Store App initialized with improved UI/UX!');
