@@ -7,19 +7,10 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 let supabase;
 try {
     supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    console.log('✅ Supabase initialized successfully');
+    console.log('âœ… Supabase initialized successfully');
 } catch (error) {
-    console.error('❌ Supabase initialization failed:', error);
+    console.error('âŒ Supabase initialization failed:', error);
 }
-
-// ========== MOBILE LEGENDS API CONFIGURATION ==========
-const ML_API_CONFIG = {
-    url: 'https://true-id-mobile-legends.p.rapidapi.com/razepedia.my.id/api/trueid_ml.php',
-    headers: {
-        'x-rapidapi-key': 'b1d5b3e770mshf143188a370042cp103f4bjsn591ad13800c6',
-        'x-rapidapi-host': 'true-id-mobile-legends.p.rapidapi.com'
-    }
-};
 
 // ========== GLOBAL STATE ==========
 window.appState = {
@@ -36,9 +27,7 @@ window.appState = {
     allMenus: [],
     currentTables: [],
     currentBannerIndex: 0,
-    bannerInterval: null,
-    mlVerificationStatus: null,  // Store ML account verification status
-    mlAccountName: null  // Store verified ML account name
+    bannerInterval: null
 };
 
 // ========== DISABLE RIGHT CLICK & CONTEXT MENU ==========
@@ -100,15 +89,15 @@ function showToast(message, type = 'success', duration = 5000) {
     toast.className = `toast ${type}`;
     
     const icons = {
-        success: '✅',
-        error: '❌',
-        warning: '⚠️'
+        success: 'âœ…',
+        error: 'âŒ',
+        warning: 'âš ï¸'
     };
     
     toast.innerHTML = `
-        <span class="toast-icon">${icons[type] || '📢'}</span>
+        <span class="toast-icon">${icons[type] || 'ðŸ“¢'}</span>
         <span class="toast-message">${message}</span>
-        <button class="toast-close" onclick="removeToast(this.parentElement)">×</button>
+        <button class="toast-close" onclick="removeToast(this.parentElement)">Ã—</button>
     `;
     
     container.appendChild(toast);
@@ -195,249 +184,13 @@ function addAnimationStyles() {
             width: 20px;
             height: 20px;
         }
-
-        /* Mobile Legends Verification Styles */
-        .ml-verification-section {
-            margin: 24px 0;
-            padding: 20px;
-            background: rgba(99, 102, 241, 0.05);
-            border: 2px solid rgba(99, 102, 241, 0.2);
-            border-radius: 12px;
-        }
-
-        .ml-verify-btn {
-            width: 100%;
-            padding: 12px 20px;
-            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-weight: 600;
-            font-size: 16px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            margin-top: 12px;
-        }
-
-        .ml-verify-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(99, 102, 241, 0.4);
-        }
-
-        .ml-verify-btn:disabled {
-            background: #6b7280;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .ml-verification-result {
-            margin-top: 16px;
-            padding: 16px;
-            border-radius: 8px;
-            font-weight: 600;
-            text-align: center;
-        }
-
-        .ml-verification-result.success {
-            background: rgba(16, 185, 129, 0.1);
-            border: 2px solid #10b981;
-            color: #10b981;
-        }
-
-        .ml-verification-result.error {
-            background: rgba(239, 68, 68, 0.1);
-            border: 2px solid #ef4444;
-            color: #ef4444;
-        }
-
-        .ml-account-name {
-            font-size: 18px;
-            margin-top: 8px;
-            color: var(--text-primary);
-        }
-
-        .ml-verification-spinner {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(255, 255, 255, 0.3);
-            border-top-color: white;
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-            margin-right: 8px;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
     `;
     document.head.appendChild(style);
 }
 
-// ========== MOBILE LEGENDS ACCOUNT VERIFICATION ==========
-async function verifyMobileLegends() {
-    console.log('\n🎮 ========== MOBILE LEGENDS VERIFICATION ==========');
-    
-    // Find Game ID and Zone ID inputs
-    let gameIdInput = null;
-    let zoneIdInput = null;
-    
-    window.appState.currentTables.forEach(table => {
-        const inputEl = document.querySelector(`[data-table-id="${table.id}"]`);
-        if (inputEl) {
-            const tableName = table.name.toLowerCase().trim();
-            console.log('Checking table:', tableName, 'ID:', table.id);
-            
-            if (tableName.includes('game') && tableName.includes('id')) {
-                gameIdInput = inputEl;
-                console.log('✅ Found Game ID input');
-            } else if (tableName.includes('zone') && tableName.includes('id')) {
-                zoneIdInput = inputEl;
-                console.log('✅ Found Zone ID input');
-            }
-        }
-    });
-
-    if (!gameIdInput || !zoneIdInput) {
-        console.log('❌ Game ID or Zone ID input not found');
-        showToast('This feature is only available for Mobile Legends products', 'warning');
-        return;
-    }
-
-    const userId = gameIdInput.value.trim();
-    const zoneId = zoneIdInput.value.trim();
-
-    console.log('User ID:', userId);
-    console.log('Zone ID:', zoneId);
-
-    if (!userId || !zoneId) {
-        showToast('Please enter both Game ID and Zone ID', 'warning');
-        return;
-    }
-
-    // Show loading state
-    const verifyBtn = document.getElementById('mlVerifyBtn');
-    const resultDiv = document.getElementById('mlVerificationResult');
-    
-    if (verifyBtn) {
-        verifyBtn.disabled = true;
-        verifyBtn.innerHTML = '<span class="ml-verification-spinner"></span>Verifying...';
-    }
-
-    if (resultDiv) {
-        resultDiv.innerHTML = '';
-        resultDiv.className = 'ml-verification-result';
-        resultDiv.style.display = 'none';
-    }
-
-    try {
-        console.log('🔍 Calling Mobile Legends API...');
-        
-        // Call the API
-        const response = await fetch(
-            `${ML_API_CONFIG.url}?userid=${userId}&zoneid=${zoneId}`,
-            {
-                method: 'GET',
-                headers: ML_API_CONFIG.headers
-            }
-        );
-
-        console.log('API Response Status:', response.status);
-
-        if (!response.ok) {
-            throw new Error(`API Error: ${response.status}`);
-        }
-
-        const data = await response.json();
-        console.log('API Response Data:', data);
-
-        // Check if account is valid
-        if (data && data.username && data.username !== '' && data.username !== 'null') {
-            // Success - Account found
-            console.log('✅ Account verified:', data.username);
-            
-            window.appState.mlVerificationStatus = true;
-            window.appState.mlAccountName = data.username;
-
-            // Store in localStorage
-            localStorage.setItem('ml_verification_status', 'true');
-            localStorage.setItem('ml_account_name', data.username);
-            localStorage.setItem('ml_user_id', userId);
-            localStorage.setItem('ml_zone_id', zoneId);
-
-            if (resultDiv) {
-                resultDiv.className = 'ml-verification-result success';
-                resultDiv.innerHTML = `
-                    ✅ Account Verified Successfully!
-                    <div class="ml-account-name">Account Name: ${data.username}</div>
-                `;
-                resultDiv.style.display = 'block';
-            }
-
-            showToast(`Account verified: ${data.username}`, 'success', 6000);
-
-        } else {
-            // Account not found
-            console.log('❌ Account not found');
-            
-            window.appState.mlVerificationStatus = false;
-            window.appState.mlAccountName = null;
-
-            localStorage.removeItem('ml_verification_status');
-            localStorage.removeItem('ml_account_name');
-
-            if (resultDiv) {
-                resultDiv.className = 'ml-verification-result error';
-                resultDiv.innerHTML = '❌ Account not found. Please check your Game ID and Zone ID.';
-                resultDiv.style.display = 'block';
-            }
-
-            showToast('Account not found. Please check your Game ID and Zone ID.', 'error', 6000);
-        }
-
-    } catch (error) {
-        console.error('❌ Verification Error:', error);
-        
-        window.appState.mlVerificationStatus = false;
-        window.appState.mlAccountName = null;
-
-        if (resultDiv) {
-            resultDiv.className = 'ml-verification-result error';
-            resultDiv.innerHTML = '❌ Verification failed. Please try again later.';
-            resultDiv.style.display = 'block';
-        }
-
-        showToast('Verification failed. Please try again.', 'error');
-    } finally {
-        // Reset button state
-        if (verifyBtn) {
-            verifyBtn.disabled = false;
-            verifyBtn.innerHTML = '🔍 Verify Account';
-        }
-    }
-}
-
-// Function to check if current inputs are Game ID and Zone ID
-function hasGameIdAndZoneId() {
-    let hasGameId = false;
-    let hasZoneId = false;
-    
-    window.appState.currentTables.forEach(table => {
-        const tableName = table.name.toLowerCase().trim();
-        if (tableName.includes('game') && tableName.includes('id')) {
-            hasGameId = true;
-        }
-        if (tableName.includes('zone') && tableName.includes('id')) {
-            hasZoneId = true;
-        }
-    });
-    
-    return hasGameId && hasZoneId;
-}
-
 // ========== INITIALIZATION ==========
 document.addEventListener('DOMContentLoaded', async () => {
-    console.log('🚀 Gaming Store App initializing...');
+    console.log('ðŸš€ Gaming Store App initializing...');
     addAnimationStyles();
     await testDatabaseConnection();
     await loadWebsiteSettings();
@@ -453,7 +206,7 @@ async function testDatabaseConnection() {
     
     try {
         statusText.textContent = 'Testing database connection...';
-        console.log('🔍 Testing database connection...');
+        console.log('ðŸ” Testing database connection...');
         
         const { data, error } = await supabase
             .from('website_settings')
@@ -463,9 +216,9 @@ async function testDatabaseConnection() {
         if (error) throw error;
         
         statusEl.classList.add('connected');
-        statusIcon.textContent = '✅';
+        statusIcon.textContent = 'âœ…';
         statusText.textContent = 'Database connected successfully!';
-        console.log('✅ Database connection successful');
+        console.log('âœ… Database connection successful');
         
         setTimeout(() => {
             statusEl.classList.add('hide');
@@ -474,9 +227,9 @@ async function testDatabaseConnection() {
         
     } catch (error) {
         statusEl.classList.add('error');
-        statusIcon.textContent = '❌';
+        statusIcon.textContent = 'âŒ';
         statusText.textContent = 'Database connection failed!';
-        console.error('❌ Database connection failed:', error);
+        console.error('âŒ Database connection failed:', error);
         setTimeout(() => statusEl.classList.add('hide'), 10000);
     }
 }
@@ -596,7 +349,7 @@ async function handleSignup() {
     } catch (error) {
         hideLoading();
         showToast('An error occurred during signup', 'error');
-        console.error('❌ Signup error:', error);
+        console.error('âŒ Signup error:', error);
     }
 }
 
@@ -639,16 +392,12 @@ async function handleLogin() {
     } catch (error) {
         hideLoading();
         showToast('An error occurred during login', 'error');
-        console.error('❌ Login error:', error);
+        console.error('âŒ Login error:', error);
     }
 }
 
 function handleLogout() {
     localStorage.removeItem('currentUser');
-    localStorage.removeItem('ml_verification_status');
-    localStorage.removeItem('ml_account_name');
-    localStorage.removeItem('ml_user_id');
-    localStorage.removeItem('ml_zone_id');
     window.appState.currentUser = null;
     showToast('Successfully logged out', 'success');
     setTimeout(() => {
@@ -669,7 +418,7 @@ async function loadWebsiteSettings() {
             applyWebsiteSettings();
         }
     } catch (error) {
-        console.error('❌ Error loading settings:', error);
+        console.error('âŒ Error loading settings:', error);
     }
 }
 
@@ -755,7 +504,7 @@ async function loadBanners() {
             document.getElementById('bannerSection').style.display = 'none';
         }
     } catch (error) {
-        console.error('❌ Error loading banners:', error);
+        console.error('âŒ Error loading banners:', error);
         document.getElementById('bannerSection').style.display = 'none';
     }
 }
@@ -797,7 +546,7 @@ function displayBanners(banners) {
 
 function goToBanner(index, wrapper, totalBanners) {
     window.appState.currentBannerIndex = index;
-    wrapper.style.transform = `translateX(-${index * 100}%)`;
+    wrapper.style.transform = `translateX(-${index * 20}%)`;
     
     // Update pagination dots
     document.querySelectorAll('.banner-dot').forEach((dot, dotIndex) => {
@@ -842,7 +591,7 @@ async function loadCategories() {
             displayCategories(data);
         }
     } catch (error) {
-        console.error('❌ Error loading categories:', error);
+        console.error('âŒ Error loading categories:', error);
     }
 }
 
@@ -898,7 +647,7 @@ function displayCategoryButtons(categoryId, buttons) {
 
 // ========== IMPROVED PURCHASE MODAL ==========
 async function openCategoryPage(categoryId, buttonId) {
-    console.log('\n🎮 ========== OPENING CATEGORY PAGE ==========');
+    console.log('\nðŸŽ® ========== OPENING CATEGORY PAGE ==========');
     console.log('Category ID:', categoryId);
     console.log('Button ID:', buttonId);
     
@@ -912,12 +661,6 @@ async function openCategoryPage(categoryId, buttonId) {
         window.appState.currentTableData = {};
         window.appState.allMenus = [];
         window.appState.currentTables = [];
-        window.appState.mlVerificationStatus = null;
-        window.appState.mlAccountName = null;
-        
-        // Clear localStorage verification
-        localStorage.removeItem('ml_verification_status');
-        localStorage.removeItem('ml_account_name');
         
         // Load data
         const [tablesResult, menusResult, videosResult] = await Promise.all([
@@ -938,7 +681,7 @@ async function openCategoryPage(categoryId, buttonId) {
         window.appState.allMenus = menus;
         window.appState.currentTables = tables;
 
-        console.log('✅ Loaded data:');
+        console.log('âœ… Loaded data:');
         console.log('  - Tables:', tables.length);
         console.log('  - Menus:', menus.length);
         console.log('  - Videos:', videos.length);
@@ -954,13 +697,13 @@ async function openCategoryPage(categoryId, buttonId) {
 
     } catch (error) {
         hideLoading();
-        console.error('❌ Error loading category data:', error);
+        console.error('âŒ Error loading category data:', error);
         showToast('Error loading products. Please try again.', 'error');
     }
 }
 
 function showPurchaseModal(tables, menus, videos) {
-    console.log('\n📦 ========== SHOWING PURCHASE MODAL ==========');
+    console.log('\nðŸ“¦ ========== SHOWING PURCHASE MODAL ==========');
     console.log('Tables:', tables.length);
     console.log('Menus:', menus.length);
     console.log('Videos:', videos.length);
@@ -986,21 +729,6 @@ function showPurchaseModal(tables, menus, videos) {
             `;
         });
         html += '</div>';
-
-        // Add Mobile Legends verification section if Game ID and Zone ID exist
-        if (hasGameIdAndZoneId()) {
-            console.log('✅ Game ID and Zone ID detected - adding verification section');
-            html += `
-                <div class="ml-verification-section">
-                    <h4 style="margin-bottom: 12px; color: var(--text-primary); font-weight: 600;">🎮 Account Verification</h4>
-                    <p style="margin-bottom: 12px; color: var(--text-muted); font-size: 14px;">Verify your Mobile Legends account to ensure accurate order processing.</p>
-                    <button type="button" class="ml-verify-btn" id="mlVerifyBtn" onclick="verifyMobileLegends()">
-                        🔍 Verify Account
-                    </button>
-                    <div id="mlVerificationResult" class="ml-verification-result" style="display: none;"></div>
-                </div>
-            `;
-        }
     }
 
     // Menu Items - Grid Layout
@@ -1046,7 +774,7 @@ function showPurchaseModal(tables, menus, videos) {
 
     // Apply animations and attach events
     setTimeout(() => {
-        console.log('🎨 Applying animations and attaching events...');
+        console.log('ðŸŽ¨ Applying animations and attaching events...');
         
         // Render table labels
         tables.forEach(table => {
@@ -1078,14 +806,14 @@ function showPurchaseModal(tables, menus, videos) {
 
         // Attach menu item click events
         const menuItems = document.querySelectorAll('.menu-item');
-        console.log('📌 Attaching click events to', menuItems.length, 'menu items');
+        console.log('ðŸ“Œ Attaching click events to', menuItems.length, 'menu items');
         
         menuItems.forEach(item => {
             const menuId = parseInt(item.getAttribute('data-menu-id'));
             item.addEventListener('click', function(e) {
                 e.preventDefault();
                 e.stopPropagation();
-                console.log('🖱️ Menu item clicked:', menuId);
+                console.log('ðŸ–±ï¸ Menu item clicked:', menuId);
                 selectMenuItem(menuId);
             });
         });
@@ -1096,22 +824,22 @@ function showPurchaseModal(tables, menus, videos) {
             buyBtn.addEventListener('click', function(e) {
                 e.preventDefault();
                 e.stopPropagation();
-                console.log('🛒 Buy button clicked');
+                console.log('ðŸ›’ Buy button clicked');
                 proceedToPurchase();
             });
         }
 
-        console.log('✅ Events attached successfully');
+        console.log('âœ… Events attached successfully');
     }, 150);
 }
 
 function selectMenuItem(menuId) {
-    console.log('\n🔍 ========== SELECTING MENU ITEM ==========');
+    console.log('\nðŸ” ========== SELECTING MENU ITEM ==========');
     console.log('Menu ID:', menuId, '(type:', typeof menuId, ')');
     console.log('Available menus:', window.appState.allMenus.length);
     
     if (!menuId || isNaN(menuId)) {
-        console.error('❌ Invalid menu ID');
+        console.error('âŒ Invalid menu ID');
         showToast('Invalid product selection', 'error');
         return;
     }
@@ -1124,13 +852,13 @@ function selectMenuItem(menuId) {
     
     if (menu) {
         window.appState.currentMenu = menu;
-        console.log('✅ Menu found and stored:');
+        console.log('âœ… Menu found and stored:');
         console.log('  - ID:', menu.id);
         console.log('  - Name:', menu.name);
         console.log('  - Price:', menu.price);
         console.log('  - Amount:', menu.amount);
     } else {
-        console.error('❌ Menu not found in stored menus');
+        console.error('âŒ Menu not found in stored menus');
         console.log('Available menu IDs:', window.appState.allMenus.map(m => m.id));
         showToast('Product data not found. Please try again.', 'error');
         return;
@@ -1144,41 +872,41 @@ function selectMenuItem(menuId) {
     const selectedItem = document.querySelector(`[data-menu-id="${parsedMenuId}"]`);
     if (selectedItem) {
         selectedItem.classList.add('selected');
-        console.log('✅ UI updated - item marked as selected');
+        console.log('âœ… UI updated - item marked as selected');
     } else {
-        console.warn('⚠️ Could not find menu item element to mark as selected');
+        console.warn('âš ï¸ Could not find menu item element to mark as selected');
     }
 }
 
 function closePurchaseModal() {
-    console.log('🚪 Closing purchase modal');
+    console.log('ðŸšª Closing purchase modal');
     document.getElementById('purchaseModal').classList.remove('active');
 }
 
 async function proceedToPurchase() {
-    console.log('\n🛒 ========== PROCEEDING TO PURCHASE ==========');
+    console.log('\nðŸ›’ ========== PROCEEDING TO PURCHASE ==========');
     console.log('Selected menu ID:', window.appState.selectedMenuItem);
     console.log('Current menu:', window.appState.currentMenu);
     console.log('Button ID:', window.appState.currentButtonId);
     
     // Validation
     if (!window.appState.selectedMenuItem) {
-        console.error('❌ No menu selected');
+        console.error('âŒ No menu selected');
         showToast('Please select a product first', 'warning');
         return;
     }
 
     if (!window.appState.currentMenu) {
-        console.error('❌ Menu data not found');
+        console.error('âŒ Menu data not found');
         console.log('Attempting to recover menu data...');
         
         // Try to recover
         const menu = window.appState.allMenus.find(m => m.id === window.appState.selectedMenuItem);
         if (menu) {
             window.appState.currentMenu = menu;
-            console.log('✅ Menu data recovered:', menu);
+            console.log('âœ… Menu data recovered:', menu);
         } else {
-            console.error('❌ Could not recover menu data');
+            console.error('âŒ Could not recover menu data');
             showToast('Product data not found. Please select the product again.', 'error');
             return;
         }
@@ -1188,7 +916,7 @@ async function proceedToPurchase() {
     const tableData = {};
     let allFilled = true;
 
-    console.log('📝 Collecting table data from', window.appState.currentTables.length, 'tables');
+    console.log('ðŸ“ Collecting table data from', window.appState.currentTables.length, 'tables');
     
     window.appState.currentTables.forEach(table => {
         const inputEl = document.querySelector(`[data-table-id="${table.id}"]`);
@@ -1200,39 +928,22 @@ async function proceedToPurchase() {
             }
             tableData[table.name] = value; // Use table name as key
         } else {
-            console.warn(`⚠️ Input element not found for table ${table.id}`);
+            console.warn(`âš ï¸ Input element not found for table ${table.id}`);
         }
     });
 
     if (window.appState.currentTables.length > 0 && !allFilled) {
-        console.error('❌ Not all required fields filled');
+        console.error('âŒ Not all required fields filled');
         showToast('Please fill in all required fields', 'warning');
         return;
     }
 
-    // Check ML verification if Game ID and Zone ID exist
-    if (hasGameIdAndZoneId()) {
-        const verificationStatus = localStorage.getItem('ml_verification_status');
-        if (!verificationStatus || verificationStatus !== 'true') {
-            console.log('⚠️ ML account not verified');
-            showToast('Please verify your Mobile Legends account before continuing', 'warning');
-            return;
-        }
-        
-        // Add verified account name to table data
-        const accountName = localStorage.getItem('ml_account_name');
-        if (accountName) {
-            tableData['Verified Account'] = accountName;
-            console.log('✅ Added verified account name to order:', accountName);
-        }
-    }
-
     window.appState.currentTableData = tableData;
-    console.log('✅ Table data collected:', tableData);
+    console.log('âœ… Table data collected:', tableData);
 
     closePurchaseModal();
     
-    console.log('➡️ Moving to payment modal...');
+    console.log('âž¡ï¸ Moving to payment modal...');
     await showPaymentModal();
 }
 
@@ -1247,22 +958,22 @@ async function loadPayments() {
         if (error) throw error;
 
         window.appState.payments = data || [];
-        console.log(`✅ Loaded ${data?.length || 0} payment methods`);
+        console.log(`âœ… Loaded ${data?.length || 0} payment methods`);
         return data || [];
     } catch (error) {
-        console.error('❌ Error loading payments:', error);
+        console.error('âŒ Error loading payments:', error);
         window.appState.payments = [];
         return [];
     }
 }
 
 async function showPaymentModal() {
-    console.log('\n💳 ========== SHOWING PAYMENT MODAL ==========');
+    console.log('\nðŸ’³ ========== SHOWING PAYMENT MODAL ==========');
     
     const menu = window.appState.currentMenu;
     
     if (!menu) {
-        console.error('❌ Menu data not found in payment modal');
+        console.error('âŒ Menu data not found in payment modal');
         console.log('State:', {
             selectedMenuItem: window.appState.selectedMenuItem,
             currentMenu: window.appState.currentMenu,
@@ -1272,7 +983,7 @@ async function showPaymentModal() {
         return;
     }
 
-    console.log('✅ Menu data available:');
+    console.log('âœ… Menu data available:');
     console.log('  - Name:', menu.name);
     console.log('  - Price:', menu.price);
     console.log('  - Amount:', menu.amount);
@@ -1284,14 +995,14 @@ async function showPaymentModal() {
 
     // Load payments if not loaded
     if (!window.appState.payments || window.appState.payments.length === 0) {
-        console.log('📥 Loading payment methods...');
+        console.log('ðŸ“¥ Loading payment methods...');
         await loadPayments();
     }
 
     hideLoading();
 
     const payments = window.appState.payments;
-    console.log('💳 Available payment methods:', payments.length);
+    console.log('ðŸ’³ Available payment methods:', payments.length);
 
     let html = '<div class="payment-selection">';
     
@@ -1306,7 +1017,7 @@ async function showPaymentModal() {
     
     // Payment Methods
     if (payments.length === 0) {
-        html += '<div style="text-align: center; color: var(--warning-color); padding: 40px; background: rgba(245, 158, 11, 0.1); border-radius: var(--border-radius); margin: 20px 0;"><p>⚠️ No payment methods available</p><p style="font-size: 14px; margin-top: 8px; color: var(--text-muted);">Please contact admin to set up payment methods</p></div>';
+        html += '<div style="text-align: center; color: var(--warning-color); padding: 40px; background: rgba(245, 158, 11, 0.1); border-radius: var(--border-radius); margin: 20px 0;"><p>âš ï¸ No payment methods available</p><p style="font-size: 14px; margin-top: 8px; color: var(--text-muted);">Please contact admin to set up payment methods</p></div>';
     } else {
         html += '<div class="payment-methods">';
         payments.forEach(payment => {
@@ -1329,7 +1040,7 @@ async function showPaymentModal() {
 
     // Apply animations and attach events
     setTimeout(() => {
-        console.log('🎨 Rendering payment modal content...');
+        console.log('ðŸŽ¨ Rendering payment modal content...');
         
         // Render order summary
         const summaryNameEl = document.querySelector('[data-order-summary-name]');
@@ -1345,14 +1056,14 @@ async function showPaymentModal() {
 
         // Attach payment method click events
         const paymentMethods = document.querySelectorAll('.payment-method');
-        console.log('📌 Attaching click events to', paymentMethods.length, 'payment methods');
+        console.log('ðŸ“Œ Attaching click events to', paymentMethods.length, 'payment methods');
         
         paymentMethods.forEach(item => {
             const paymentId = parseInt(item.getAttribute('data-payment-id'));
             item.addEventListener('click', function(e) {
                 e.preventDefault();
                 e.stopPropagation();
-                console.log('🖱️ Payment method clicked:', paymentId);
+                console.log('ðŸ–±ï¸ Payment method clicked:', paymentId);
                 selectPayment(paymentId);
             });
         });
@@ -1363,17 +1074,17 @@ async function showPaymentModal() {
             submitBtn.addEventListener('click', function(e) {
                 e.preventDefault();
                 e.stopPropagation();
-                console.log('📤 Submit order button clicked');
+                console.log('ðŸ“¤ Submit order button clicked');
                 submitOrder();
             });
         }
 
-        console.log('✅ Payment modal events attached');
+        console.log('âœ… Payment modal events attached');
     }, 150);
 }
 
 async function selectPayment(paymentId) {
-    console.log('\n💳 ========== SELECTING PAYMENT ==========');
+    console.log('\nðŸ’³ ========== SELECTING PAYMENT ==========');
     console.log('Payment ID:', paymentId);
     
     window.appState.selectedPayment = parseInt(paymentId);
@@ -1386,7 +1097,7 @@ async function selectPayment(paymentId) {
     const selectedEl = document.querySelector(`[data-payment-id="${paymentId}"]`);
     if (selectedEl) {
         selectedEl.classList.add('selected');
-        console.log('✅ Payment method marked as selected');
+        console.log('âœ… Payment method marked as selected');
     }
 
     // Load payment details
@@ -1399,7 +1110,7 @@ async function selectPayment(paymentId) {
 
         if (error) throw error;
 
-        console.log('✅ Payment details loaded:', payment.name);
+        console.log('âœ… Payment details loaded:', payment.name);
 
         const detailsDiv = document.getElementById('paymentDetails');
         if (detailsDiv && payment) {
@@ -1428,18 +1139,18 @@ async function selectPayment(paymentId) {
             }, 50);
         }
     } catch (error) {
-        console.error('❌ Error loading payment details:', error);
+        console.error('âŒ Error loading payment details:', error);
         showToast('Error loading payment details', 'error');
     }
 }
 
 function closePaymentModal() {
-    console.log('🚪 Closing payment modal');
+    console.log('ðŸšª Closing payment modal');
     document.getElementById('paymentModal').classList.remove('active');
 }
 
 async function submitOrder() {
-    console.log('\n📤 ========== SUBMITTING ORDER ==========');
+    console.log('\nðŸ“¤ ========== SUBMITTING ORDER ==========');
     console.log('State check:');
     console.log('  - User ID:', window.appState.currentUser?.id);
     console.log('  - Menu ID:', window.appState.selectedMenuItem);
@@ -1449,20 +1160,20 @@ async function submitOrder() {
 
     // Validation
     if (!window.appState.selectedPayment) {
-        console.error('❌ No payment method selected');
+        console.error('âŒ No payment method selected');
         showToast('Please select a payment method', 'warning');
         return;
     }
 
     const transactionCode = document.getElementById('transactionCode')?.value;
     if (!transactionCode || transactionCode.trim().length !== 6) {
-        console.error('❌ Invalid transaction code');
+        console.error('âŒ Invalid transaction code');
         showToast('Please enter last 6 digits of transaction ID', 'warning');
         return;
     }
 
     if (!window.appState.selectedMenuItem || !window.appState.currentButtonId) {
-        console.error('❌ Missing order information');
+        console.error('âŒ Missing order information');
         showToast('Error: Missing order information. Please try again.', 'error');
         return;
     }
@@ -1481,7 +1192,7 @@ async function submitOrder() {
             created_at: new Date().toISOString()
         };
 
-        console.log('📦 Order data prepared:', orderData);
+        console.log('ðŸ“¦ Order data prepared:', orderData);
 
         const { data, error } = await supabase
             .from('orders')
@@ -1491,13 +1202,13 @@ async function submitOrder() {
 
         if (error) throw error;
 
-        console.log('✅ Order submitted successfully:', data);
+        console.log('âœ… Order submitted successfully:', data);
 
         hideLoading();
         closePaymentModal();
         
         const menu = window.appState.currentMenu;
-        showToast(`🎉 Order Placed Successfully! Order ID: #${data.id}`, 'success', 8000);
+        showToast(`ðŸŽ‰ Order Placed Successfully! Order ID: #${data.id}`, 'success', 8000);
 
         // Reset state
         window.appState.selectedMenuItem = null;
@@ -1506,14 +1217,6 @@ async function submitOrder() {
         window.appState.currentMenu = null;
         window.appState.currentButtonId = null;
         window.appState.currentTables = [];
-        window.appState.mlVerificationStatus = null;
-        window.appState.mlAccountName = null;
-        
-        // Clear ML verification from localStorage
-        localStorage.removeItem('ml_verification_status');
-        localStorage.removeItem('ml_account_name');
-        localStorage.removeItem('ml_user_id');
-        localStorage.removeItem('ml_zone_id');
         
         // Reload history and switch to history page
         await loadOrderHistory();
@@ -1521,7 +1224,7 @@ async function submitOrder() {
 
     } catch (error) {
         hideLoading();
-        console.error('❌ Order submission failed:', error);
+        console.error('âŒ Order submission failed:', error);
         showToast('Error submitting order: ' + error.message, 'error');
     }
 }
@@ -1543,7 +1246,7 @@ async function loadOrderHistory() {
 
         displayOrderHistory(data || []);
     } catch (error) {
-        console.error('❌ Error loading orders:', error);
+        console.error('âŒ Error loading orders:', error);
     }
 }
 
@@ -1562,14 +1265,14 @@ function displayOrderHistory(orders) {
         item.className = 'history-item';
 
         let statusClass = 'pending';
-        let statusIcon = '⏳';
+        let statusIcon = 'â³';
         if (order.status === 'approved') {
             statusClass = 'approved';
-            statusIcon = '✅';
+            statusIcon = 'âœ…';
         }
         if (order.status === 'rejected') {
             statusClass = 'rejected';
-            statusIcon = '❌';
+            statusIcon = 'âŒ';
         }
 
         item.innerHTML = `
@@ -1596,7 +1299,7 @@ function displayOrderHistory(orders) {
             if (nameEl) applyAnimationRendering(nameEl, order.menus?.name || 'Unknown Product');
             if (amountEl) applyAnimationRendering(amountEl, order.menus?.amount || '');
             if (paymentEl) applyAnimationRendering(paymentEl, order.payment_methods?.name || 'N/A');
-            if (messageEl) applyAnimationRendering(messageEl, `<strong style="color: var(--warning-color);">📢 Admin Message:</strong><br>${order.admin_message}`);
+            if (messageEl) applyAnimationRendering(messageEl, `<strong style="color: var(--warning-color);">ðŸ“¢ Admin Message:</strong><br>${order.admin_message}`);
         }, 50);
     });
 }
@@ -1613,7 +1316,7 @@ async function loadContacts() {
 
         displayContacts(data || []);
     } catch (error) {
-        console.error('❌ Error loading contacts:', error);
+        console.error('âŒ Error loading contacts:', error);
     }
 }
 
@@ -1621,7 +1324,7 @@ function displayContacts(contacts) {
     const container = document.getElementById('contactsContainer');
     
     if (contacts.length === 0) {
-        container.innerHTML = '<div style="text-align:center;color:var(--text-muted);padding:60px 20px;"><h3 style="margin-bottom:12px;">No Contacts Available</h3><p>Contact information will appear here when added by admin.</p></div>';
+        container.innerHTML = '<div style="text-align:center;color:var(--text-muted);padding:60px 20px;"><h3 style="margin-bottom:12px;">No Contacts Available</h3><p>Contact information will be displayed here.</p></div>';
         return;
     }
 
@@ -1630,22 +1333,35 @@ function displayContacts(contacts) {
     contacts.forEach(contact => {
         const item = document.createElement('div');
         item.className = 'contact-item';
+
+        if (contact.link) {
+            item.style.cursor = 'pointer';
+            item.addEventListener('click', () => {
+                window.open(contact.link, '_blank');
+                showToast(`Opening ${contact.name}...`, 'success', 2000);
+            });
+        }
+
         item.innerHTML = `
-            <img src="${contact.icon_url}" alt="${contact.platform}">
+            <img src="${contact.icon_url}" class="contact-icon" alt="${contact.name}">
             <div class="contact-info">
-                <h3 data-contact-platform="${contact.id}"></h3>
-                <p data-contact-detail="${contact.id}"></p>
-                <a href="${contact.contact_link}" target="_blank" class="contact-link">Contact Us</a>
+                <h3 data-contact-name="${contact.id}" style="font-size: 18px; font-weight: 600; margin-bottom: 6px;"></h3>
+                <p data-contact-desc="${contact.id}" style="color: var(--text-secondary); margin-bottom: 4px;"></p>
+                ${!contact.link && contact.address ? `<p data-contact-address="${contact.id}" style="font-size: 14px; color: var(--text-muted);"></p>` : ''}
+                ${contact.link ? '<p style="font-size: 12px; color: var(--accent-color); margin-top: 8px;">ðŸ‘† Click to open</p>' : ''}
             </div>
         `;
+
         container.appendChild(item);
 
         setTimeout(() => {
-            const platformEl = document.querySelector(`[data-contact-platform="${contact.id}"]`);
-            const detailEl = document.querySelector(`[data-contact-detail="${contact.id}"]`);
-            
-            if (platformEl) applyAnimationRendering(platformEl, contact.platform);
-            if (detailEl) applyAnimationRendering(detailEl, contact.contact_details);
+            const nameEl = document.querySelector(`[data-contact-name="${contact.id}"]`);
+            const descEl = document.querySelector(`[data-contact-desc="${contact.id}"]`);
+            const addressEl = document.querySelector(`[data-contact-address="${contact.id}"]`);
+
+            if (nameEl) applyAnimationRendering(nameEl, contact.name);
+            if (descEl) applyAnimationRendering(descEl, contact.description || '');
+            if (addressEl) applyAnimationRendering(addressEl, contact.address || '');
         }, 50);
     });
 }
@@ -1653,30 +1369,28 @@ function displayContacts(contacts) {
 // ========== PROFILE ==========
 function loadProfile() {
     const user = window.appState.currentUser;
-    if (!user) return;
-
-    document.getElementById('profileName').value = user.name || '';
-    document.getElementById('profileUsername').value = user.username || '';
-    document.getElementById('profileEmail').value = user.email || '';
+    document.getElementById('profileName').value = user.name;
+    document.getElementById('profileUsername').value = user.username;
+    document.getElementById('profileEmail').value = user.email;
 
     const avatar = document.getElementById('profileAvatar');
-    if (avatar) {
-        avatar.textContent = user.name ? user.name.charAt(0).toUpperCase() : '?';
-    }
+    const initials = user.name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
+    avatar.textContent = initials;
+
+    const hue = (user.id * 137) % 360;
+    avatar.style.background = `linear-gradient(135deg, hsl(${hue}, 70%, 60%), hsl(${hue + 60}, 70%, 60%))`;
 }
 
 async function updateProfile() {
     const currentPassword = document.getElementById('currentPassword').value;
     const newPassword = document.getElementById('newPassword').value;
 
-    if (!currentPassword || !newPassword) {
-        showToast('Please enter both current and new password', 'warning');
+    if (!newPassword) {
+        showToast('Please enter a new password', 'error');
         return;
     }
 
-    const user = window.appState.currentUser;
-    
-    if (user.password !== currentPassword) {
+    if (currentPassword !== window.appState.currentUser.password) {
         showToast('Current password is incorrect', 'error');
         return;
     }
@@ -1687,56 +1401,78 @@ async function updateProfile() {
         const { data, error } = await supabase
             .from('users')
             .update({ password: newPassword })
-            .eq('id', user.id)
+            .eq('id', window.appState.currentUser.id)
             .select()
             .single();
 
         if (error) throw error;
 
+        hideLoading();
         window.appState.currentUser = data;
         localStorage.setItem('currentUser', JSON.stringify(data));
-
+        
         document.getElementById('currentPassword').value = '';
         document.getElementById('newPassword').value = '';
-
-        hideLoading();
-        showToast('Password updated successfully!', 'success');
+        
+        showToast('Password updated successfully! ðŸ”’', 'success');
 
     } catch (error) {
         hideLoading();
         showToast('Error updating password', 'error');
-        console.error('❌ Profile update error:', error);
+        console.error('âŒ Update error:', error);
     }
 }
 
 // ========== NAVIGATION ==========
 function switchPage(pageName) {
-    // Update nav buttons
-    document.querySelectorAll('.nav-item').forEach(item => {
-        item.classList.remove('active');
-    });
-    document.querySelector(`[data-page="${pageName}"]`)?.classList.add('active');
-
-    // Update pages
     document.querySelectorAll('.page').forEach(page => {
         page.classList.remove('active');
     });
-    document.getElementById(`${pageName}Page`)?.classList.add('active');
 
-    console.log('📄 Switched to page:', pageName);
+    document.getElementById(pageName + 'Page').classList.add('active');
+
+    document.querySelectorAll('.nav-item').forEach(item => {
+        item.classList.remove('active');
+    });
+    
+    const activeNav = document.querySelector(`[data-page="${pageName}"]`);
+    if (activeNav) activeNav.classList.add('active');
+
+    // Load data when switching to specific pages
+    if (pageName === 'history') {
+        loadOrderHistory();
+    } else if (pageName === 'contacts') {
+        loadContacts();
+    }
 }
 
 // ========== UTILITY FUNCTIONS ==========
 function validateEmail(email) {
-    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return re.test(email);
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+function showError(element, message) {
+    if (element) {
+        element.textContent = message;
+        element.classList.add('show');
+        setTimeout(() => element.classList.remove('show'), 5000);
+    }
+}
+
+function showSuccess(element, message) {
+    if (element) {
+        element.textContent = message;
+        element.classList.add('show');
+        setTimeout(() => element.classList.remove('show'), 5000);
+    }
 }
 
 // ========== CLEANUP ==========
 window.addEventListener('beforeunload', () => {
+    // Clear banner interval
     if (window.appState.bannerInterval) {
         clearInterval(window.appState.bannerInterval);
     }
 });
 
-console.log('✅ Enhanced Gaming Store App with Mobile Legends Verification initialized!');
+console.log('âœ… Enhanced Gaming Store App initialized with improved UI/UX!');
