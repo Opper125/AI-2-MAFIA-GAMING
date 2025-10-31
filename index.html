@@ -4,34 +4,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MAFIA Gaming Store</title>
+    <title>Gaming Store</title>
     <link rel="stylesheet" href="index.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <!-- Audio Files for Sound Effects -->
-    <audio id="welcomeSound" preload="auto">
-        <source src="https://github.com/Opper125/AI-2-MAFIA-GAMING/raw/e7119d3ba7c3b918ed6544ce12c5a4610d4c987c/webopenin-welcome.mp3" type="audio/mpeg">
-    </audio>
-    
-    <audio id="clickSound" preload="auto">
-        <source src="https://github.com/Opper125/AI-2-MAFIA-GAMING/raw/e7119d3ba7c3b918ed6544ce12c5a4610d4c987c/click.wav" type="audio/wav">
-    </audio>
-    
-    <audio id="orderProcessSound" preload="auto">
-        <source src="https://github.com/Opper125/AI-2-MAFIA-GAMING/raw/e7119d3ba7c3b918ed6544ce12c5a4610d4c987c/order-process.mp3" type="audio/mpeg">
-    </audio>
-    
-    <audio id="rejectSound" preload="auto">
-        <source src="https://github.com/Opper125/AI-2-MAFIA-GAMING/raw/e7119d3ba7c3b918ed6544ce12c5a4610d4c987c/rejest.mp3" type="audio/mpeg">
-    </audio>
-    
-    <audio id="approvedSound" preload="auto">
-        <source src="https://github.com/Opper125/AI-2-MAFIA-GAMING/raw/e7119d3ba7c3b918ed6544ce12c5a4610d4c987c/approved.mp3" type="audio/mpeg">
-    </audio>
-
     <!-- Database Connection Status -->
     <div id="connectionStatus" class="connection-status">
         <div class="connection-indicator">
@@ -47,7 +26,7 @@
     <div id="loadingScreen" class="loading-screen">
         <div class="loading-animation" id="loadingAnimation">
             <div class="spinner"></div>
-            <p>Loading MAFIA Gaming...</p>
+            <p>Loading...</p>
         </div>
     </div>
 
@@ -55,46 +34,46 @@
     <div id="authContainer" class="auth-container">
         <div class="auth-box">
             <div class="auth-header">
-                <img id="authLogo" src="" alt="MAFIA Gaming Logo" class="auth-logo" style="display:none;">
-                <h1 id="authWebsiteName">MAFIA Gaming</h1>
+                <img id="authLogo" src="" alt="Logo" class="auth-logo" style="display:none;">
+                <h1 id="authWebsiteName">Gaming Store</h1>
             </div>
 
             <!-- Login Form -->
             <div id="loginForm" class="auth-form active">
-                <h2>Player Login</h2>
+                <h2>Login</h2>
                 <div class="form-group">
-                    <input type="email" id="loginEmail" placeholder="Gaming Email" required>
+                    <input type="email" id="loginEmail" placeholder="Gmail" required>
                 </div>
                 <div class="form-group">
                     <input type="password" id="loginPassword" placeholder="Password" required>
                 </div>
                 <div class="error-message" id="loginError"></div>
-                <button onclick="handleLogin()" class="btn-primary">Enter Game</button>
-                <p class="auth-switch">New gamer? <span onclick="showSignup()">Join Now</span></p>
+                <button onclick="handleLogin()" class="btn-primary">Login</button>
+                <p class="auth-switch">Don't have an account? <span onclick="showSignup()">Sign Up</span></p>
             </div>
 
             <!-- Signup Form -->
             <div id="signupForm" class="auth-form">
-                <h2>Join Gaming</h2>
+                <h2>Sign Up</h2>
                 <div class="form-group">
-                    <input type="text" id="signupName" placeholder="Gamer Name" required>
+                    <input type="text" id="signupName" placeholder="Full Name" required>
                 </div>
                 <div class="form-group">
                     <input type="text" id="signupUsername" placeholder="Username" required>
                 </div>
                 <div class="form-group">
-                    <input type="email" id="signupEmail" placeholder="Gaming Email" required>
+                    <input type="email" id="signupEmail" placeholder="Gmail" required>
                 </div>
                 <div class="form-group">
                     <input type="password" id="signupPassword" placeholder="Password" required>
                 </div>
                 <div class="form-group checkbox-group">
                     <input type="checkbox" id="termsCheckbox" required>
-                    <label for="termsCheckbox">I agree to the Gaming Terms and Conditions</label>
+                    <label for="termsCheckbox">I agree to the Terms and Conditions</label>
                 </div>
                 <div class="error-message" id="signupError"></div>
-                <button onclick="handleSignup()" class="btn-primary">Start Gaming</button>
-                <p class="auth-switch">Already a gamer? <span onclick="showLogin()">Login</span></p>
+                <button onclick="handleSignup()" class="btn-primary">Sign Up</button>
+                <p class="auth-switch">Already have an account? <span onclick="showLogin()">Login</span></p>
             </div>
         </div>
     </div>
@@ -103,8 +82,8 @@
     <div id="appContainer" class="app-container" style="display: none;">
         <!-- Header -->
         <header class="app-header">
-            <img id="appLogo" src="" alt="MAFIA Gaming Logo" class="header-logo" style="display:none;">
-            <h1 id="appWebsiteName">MAFIA Gaming</h1>
+            <img id="appLogo" src="" alt="Logo" class="header-logo" style="display:none;">
+            <h1 id="appWebsiteName">Gaming Store</h1>
         </header>
 
         <!-- Content Pages -->
@@ -123,54 +102,12 @@
 
                 <!-- Categories -->
                 <div id="categoriesContainer" class="categories-container">
-                    <!-- Categories will be loaded here dynamically -->
-                    <script type="text/javascript">
-	atOptions = {
-		'key' : '9d4972280635894fc4ded58627f3ae87',
-		'format' : 'iframe',
-		'height' : 60,
-		'width' : 468,
-		'params' : {}
-	};
-</script>
-<script type="text/javascript" src="//www.highperformanceformat.com/9d4972280635894fc4ded58627f3ae87/invoke.js"></script>
-                    <!-- Example structure for categories -->
-                </div>
-            </div>
-
-            <!-- Category Detail Page -->
-            <div id="categoryDetailPage" class="page">
-                <script type="text/javascript">
-	atOptions = {
-		'key' : '9d4972280635894fc4ded58627f3ae87',
-		'format' : 'iframe',
-		'height' : 60,
-		'width' : 468,
-		'params' : {}
-	};
-</script>
-<script type="text/javascript" src="//www.highperformanceformat.com/9d4972280635894fc4ded58627f3ae87/invoke.js"></script>
-                <button class="back-button" onclick="showHomePage()">
-                    <span>←</span> Back to Categories
-                </button>
-                <h2 class="page-title" id="categoryDetailTitle">Category Details</h2>
-                <div id="categoryDetailContainer" class="category-detail-container">
-                    <!-- Category items will be loaded here -->
+                    <!-- Categories will be loaded here -->
                 </div>
             </div>
 
             <!-- History Page -->
             <div id="historyPage" class="page">
-                <script type="text/javascript">
-	atOptions = {
-		'key' : '9d4972280635894fc4ded58627f3ae87',
-		'format' : 'iframe',
-		'height' : 60,
-		'width' : 468,
-		'params' : {}
-	};
-</script>
-<script type="text/javascript" src="//www.highperformanceformat.com/9d4972280635894fc4ded58627f3ae87/invoke.js"></script>
                 <h2 class="page-title">Order History</h2>
                 <div id="historyContainer" class="history-container">
                     <!-- Orders will be loaded here -->
@@ -179,17 +116,7 @@
 
             <!-- Contacts Page -->
             <div id="contactsPage" class="page">
-                <script type="text/javascript">
-	atOptions = {
-		'key' : '9d4972280635894fc4ded58627f3ae87',
-		'format' : 'iframe',
-		'height' : 60,
-		'width' : 468,
-		'params' : {}
-	};
-</script>
-<script type="text/javascript" src="//www.highperformanceformat.com/9d4972280635894fc4ded58627f3ae87/invoke.js"></script>
-                <h2 class="page-title">Contact Gaming Support</h2>
+                <h2 class="page-title">Contact Us</h2>
                 <div id="contactsContainer" class="contacts-container">
                     <!-- Contacts will be loaded here -->
                 </div>
@@ -197,22 +124,12 @@
 
             <!-- Mi Page -->
             <div id="miPage" class="page">
-                <script type="text/javascript">
-	atOptions = {
-		'key' : '9d4972280635894fc4ded58627f3ae87',
-		'format' : 'iframe',
-		'height' : 60,
-		'width' : 468,
-		'params' : {}
-	};
-</script>
-<script type="text/javascript" src="//www.highperformanceformat.com/9d4972280635894fc4ded58627f3ae87/invoke.js"></script>
-                <h2 class="page-title">Gamer Profile</h2>
+                <h2 class="page-title">My Account</h2>
                 <div class="profile-container">
                     <div class="profile-avatar" id="profileAvatar"></div>
                     <div class="profile-info">
                         <div class="form-group">
-                            <label>Gamer Name</label>
+                            <label>Name</label>
                             <input type="text" id="profileName" readonly>
                         </div>
                         <div class="form-group">
@@ -220,7 +137,7 @@
                             <input type="text" id="profileUsername" readonly>
                         </div>
                         <div class="form-group">
-                            <label>Gaming Email</label>
+                            <label>Gmail</label>
                             <input type="email" id="profileEmail" readonly>
                         </div>
                         <div class="form-group">
@@ -243,20 +160,20 @@
         <!-- Bottom Navigation -->
         <nav class="bottom-nav">
             <button class="nav-item active" data-page="home" onclick="switchPage('home')">
-                <img src="https://qcbzxalqpcppiorffpas.supabase.co/storage/v1/object/public/website-assets/logos/home.png" alt="Home">
+                <img src="https://spurpwnaeacgwojfpaem.supabase.co/storage/v1/object/public/website-assets/logos/home.png" alt="Home">
                 <span>Home</span>
             </button>
             <button class="nav-item" data-page="history" onclick="switchPage('history')">
-                <img src="https://qcbzxalqpcppiorffpas.supabase.co/storage/v1/object/public/website-assets/logos/history.png" alt="History">
+                <img src="https://spurpwnaeacgwojfpaem.supabase.co/storage/v1/object/public/website-assets/logos/history.png" alt="History">
                 <span>History</span>
             </button>
             <button class="nav-item" data-page="contacts" onclick="switchPage('contacts')">
-                <img src="https://qcbzxalqpcppiorffpas.supabase.co/storage/v1/object/public/website-assets/logos/contacts.png" alt="Contacts">
-                <span>Support</span>
+                <img src="https://spurpwnaeacgwojfpaem.supabase.co/storage/v1/object/public/website-assets/logos/contacts.png" alt="Contacts">
+                <span>Contacts</span>
             </button>
             <button class="nav-item" data-page="mi" onclick="switchPage('mi')">
-                <img src="https://qcbzxalqpcppiorffpas.supabase.co/storage/v1/object/public/website-assets/logos/mi.png" alt="Profile">
-                <span>Profile</span>
+                <img src="https://spurpwnaeacgwojfpaem.supabase.co/storage/v1/object/public/website-assets/logos/mi.png" alt="Mi">
+                <span>Mi</span>
             </button>
         </nav>
     </div>
@@ -265,7 +182,7 @@
     <div id="purchaseModal" class="modal">
         <div class="modal-content">
             <span class="close-modal" onclick="closePurchaseModal()">&times;</span>
-            <h2>Purchase Gaming Item</h2>
+            <h2>Purchase Item</h2>
             <div id="purchaseContent">
                 <!-- Purchase form will be loaded here -->
             </div>
