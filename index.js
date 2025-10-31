@@ -1,7 +1,7 @@
 
 // Supabase Configuration
-const SUPABASE_URL = 'https://qcbzxalqpcppiorffpas.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFjYnp4YWxxcGNwcGlvcmZmcGFzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAwOTg0NTAsImV4cCI6MjA3NTY3NDQ1MH0.EQ-Wc_FJ65tuCBF3a_1_7IrKO6bJmZgN4-cJqapNoRg';
+const SUPABASE_URL = 'https://eynbcpkpwzikwtlrdlza.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV5bmJjcGtwd3ppa3d0bHJkbHphIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkwNDI3MzgsImV4cCI6MjA3NDYxODczOH0.D8MzC7QSinkiGECeDW9VAr_1XNUral5FnXGHyjD_eQ4';
 
 // Initialize Supabase Client
 let supabase;
@@ -11,6 +11,15 @@ try {
 } catch (error) {
     console.error('❌ Supabase initialization failed:', error);
 }
+
+// ========== MOBILE LEGENDS API CONFIGURATION ==========
+const ML_API_CONFIG = {
+    url: 'https://true-id-mobile-legends.p.rapidapi.com/razepedia.my.id/api/trueid_ml.php',
+    headers: {
+        'x-rapidapi-key': 'b1d5b3e770mshf143188a370042cp103f4bjsn591ad13800c6',
+        'x-rapidapi-host': 'true-id-mobile-legends.p.rapidapi.com'
+    }
+};
 
 // ========== GLOBAL STATE ==========
 window.appState = {
@@ -27,7 +36,9 @@ window.appState = {
     allMenus: [],
     currentTables: [],
     currentBannerIndex: 0,
-    bannerInterval: null
+    bannerInterval: null,
+    mlVerificationStatus: null,  // Store ML account verification status
+    mlAccountName: null  // Store verified ML account name
 };
 
 // ========== DISABLE RIGHT CLICK & CONTEXT MENU ==========
@@ -184,8 +195,244 @@ function addAnimationStyles() {
             width: 20px;
             height: 20px;
         }
+
+        /* Mobile Legends Verification Styles */
+        .ml-verification-section {
+            margin: 24px 0;
+            padding: 20px;
+            background: rgba(99, 102, 241, 0.05);
+            border: 2px solid rgba(99, 102, 241, 0.2);
+            border-radius: 12px;
+        }
+
+        .ml-verify-btn {
+            width: 100%;
+            padding: 12px 20px;
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 12px;
+        }
+
+        .ml-verify-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(99, 102, 241, 0.4);
+        }
+
+        .ml-verify-btn:disabled {
+            background: #6b7280;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .ml-verification-result {
+            margin-top: 16px;
+            padding: 16px;
+            border-radius: 8px;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .ml-verification-result.success {
+            background: rgba(16, 185, 129, 0.1);
+            border: 2px solid #10b981;
+            color: #10b981;
+        }
+
+        .ml-verification-result.error {
+            background: rgba(239, 68, 68, 0.1);
+            border: 2px solid #ef4444;
+            color: #ef4444;
+        }
+
+        .ml-account-name {
+            font-size: 18px;
+            margin-top: 8px;
+            color: var(--text-primary);
+        }
+
+        .ml-verification-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-right: 8px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
     `;
     document.head.appendChild(style);
+}
+
+// ========== MOBILE LEGENDS ACCOUNT VERIFICATION ==========
+async function verifyMobileLegends() {
+    console.log('\n🎮 ========== MOBILE LEGENDS VERIFICATION ==========');
+    
+    // Find Game ID and Zone ID inputs
+    let gameIdInput = null;
+    let zoneIdInput = null;
+    
+    window.appState.currentTables.forEach(table => {
+        const inputEl = document.querySelector(`[data-table-id="${table.id}"]`);
+        if (inputEl) {
+            const tableName = table.name.toLowerCase().trim();
+            console.log('Checking table:', tableName, 'ID:', table.id);
+            
+            if (tableName.includes('game') && tableName.includes('id')) {
+                gameIdInput = inputEl;
+                console.log('✅ Found Game ID input');
+            } else if (tableName.includes('zone') && tableName.includes('id')) {
+                zoneIdInput = inputEl;
+                console.log('✅ Found Zone ID input');
+            }
+        }
+    });
+
+    if (!gameIdInput || !zoneIdInput) {
+        console.log('❌ Game ID or Zone ID input not found');
+        showToast('This feature is only available for Mobile Legends products', 'warning');
+        return;
+    }
+
+    const userId = gameIdInput.value.trim();
+    const zoneId = zoneIdInput.value.trim();
+
+    console.log('User ID:', userId);
+    console.log('Zone ID:', zoneId);
+
+    if (!userId || !zoneId) {
+        showToast('Please enter both Game ID and Zone ID', 'warning');
+        return;
+    }
+
+    // Show loading state
+    const verifyBtn = document.getElementById('mlVerifyBtn');
+    const resultDiv = document.getElementById('mlVerificationResult');
+    
+    if (verifyBtn) {
+        verifyBtn.disabled = true;
+        verifyBtn.innerHTML = '<span class="ml-verification-spinner"></span>Verifying...';
+    }
+
+    if (resultDiv) {
+        resultDiv.innerHTML = '';
+        resultDiv.className = 'ml-verification-result';
+        resultDiv.style.display = 'none';
+    }
+
+    try {
+        console.log('🔍 Calling Mobile Legends API...');
+        
+        // Call the API
+        const response = await fetch(
+            `${ML_API_CONFIG.url}?userid=${userId}&zoneid=${zoneId}`,
+            {
+                method: 'GET',
+                headers: ML_API_CONFIG.headers
+            }
+        );
+
+        console.log('API Response Status:', response.status);
+
+        if (!response.ok) {
+            throw new Error(`API Error: ${response.status}`);
+        }
+
+        const data = await response.json();
+        console.log('API Response Data:', data);
+
+        // Check if account is valid
+        if (data && data.username && data.username !== '' && data.username !== 'null') {
+            // Success - Account found
+            console.log('✅ Account verified:', data.username);
+            
+            window.appState.mlVerificationStatus = true;
+            window.appState.mlAccountName = data.username;
+
+            // Store in localStorage
+            localStorage.setItem('ml_verification_status', 'true');
+            localStorage.setItem('ml_account_name', data.username);
+            localStorage.setItem('ml_user_id', userId);
+            localStorage.setItem('ml_zone_id', zoneId);
+
+            if (resultDiv) {
+                resultDiv.className = 'ml-verification-result success';
+                resultDiv.innerHTML = `
+                    ✅ Account Verified Successfully!
+                    <div class="ml-account-name">Account Name: ${data.username}</div>
+                `;
+                resultDiv.style.display = 'block';
+            }
+
+            showToast(`Account verified: ${data.username}`, 'success', 6000);
+
+        } else {
+            // Account not found
+            console.log('❌ Account not found');
+            
+            window.appState.mlVerificationStatus = false;
+            window.appState.mlAccountName = null;
+
+            localStorage.removeItem('ml_verification_status');
+            localStorage.removeItem('ml_account_name');
+
+            if (resultDiv) {
+                resultDiv.className = 'ml-verification-result error';
+                resultDiv.innerHTML = '❌ Account not found. Please check your Game ID and Zone ID.';
+                resultDiv.style.display = 'block';
+            }
+
+            showToast('Account not found. Please check your Game ID and Zone ID.', 'error', 6000);
+        }
+
+    } catch (error) {
+        console.error('❌ Verification Error:', error);
+        
+        window.appState.mlVerificationStatus = false;
+        window.appState.mlAccountName = null;
+
+        if (resultDiv) {
+            resultDiv.className = 'ml-verification-result error';
+            resultDiv.innerHTML = '❌ Verification failed. Please try again later.';
+            resultDiv.style.display = 'block';
+        }
+
+        showToast('Verification failed. Please try again.', 'error');
+    } finally {
+        // Reset button state
+        if (verifyBtn) {
+            verifyBtn.disabled = false;
+            verifyBtn.innerHTML = '🔍 Verify Account';
+        }
+    }
+}
+
+// Function to check if current inputs are Game ID and Zone ID
+function hasGameIdAndZoneId() {
+    let hasGameId = false;
+    let hasZoneId = false;
+    
+    window.appState.currentTables.forEach(table => {
+        const tableName = table.name.toLowerCase().trim();
+        if (tableName.includes('game') && tableName.includes('id')) {
+            hasGameId = true;
+        }
+        if (tableName.includes('zone') && tableName.includes('id')) {
+            hasZoneId = true;
+        }
+    });
+    
+    return hasGameId && hasZoneId;
 }
 
 // ========== INITIALIZATION ==========
@@ -398,6 +645,10 @@ async function handleLogin() {
 
 function handleLogout() {
     localStorage.removeItem('currentUser');
+    localStorage.removeItem('ml_verification_status');
+    localStorage.removeItem('ml_account_name');
+    localStorage.removeItem('ml_user_id');
+    localStorage.removeItem('ml_zone_id');
     window.appState.currentUser = null;
     showToast('Successfully logged out', 'success');
     setTimeout(() => {
@@ -546,7 +797,7 @@ function displayBanners(banners) {
 
 function goToBanner(index, wrapper, totalBanners) {
     window.appState.currentBannerIndex = index;
-    wrapper.style.transform = `translateX(-${index * 20}%)`;
+    wrapper.style.transform = `translateX(-${index * 100}%)`;
     
     // Update pagination dots
     document.querySelectorAll('.banner-dot').forEach((dot, dotIndex) => {
@@ -661,6 +912,12 @@ async function openCategoryPage(categoryId, buttonId) {
         window.appState.currentTableData = {};
         window.appState.allMenus = [];
         window.appState.currentTables = [];
+        window.appState.mlVerificationStatus = null;
+        window.appState.mlAccountName = null;
+        
+        // Clear localStorage verification
+        localStorage.removeItem('ml_verification_status');
+        localStorage.removeItem('ml_account_name');
         
         // Load data
         const [tablesResult, menusResult, videosResult] = await Promise.all([
@@ -729,6 +986,21 @@ function showPurchaseModal(tables, menus, videos) {
             `;
         });
         html += '</div>';
+
+        // Add Mobile Legends verification section if Game ID and Zone ID exist
+        if (hasGameIdAndZoneId()) {
+            console.log('✅ Game ID and Zone ID detected - adding verification section');
+            html += `
+                <div class="ml-verification-section">
+                    <h4 style="margin-bottom: 12px; color: var(--text-primary); font-weight: 600;">🎮 Account Verification</h4>
+                    <p style="margin-bottom: 12px; color: var(--text-muted); font-size: 14px;">Verify your Mobile Legends account to ensure accurate order processing.</p>
+                    <button type="button" class="ml-verify-btn" id="mlVerifyBtn" onclick="verifyMobileLegends()">
+                        🔍 Verify Account
+                    </button>
+                    <div id="mlVerificationResult" class="ml-verification-result" style="display: none;"></div>
+                </div>
+            `;
+        }
     }
 
     // Menu Items - Grid Layout
@@ -936,6 +1208,23 @@ async function proceedToPurchase() {
         console.error('❌ Not all required fields filled');
         showToast('Please fill in all required fields', 'warning');
         return;
+    }
+
+    // Check ML verification if Game ID and Zone ID exist
+    if (hasGameIdAndZoneId()) {
+        const verificationStatus = localStorage.getItem('ml_verification_status');
+        if (!verificationStatus || verificationStatus !== 'true') {
+            console.log('⚠️ ML account not verified');
+            showToast('Please verify your Mobile Legends account before continuing', 'warning');
+            return;
+        }
+        
+        // Add verified account name to table data
+        const accountName = localStorage.getItem('ml_account_name');
+        if (accountName) {
+            tableData['Verified Account'] = accountName;
+            console.log('✅ Added verified account name to order:', accountName);
+        }
     }
 
     window.appState.currentTableData = tableData;
@@ -1217,6 +1506,14 @@ async function submitOrder() {
         window.appState.currentMenu = null;
         window.appState.currentButtonId = null;
         window.appState.currentTables = [];
+        window.appState.mlVerificationStatus = null;
+        window.appState.mlAccountName = null;
+        
+        // Clear ML verification from localStorage
+        localStorage.removeItem('ml_verification_status');
+        localStorage.removeItem('ml_account_name');
+        localStorage.removeItem('ml_user_id');
+        localStorage.removeItem('ml_zone_id');
         
         // Reload history and switch to history page
         await loadOrderHistory();
@@ -1324,7 +1621,7 @@ function displayContacts(contacts) {
     const container = document.getElementById('contactsContainer');
     
     if (contacts.length === 0) {
-        container.innerHTML = '<div style="text-align:center;color:var(--text-muted);padding:60px 20px;"><h3 style="margin-bottom:12px;">No Contacts Available</h3><p>Contact information will be displayed here.</p></div>';
+        container.innerHTML = '<div style="text-align:center;color:var(--text-muted);padding:60px 20px;"><h3 style="margin-bottom:12px;">No Contacts Available</h3><p>Contact information will appear here when added by admin.</p></div>';
         return;
     }
 
@@ -1333,35 +1630,22 @@ function displayContacts(contacts) {
     contacts.forEach(contact => {
         const item = document.createElement('div');
         item.className = 'contact-item';
-
-        if (contact.link) {
-            item.style.cursor = 'pointer';
-            item.addEventListener('click', () => {
-                window.open(contact.link, '_blank');
-                showToast(`Opening ${contact.name}...`, 'success', 2000);
-            });
-        }
-
         item.innerHTML = `
-            <img src="${contact.icon_url}" class="contact-icon" alt="${contact.name}">
+            <img src="${contact.icon_url}" alt="${contact.platform}">
             <div class="contact-info">
-                <h3 data-contact-name="${contact.id}" style="font-size: 18px; font-weight: 600; margin-bottom: 6px;"></h3>
-                <p data-contact-desc="${contact.id}" style="color: var(--text-secondary); margin-bottom: 4px;"></p>
-                ${!contact.link && contact.address ? `<p data-contact-address="${contact.id}" style="font-size: 14px; color: var(--text-muted);"></p>` : ''}
-                ${contact.link ? '<p style="font-size: 12px; color: var(--accent-color); margin-top: 8px;">👆 Click to open</p>' : ''}
+                <h3 data-contact-platform="${contact.id}"></h3>
+                <p data-contact-detail="${contact.id}"></p>
+                <a href="${contact.contact_link}" target="_blank" class="contact-link">Contact Us</a>
             </div>
         `;
-
         container.appendChild(item);
 
         setTimeout(() => {
-            const nameEl = document.querySelector(`[data-contact-name="${contact.id}"]`);
-            const descEl = document.querySelector(`[data-contact-desc="${contact.id}"]`);
-            const addressEl = document.querySelector(`[data-contact-address="${contact.id}"]`);
-
-            if (nameEl) applyAnimationRendering(nameEl, contact.name);
-            if (descEl) applyAnimationRendering(descEl, contact.description || '');
-            if (addressEl) applyAnimationRendering(addressEl, contact.address || '');
+            const platformEl = document.querySelector(`[data-contact-platform="${contact.id}"]`);
+            const detailEl = document.querySelector(`[data-contact-detail="${contact.id}"]`);
+            
+            if (platformEl) applyAnimationRendering(platformEl, contact.platform);
+            if (detailEl) applyAnimationRendering(detailEl, contact.contact_details);
         }, 50);
     });
 }
@@ -1369,28 +1653,30 @@ function displayContacts(contacts) {
 // ========== PROFILE ==========
 function loadProfile() {
     const user = window.appState.currentUser;
-    document.getElementById('profileName').value = user.name;
-    document.getElementById('profileUsername').value = user.username;
-    document.getElementById('profileEmail').value = user.email;
+    if (!user) return;
+
+    document.getElementById('profileName').value = user.name || '';
+    document.getElementById('profileUsername').value = user.username || '';
+    document.getElementById('profileEmail').value = user.email || '';
 
     const avatar = document.getElementById('profileAvatar');
-    const initials = user.name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
-    avatar.textContent = initials;
-
-    const hue = (user.id * 137) % 360;
-    avatar.style.background = `linear-gradient(135deg, hsl(${hue}, 70%, 60%), hsl(${hue + 60}, 70%, 60%))`;
+    if (avatar) {
+        avatar.textContent = user.name ? user.name.charAt(0).toUpperCase() : '?';
+    }
 }
 
 async function updateProfile() {
     const currentPassword = document.getElementById('currentPassword').value;
     const newPassword = document.getElementById('newPassword').value;
 
-    if (!newPassword) {
-        showToast('Please enter a new password', 'error');
+    if (!currentPassword || !newPassword) {
+        showToast('Please enter both current and new password', 'warning');
         return;
     }
 
-    if (currentPassword !== window.appState.currentUser.password) {
+    const user = window.appState.currentUser;
+    
+    if (user.password !== currentPassword) {
         showToast('Current password is incorrect', 'error');
         return;
     }
@@ -1401,78 +1687,56 @@ async function updateProfile() {
         const { data, error } = await supabase
             .from('users')
             .update({ password: newPassword })
-            .eq('id', window.appState.currentUser.id)
+            .eq('id', user.id)
             .select()
             .single();
 
         if (error) throw error;
 
-        hideLoading();
         window.appState.currentUser = data;
         localStorage.setItem('currentUser', JSON.stringify(data));
-        
+
         document.getElementById('currentPassword').value = '';
         document.getElementById('newPassword').value = '';
-        
-        showToast('Password updated successfully! 🔒', 'success');
+
+        hideLoading();
+        showToast('Password updated successfully!', 'success');
 
     } catch (error) {
         hideLoading();
         showToast('Error updating password', 'error');
-        console.error('❌ Update error:', error);
+        console.error('❌ Profile update error:', error);
     }
 }
 
 // ========== NAVIGATION ==========
 function switchPage(pageName) {
-    document.querySelectorAll('.page').forEach(page => {
-        page.classList.remove('active');
-    });
-
-    document.getElementById(pageName + 'Page').classList.add('active');
-
+    // Update nav buttons
     document.querySelectorAll('.nav-item').forEach(item => {
         item.classList.remove('active');
     });
-    
-    const activeNav = document.querySelector(`[data-page="${pageName}"]`);
-    if (activeNav) activeNav.classList.add('active');
+    document.querySelector(`[data-page="${pageName}"]`)?.classList.add('active');
 
-    // Load data when switching to specific pages
-    if (pageName === 'history') {
-        loadOrderHistory();
-    } else if (pageName === 'contacts') {
-        loadContacts();
-    }
+    // Update pages
+    document.querySelectorAll('.page').forEach(page => {
+        page.classList.remove('active');
+    });
+    document.getElementById(`${pageName}Page`)?.classList.add('active');
+
+    console.log('📄 Switched to page:', pageName);
 }
 
 // ========== UTILITY FUNCTIONS ==========
 function validateEmail(email) {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-}
-
-function showError(element, message) {
-    if (element) {
-        element.textContent = message;
-        element.classList.add('show');
-        setTimeout(() => element.classList.remove('show'), 5000);
-    }
-}
-
-function showSuccess(element, message) {
-    if (element) {
-        element.textContent = message;
-        element.classList.add('show');
-        setTimeout(() => element.classList.remove('show'), 5000);
-    }
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return re.test(email);
 }
 
 // ========== CLEANUP ==========
 window.addEventListener('beforeunload', () => {
-    // Clear banner interval
     if (window.appState.bannerInterval) {
         clearInterval(window.appState.bannerInterval);
     }
 });
 
-console.log('✅ Enhanced Gaming Store App initialized with improved UI/UX!');
+console.log('✅ Enhanced Gaming Store App with Mobile Legends Verification initialized!');
