@@ -227,7 +227,7 @@ button, input, textarea, select, a {
     }
 }
 
-/* Loading Screen - Improved Mobile Size */
+/* Loading Screen - Optimized */
 .loading-screen {
     position: fixed;
     top: 0;
@@ -244,12 +244,11 @@ button, input, textarea, select, a {
 .loading-animation {
     text-align: center;
     color: var(--text-primary);
-    transform: scale(0.8); /* ကျုံ့လိုက်ပါတယ် mobile အတွက် */
+    transform: scale(0.8);
 }
 
 .loading-animation img,
 .loading-animation video {
-    /* Loading animation သည် admin က set လုပ်တာကို အရွယ်အစားချိန်ညှိ */
     max-width: 150px !important;
     max-height: 150px !important;
     width: auto !important;
@@ -307,6 +306,21 @@ button, input, textarea, select, a {
     width: 100%;
     box-shadow: var(--shadow-xl);
     animation: scaleIn 0.5s ease;
+    position: relative;
+}
+
+/* ✨ NEW: Card depth shadow */
+.auth-box::after {
+    content: '';
+    position: absolute;
+    bottom: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90%;
+    height: 20px;
+    background: radial-gradient(ellipse at center, rgba(220, 20, 60, 0.4) 0%, transparent 70%);
+    border-radius: 50%;
+    z-index: -1;
 }
 
 @keyframes scaleIn {
@@ -604,6 +618,21 @@ button, input, textarea, select, a {
     border-radius: var(--border-radius-lg);
     overflow: hidden;
     box-shadow: var(--shadow-xl);
+    position: relative;
+}
+
+/* ✨ NEW: Banner depth shadow */
+.banner-section::after {
+    content: '';
+    position: absolute;
+    bottom: -15px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 95%;
+    height: 15px;
+    background: radial-gradient(ellipse at center, rgba(220, 20, 60, 0.5) 0%, transparent 70%);
+    border-radius: 50%;
+    z-index: -1;
 }
 
 .banner-container {
@@ -654,7 +683,7 @@ button, input, textarea, select, a {
     box-shadow: 0 0 10px var(--primary-color);
 }
 
-/* Enhanced Categories Section - FIXED */
+/* Enhanced Categories Section */
 .categories-container {
     margin-bottom: 25px;
 }
@@ -697,7 +726,7 @@ button, input, textarea, select, a {
     min-width: min-content;
 }
 
-/* FIXED Category Button Sizes */
+/* 🎮 IMPROVED: Smart Category Buttons with Depth & Shimmer */
 .category-button {
     display: flex;
     flex-direction: column;
@@ -705,8 +734,8 @@ button, input, textarea, select, a {
     justify-content: center;
     gap: 8px;
     padding: 10px;
-    width: 250px;  /* Container အရွယ်အစား */
-    height: 250px; /* Container အရွယ်အစား */
+    width: 250px;
+    height: 250px;
     background: var(--gradient-card);
     backdrop-filter: blur(20px);
     border: 2px solid var(--border-color);
@@ -719,29 +748,60 @@ button, input, textarea, select, a {
     flex-shrink: 0;
 }
 
+/* ✨ NEW: Bottom depth shadow for category button */
 .category-button::before {
     content: '';
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 3px;
-    background: var(--gradient-secondary);
+    bottom: -25px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 85%;
+    height: 25px;
+    background: radial-gradient(ellipse at center, rgba(220, 20, 60, 0.6) 0%, transparent 70%);
+    border-radius: 50%;
+    z-index: -1;
+    opacity: 0;
+    transition: opacity 0.3s ease;
 }
 
+.category-button:hover::before {
+    opacity: 1;
+}
+
+/* 💎 NEW: Animated light border sweep */
 .category-button::after {
     content: '';
     position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(220, 20, 60, 0.1), transparent);
-    transition: left 0.5s;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: linear-gradient(45deg, 
+        transparent 30%, 
+        rgba(255, 69, 0, 0.4) 50%, 
+        transparent 70%);
+    border-radius: var(--border-radius);
+    z-index: -1;
+    opacity: 0;
+    animation: borderSweep 3s linear infinite;
+}
+
+@keyframes borderSweep {
+    0% {
+        transform: translateX(-100%) rotate(0deg);
+        opacity: 0;
+    }
+    50% {
+        opacity: 1;
+    }
+    100% {
+        transform: translateX(100%) rotate(0deg);
+        opacity: 0;
+    }
 }
 
 .category-button:hover::after {
-    left: 100%;
+    animation-duration: 1.5s;
 }
 
 .category-button:hover {
@@ -750,15 +810,46 @@ button, input, textarea, select, a {
     box-shadow: 0 15px 40px rgba(220, 20, 60, 0.4);
 }
 
-/* FIXED Image Size */
+/* 🌟 NEW: Shimmer effect on image */
 .category-button img {
-    width: 180px !important;  /* Image အရွယ်အစား */
-    height: 180px !important; /* Image အရွယ်အစား */
+    width: 180px !important;
+    height: 180px !important;
     border-radius: var(--border-radius);
     object-fit: cover;
     border: 2px solid var(--primary-color);
     pointer-events: none;
     flex-shrink: 0;
+    position: relative;
+    overflow: hidden;
+}
+
+/* ⚡ NEW: Light shine animation on images */
+.category-button::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: -100%;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(90deg, 
+        transparent, 
+        rgba(255, 255, 255, 0.3), 
+        transparent);
+    transform: translateY(-50%) skewX(-20deg);
+    animation: imageShine 4s ease-in-out infinite;
+    z-index: 1;
+    pointer-events: none;
+}
+
+@keyframes imageShine {
+    0%, 100% {
+        left: -100%;
+        opacity: 0;
+    }
+    50% {
+        left: 150%;
+        opacity: 1;
+    }
 }
 
 .category-button span {
@@ -773,6 +864,8 @@ button, input, textarea, select, a {
     margin-top: 5px;
     word-wrap: break-word;
     max-width: 190px;
+    position: relative;
+    z-index: 2;
 }
 
 /* Enhanced Modals */
@@ -808,6 +901,20 @@ button, input, textarea, select, a {
     box-shadow: var(--shadow-xl);
     position: relative;
     animation: modalSlideIn 0.3s ease;
+}
+
+/* ✨ NEW: Modal depth shadow */
+.modal-content::after {
+    content: '';
+    position: absolute;
+    bottom: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90%;
+    height: 20px;
+    background: radial-gradient(ellipse at center, rgba(220, 20, 60, 0.5) 0%, transparent 70%);
+    border-radius: 50%;
+    z-index: -1;
 }
 
 @keyframes modalSlideIn {
@@ -871,10 +978,10 @@ button, input, textarea, select, a {
     letter-spacing: 1px;
 }
 
-/* FIXED Menu Items Grid - 2 Column Layout */
+/* Menu Items Grid - Optimized 2 Column Layout */
 .menu-items {
     display: grid;
-    grid-template-columns: 1fr 1fr; /* 2 columns side by side */
+    grid-template-columns: 1fr 1fr;
     gap: 12px;
     margin-bottom: 18px;
 }
@@ -896,14 +1003,24 @@ button, input, textarea, select, a {
     gap: 10px;
 }
 
+/* ✨ NEW: Menu item depth shadow */
 .menu-item::before {
     content: '';
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 3px;
-    background: var(--gradient-secondary);
+    bottom: -15px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80%;
+    height: 15px;
+    background: radial-gradient(ellipse at center, rgba(220, 20, 60, 0.4) 0%, transparent 70%);
+    border-radius: 50%;
+    z-index: -1;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.menu-item:hover::before {
+    opacity: 1;
 }
 
 .menu-item:hover {
@@ -1027,6 +1144,21 @@ button, input, textarea, select, a {
     padding: 16px;
     margin-bottom: 20px;
     text-align: center;
+    position: relative;
+}
+
+/* ✨ NEW: Order summary depth shadow */
+.order-summary::after {
+    content: '';
+    position: absolute;
+    bottom: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 85%;
+    height: 12px;
+    background: radial-gradient(ellipse at center, rgba(220, 20, 60, 0.3) 0%, transparent 70%);
+    border-radius: 50%;
+    z-index: -1;
 }
 
 .order-summary h3 {
@@ -1058,10 +1190,10 @@ button, input, textarea, select, a {
     display: inline-block;
 }
 
-/* FIXED Payment Methods Grid - 2 Column Layout */
+/* Payment Methods Grid - Optimized 2 Column Layout */
 .payment-methods {
     display: grid;
-    grid-template-columns: 1fr 1fr; /* 2 columns side by side */
+    grid-template-columns: 1fr 1fr;
     gap: 12px;
     margin-bottom: 16px;
 }
@@ -1083,20 +1215,56 @@ button, input, textarea, select, a {
     overflow: hidden;
 }
 
+/* ✨ NEW: Payment method depth shadow */
 .payment-method::before {
     content: '';
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 3px;
-    background: var(--gradient-secondary);
-    transform: scaleX(0);
-    transition: transform 0.3s;
+    bottom: -15px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80%;
+    height: 15px;
+    background: radial-gradient(ellipse at center, rgba(220, 20, 60, 0.4) 0%, transparent 70%);
+    border-radius: 50%;
+    z-index: -1;
+    opacity: 0;
+    transition: opacity 0.3s ease;
 }
 
-.payment-method.selected::before {
-    transform: scaleX(1);
+.payment-method:hover::before {
+    opacity: 1;
+}
+
+/* 💎 NEW: Animated selection indicator */
+.payment-method::after {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: linear-gradient(135deg, 
+        var(--primary-color) 0%, 
+        var(--accent-color) 50%, 
+        var(--primary-color) 100%);
+    border-radius: var(--border-radius);
+    z-index: -1;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.payment-method.selected::after {
+    opacity: 1;
+    animation: glow 2s ease-in-out infinite;
+}
+
+@keyframes glow {
+    0%, 100% {
+        box-shadow: 0 0 10px rgba(220, 20, 60, 0.3);
+    }
+    50% {
+        box-shadow: 0 0 20px rgba(220, 20, 60, 0.6);
+    }
 }
 
 .payment-method:hover {
@@ -1272,6 +1440,21 @@ button, input, textarea, select, a {
     border-radius: var(--border-radius-lg);
     padding: 25px;
     box-shadow: var(--shadow-xl);
+    position: relative;
+}
+
+/* ✨ NEW: Profile container depth shadow */
+.profile-container::after {
+    content: '';
+    position: absolute;
+    bottom: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90%;
+    height: 20px;
+    background: radial-gradient(ellipse at center, rgba(220, 20, 60, 0.4) 0%, transparent 70%);
+    border-radius: 50%;
+    z-index: -1;
 }
 
 .profile-avatar {
@@ -1345,6 +1528,24 @@ button, input, textarea, select, a {
     padding: 16px;
     margin-bottom: 12px;
     transition: var(--transition);
+    position: relative;
+}
+
+/* ✨ NEW: History/Contact item depth shadow */
+.history-item::after,
+.contact-item::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90%;
+    height: 10px;
+    background: radial-gradient(ellipse at center, rgba(220, 20, 60, 0.3) 0%, transparent 70%);
+    border-radius: 50%;
+    z-index: -1;
+    opacity: 0;
+    transition: opacity 0.3s ease;
 }
 
 .history-item:hover,
@@ -1352,6 +1553,11 @@ button, input, textarea, select, a {
     border-color: var(--primary-color);
     transform: translateY(-2px);
     box-shadow: var(--shadow-lg);
+}
+
+.history-item:hover::after,
+.contact-item:hover::after {
+    opacity: 1;
 }
 
 .history-status {
@@ -1489,6 +1695,18 @@ button, input, textarea, select, a {
     color: var(--primary-color);
 }
 
+/* ⚡ Performance Optimizations */
+* {
+    will-change: auto;
+}
+
+.category-button,
+.menu-item,
+.payment-method,
+.nav-item {
+    will-change: transform;
+}
+
 /* Mobile Responsive Improvements */
 @media (max-width: 480px) {
     .content-wrapper {
@@ -1496,19 +1714,19 @@ button, input, textarea, select, a {
     }
     
     .category-button {
-        width: 180px;
-        height: 180px;
+        width: 200px;
+        height: 200px;
         padding: 8px;
     }
     
     .category-button img {
-        width: 160px !important;
-        height: 160px !important;
+        width: 150px !important;
+        height: 150px !important;
     }
     
     .category-button span {
         font-size: 11px;
-        max-width: 150px;
+        max-width: 170px;
     }
     
     .menu-items {
@@ -1562,17 +1780,28 @@ button, input, textarea, select, a {
 
 @media (max-width: 360px) {
     .category-button {
-        width: 160px;
-        height: 160px;
+        width: 180px;
+        height: 180px;
     }
     
     .category-button img {
-        width: 140px !important;
-        height: 140px !important;
+        width: 130px !important;
+        height: 130px !important;
     }
     
     .category-button span {
         font-size: 10px;
-        max-width: 130px;
+        max-width: 150px;
+    }
+}
+
+/* Reduce animation for low-end devices */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
     }
 }
