@@ -89,9 +89,9 @@ function showToast(message, type = 'success', duration = 5000) {
     toast.className = `toast ${type}`;
     
     const icons = {
-        success: ‍'🔋',
-        error: '📛',
-        warning: '🚨'
+        success: 'âœ…',
+        error: 'âŒ',
+        warning: 'âš ï¸'
     };
     
     toast.innerHTML = `
@@ -150,8 +150,8 @@ function addAnimationStyles() {
     style.textContent = `
         .inline-animation {
             display: inline-block;
-            width: 35px;
-            height: 35px;
+            width: 20px;
+            height: 20px;
             object-fit: contain;
             vertical-align: middle;
             margin: 0 2px;
@@ -206,7 +206,7 @@ async function testDatabaseConnection() {
     
     try {
         statusText.textContent = 'Testing database connection...';
-        console.log('⚙Testing database connection...');
+        console.log('ðŸ” Testing database connection...');
         
         const { data, error } = await supabase
             .from('website_settings')
@@ -216,9 +216,9 @@ async function testDatabaseConnection() {
         if (error) throw error;
         
         statusEl.classList.add('connected');
-        statusIcon.textContent = '🔋';
+        statusIcon.textContent = 'âœ…';
         statusText.textContent = 'Database connected successfully!';
-        console.log('🔋 Database connection successful');
+        console.log('âœ… Database connection successful');
         
         setTimeout(() => {
             statusEl.classList.add('hide');
@@ -227,9 +227,9 @@ async function testDatabaseConnection() {
         
     } catch (error) {
         statusEl.classList.add('error');
-        statusIcon.textContent = '🚫';
+        statusIcon.textContent = 'âŒ';
         statusText.textContent = 'Database connection failed!';
-        console.error('🚫 Database connection failed:', error);
+        console.error('âŒ Database connection failed:', error);
         setTimeout(() => statusEl.classList.add('hide'), 10000);
     }
 }
@@ -418,7 +418,7 @@ async function loadWebsiteSettings() {
             applyWebsiteSettings();
         }
     } catch (error) {
-        console.error('Error loading settings:', error);
+        console.error('âŒ Error loading settings:', error);
     }
 }
 
@@ -647,7 +647,7 @@ function displayCategoryButtons(categoryId, buttons) {
 
 // ========== IMPROVED PURCHASE MODAL ==========
 async function openCategoryPage(categoryId, buttonId) {
-    console.log('\® ========== OPENING CATEGORY PAGE ==========');
+    console.log('\nðŸŽ® ========== OPENING CATEGORY PAGE ==========');
     console.log('Category ID:', categoryId);
     console.log('Button ID:', buttonId);
     
@@ -681,7 +681,7 @@ async function openCategoryPage(categoryId, buttonId) {
         window.appState.allMenus = menus;
         window.appState.currentTables = tables;
 
-        console.log('⚙ Loaded data:');
+        console.log('âœ… Loaded data:');
         console.log('  - Tables:', tables.length);
         console.log('  - Menus:', menus.length);
         console.log('  - Videos:', videos.length);
@@ -697,13 +697,13 @@ async function openCategoryPage(categoryId, buttonId) {
 
     } catch (error) {
         hideLoading();
-        console.error('⚒ Error loading category data:', error);
+        console.error('âŒ Error loading category data:', error);
         showToast('Error loading products. Please try again.', 'error');
     }
 }
 
 function showPurchaseModal(tables, menus, videos) {
-    console.log('⚗“¦ ========== SHOWING PURCHASE MODAL ==========');
+    console.log('\nðŸ“¦ ========== SHOWING PURCHASE MODAL ==========');
     console.log('Tables:', tables.length);
     console.log('Menus:', menus.length);
     console.log('Videos:', videos.length);
@@ -774,7 +774,7 @@ function showPurchaseModal(tables, menus, videos) {
 
     // Apply animations and attach events
     setTimeout(() => {
-        console.log('🔮 Applying animations and attaching events...');
+        console.log('ðŸŽ¨ Applying animations and attaching events...');
         
         // Render table labels
         tables.forEach(table => {
@@ -813,7 +813,7 @@ function showPurchaseModal(tables, menus, videos) {
             item.addEventListener('click', function(e) {
                 e.preventDefault();
                 e.stopPropagation();
-                console.log('👆 Menu item clicked:', menuId);
+                console.log('ðŸ–±ï¸ Menu item clicked:', menuId);
                 selectMenuItem(menuId);
             });
         });
@@ -824,7 +824,7 @@ function showPurchaseModal(tables, menus, videos) {
             buyBtn.addEventListener('click', function(e) {
                 e.preventDefault();
                 e.stopPropagation();
-                console.log('🟢’ Buy button clicked');
+                console.log('ðŸ›’ Buy button clicked');
                 proceedToPurchase();
             });
         }
@@ -834,12 +834,12 @@ function showPurchaseModal(tables, menus, videos) {
 }
 
 function selectMenuItem(menuId) {
-    console.log('😙' ========== SELECTING MENU ITEM ==========');
+    console.log('\nðŸ” ========== SELECTING MENU ITEM ==========');
     console.log('Menu ID:', menuId, '(type:', typeof menuId, ')');
     console.log('Available menus:', window.appState.allMenus.length);
     
     if (!menuId || isNaN(menuId)) {
-        console.error('📛 Invalid menu ID');
+        console.error('âŒ Invalid menu ID');
         showToast('Invalid product selection', 'error');
         return;
     }
@@ -852,13 +852,13 @@ function selectMenuItem(menuId) {
     
     if (menu) {
         window.appState.currentMenu = menu;
-        console.log('⚙ Menu found and stored:');
+        console.log('âœ… Menu found and stored:');
         console.log('  - ID:', menu.id);
         console.log('  - Name:', menu.name);
         console.log('  - Price:', menu.price);
         console.log('  - Amount:', menu.amount);
     } else {
-        console.error('⚙ Menu not found in stored menus');
+        console.error('âŒ Menu not found in stored menus');
         console.log('Available menu IDs:', window.appState.allMenus.map(m => m.id));
         showToast('Product data not found. Please try again.', 'error');
         return;
@@ -879,34 +879,34 @@ function selectMenuItem(menuId) {
 }
 
 function closePurchaseModal() {
-    console.log('🟢 Closing purchase modal');
+    console.log('ðŸšª Closing purchase modal');
     document.getElementById('purchaseModal').classList.remove('active');
 }
 
 async function proceedToPurchase() {
-    console.log('🧬’ ========== PROCEEDING TO PURCHASE ==========');
+    console.log('\nðŸ›’ ========== PROCEEDING TO PURCHASE ==========');
     console.log('Selected menu ID:', window.appState.selectedMenuItem);
     console.log('Current menu:', window.appState.currentMenu);
     console.log('Button ID:', window.appState.currentButtonId);
     
     // Validation
     if (!window.appState.selectedMenuItem) {
-        console.error('📢 No menu selected');
+        console.error('âŒ No menu selected');
         showToast('Please select a product first', 'warning');
         return;
     }
 
     if (!window.appState.currentMenu) {
-        console.error('📢 Menu data not found');
+        console.error('âŒ Menu data not found');
         console.log('Attempting to recover menu data...');
         
         // Try to recover
         const menu = window.appState.allMenus.find(m => m.id === window.appState.selectedMenuItem);
         if (menu) {
             window.appState.currentMenu = menu;
-            console.log('🆙 Menu data recovered:', menu);
+            console.log('âœ… Menu data recovered:', menu);
         } else {
-            console.error('🆙 Could not recover menu data');
+            console.error('âŒ Could not recover menu data');
             showToast('Product data not found. Please select the product again.', 'error');
             return;
         }
