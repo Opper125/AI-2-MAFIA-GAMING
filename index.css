@@ -669,7 +669,7 @@ button, a, input, textarea, select, .nav-item, .category-button, .menu-item {
     transform: translateX(-4px);
 }
 
-/* ========== BANNER SECTION ========== */
+/* Banner Section */
 .banner-section {
     margin-bottom: 32px;
 }
@@ -677,7 +677,7 @@ button, a, input, textarea, select, .nav-item, .category-button, .menu-item {
 .banner-container {
     position: relative;
     overflow: hidden;
-    border-radius: var(--radius-2xl);
+    border-radius: var(--border-radius-lg);
     margin-bottom: 16px;
 }
 
@@ -689,23 +689,25 @@ button, a, input, textarea, select, .nav-item, .category-button, .menu-item {
 .banner-item {
     min-width: 100%;
     height: 200px;
-    border-radius: var(--radius-2xl);
+    border-radius: var(--border-radius-lg);
     overflow: hidden;
     position: relative;
     cursor: pointer;
-    border: 2px solid var(--border-subtle);
-    transition: var(--transition-normal);
+    border: 2px solid var(--border-color);
+    transition: var(--transition);
 }
 
 .banner-item img {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    pointer-events: none;
 }
 
 .banner-item:hover {
-    border-color: var(--border-accent);
-    box-shadow: var(--shadow-glow);
+    transform: scale(1.01);
+    border-color: var(--primary-color);
+    box-shadow: var(--shadow-lg);
 }
 
 .banner-pagination {
@@ -719,19 +721,19 @@ button, a, input, textarea, select, .nav-item, .category-button, .menu-item {
     width: 8px;
     height: 8px;
     border-radius: 50%;
-    background: var(--text-dim);
+    background: var(--text-muted);
     cursor: pointer;
-    transition: var(--transition-fast);
+    transition: var(--transition);
+    pointer-events: auto;
 }
 
 .banner-dot.active {
-    background: var(--accent-primary);
+    background: var(--primary-color);
     transform: scale(1.5);
-    box-shadow: 0 0 8px var(--glow-primary);
 }
 
 .banner-dot:hover {
-    background: var(--accent-secondary);
+    background: var(--secondary-color);
     transform: scale(1.2);
 }
 
