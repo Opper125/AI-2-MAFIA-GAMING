@@ -1,4 +1,5 @@
 
+
 // Supabase Configuration
 const SUPABASE_URL = 'https://qcbzxalqpcppiorffpas.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFjYnp4YWxxcGNwcGlvcmZmcGFzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAwOTg0NTAsImV4cCI6MjA3NTY3NDQ1MH0.EQ-Wc_FJ65tuCBF3a_1_7IrKO6bJmZgN4-cJqapNoRg';
@@ -7,9 +8,9 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 let supabase;
 try {
     supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    console.log('âœ… Supabase initialized successfully');
+    console.log('✅ Supabase initialized successfully');
 } catch (error) {
-    console.error('âŒ Supabase initialization failed:', error);
+    console.error('❌ Supabase initialization failed:', error);
 }
 
 // ========== GLOBAL STATE ==========
@@ -28,6 +29,17 @@ window.appState = {
     currentTables: [],
     currentBannerIndex: 0,
     bannerInterval: null
+};
+
+// ========== GAME ID CHECKER CACHE ==========
+// LocalStorage keys for caching game ID checks
+const GAME_ID_CACHE_PREFIX = 'gameIdCache_';
+const CACHE_EXPIRY_HOURS = 24; // Cache expires after 24 hours
+
+// API Configuration for Game ID Checkers
+const RAPIDAPI_CONFIG = {
+    key: 'e9dca4286emsh4d7cdfebdedad21p12269cjsn0581391f6ed3',
+    host: 'check-id-game.p.rapidapi.com'
 };
 
 // ========== DISABLE RIGHT CLICK & CONTEXT MENU ==========
@@ -89,15 +101,15 @@ function showToast(message, type = 'success', duration = 5000) {
     toast.className = `toast ${type}`;
     
     const icons = {
-        success: 'âœ…',
-        error: 'âŒ',
-        warning: 'âš ï¸'
+        success: '✅',
+        error: '❌',
+        warning: '⚠️'
     };
     
     toast.innerHTML = `
-        <span class="toast-icon">${icons[type] || 'ðŸ“¢'}</span>
+        <span class="toast-icon">${icons[type] || '📢'}</span>
         <span class="toast-message">${message}</span>
-        <button class="toast-close" onclick="removeToast(this.parentElement)">Ã—</button>
+        <button class="toast-close" onclick="removeToast(this.parentElement)">×</button>
     `;
     
     container.appendChild(toast);
@@ -188,10 +200,490 @@ function addAnimationStyles() {
     document.head.appendChild(style);
 }
 
+// ========== GAME ID CHECKER FUNCTIONS ==========
+
+/**
+ * Get cached game ID result from localStorage
+ */
+function getCachedGameId(gameType, gameId) {
+    try {
+        const cacheKey = `${GAME_ID_CACHE_PREFIX}${gameType}_${gameId}`;
+        const cached = localStorage.getItem(cacheKey);
+        
+        if (cached) {
+            const data = JSON.parse(cached);
+            const now = new Date().getTime();
+            const cacheTime = new Date(data.timestamp).getTime();
+            const expiryTime = CACHE_EXPIRY_HOURS * 60 * 60 * 1000;
+            
+            if (now - cacheTime < expiryTime) {
+                console.log(`✅ Using cached result for ${gameType} ID: ${gameId}`);
+                return data.result;
+            } else {
+                // Cache expired, remove it
+                localStorage.removeItem(cacheKey);
+            }
+        }
+    } catch (error) {
+        console.error('❌ Error reading cache:', error);
+    }
+    return null;
+}
+
+/**
+ * Save game ID result to localStorage
+ */
+function cacheGameId(gameType, gameId, result) {
+    try {
+        const cacheKey = `${GAME_ID_CACHE_PREFIX}${gameType}_${gameId}`;
+        const data = {
+            timestamp: new Date().toISOString(),
+            result: result
+        };
+        localStorage.setItem(cacheKey, JSON.stringify(data));
+        console.log(`💾 Cached result for ${gameType} ID: ${gameId}`);
+    } catch (error) {
+        console.error('❌ Error saving cache:', error);
+    }
+}
+
+/**
+ * Check PUBG Mobile ID
+ * @param {string} pubgId - PUBG Mobile Player ID
+ * @returns {Promise<Object>} - Player data or error
+ */
+async function checkPUBGId(pubgId) {
+    console.log(`🎮 Checking PUBG Mobile ID: ${pubgId}`);
+    
+    // Check cache first
+    const cached = getCachedGameId('pubg', pubgId);
+    if (cached) {
+        return cached;
+    }
+    
+    try {
+        const xhr = new XMLHttpRequest();
+        
+        return new Promise((resolve, reject) => {
+            xhr.addEventListener('readystatechange', function () {
+                if (this.readyState === this.DONE) {
+                    try {
+                        const response = JSON.parse(this.responseText);
+                        
+                        if (response.success && response.data) {
+                            console.log('✅ PUBG ID found:', response.data.username);
+                            // Cache the result
+                            cacheGameId('pubg', pubgId, response);
+                            resolve(response);
+                        } else {
+                            console.log('❌ PUBG ID not found');
+                            const errorResponse = {
+                                success: false,
+                                error: 'Player ID not found'
+                            };
+                            // Cache the error result too
+                            cacheGameId('pubg', pubgId, errorResponse);
+                            reject(errorResponse);
+                        }
+                    } catch (error) {
+                        console.error('❌ Error parsing PUBG response:', error);
+                        reject({ success: false, error: 'Invalid response from server' });
+                    }
+                }
+            });
+            
+            xhr.addEventListener('error', function() {
+                console.error('❌ Network error checking PUBG ID');
+                reject({ success: false, error: 'Network error. Please try again.' });
+            });
+            
+            xhr.addEventListener('timeout', function() {
+                console.error('❌ Timeout checking PUBG ID');
+                reject({ success: false, error: 'Request timeout. Please try again.' });
+            });
+            
+            xhr.open('GET', `https://check-id-game.p.rapidapi.com/api/rapid_api/cekpubgmobile/${pubgId}`);
+            xhr.setRequestHeader('x-rapidapi-key', RAPIDAPI_CONFIG.key);
+            xhr.setRequestHeader('x-rapidapi-host', RAPIDAPI_CONFIG.host);
+            xhr.timeout = 10000; // 10 second timeout
+            
+            xhr.send();
+        });
+    } catch (error) {
+        console.error('❌ Error checking PUBG ID:', error);
+        throw { success: false, error: 'Failed to check Player ID' };
+    }
+}
+
+/**
+ * Check Mobile Legends ID
+ * @param {string} userId - Mobile Legends User ID
+ * @param {string} zoneId - Mobile Legends Zone ID
+ * @returns {Promise<Object>} - Player data or error
+ */
+async function checkMobileLegends(userId, zoneId) {
+    console.log(`🎮 Checking Mobile Legends ID: ${userId} (${zoneId})`);
+    
+    const combinedId = `${userId}_${zoneId}`;
+    
+    // Check cache first
+    const cached = getCachedGameId('ml', combinedId);
+    if (cached) {
+        return cached;
+    }
+    
+    try {
+        const xhr = new XMLHttpRequest();
+        
+        return new Promise((resolve, reject) => {
+            xhr.addEventListener('readystatechange', function () {
+                if (this.readyState === this.DONE) {
+                    try {
+                        const response = JSON.parse(this.responseText);
+                        
+                        if (response.success && response.data) {
+                            console.log('✅ Mobile Legends ID found:', response.data.username);
+                            // Cache the result
+                            cacheGameId('ml', combinedId, response);
+                            resolve(response);
+                        } else {
+                            console.log('❌ Mobile Legends ID not found');
+                            const errorResponse = {
+                                success: false,
+                                error: 'Player ID not found'
+                            };
+                            // Cache the error result too
+                            cacheGameId('ml', combinedId, errorResponse);
+                            reject(errorResponse);
+                        }
+                    } catch (error) {
+                        console.error('❌ Error parsing Mobile Legends response:', error);
+                        reject({ success: false, error: 'Invalid response from server' });
+                    }
+                }
+            });
+            
+            xhr.addEventListener('error', function() {
+                console.error('❌ Network error checking Mobile Legends ID');
+                reject({ success: false, error: 'Network error. Please try again.' });
+            });
+            
+            xhr.addEventListener('timeout', function() {
+                console.error('❌ Timeout checking Mobile Legends ID');
+                reject({ success: false, error: 'Request timeout. Please try again.' });
+            });
+            
+            xhr.open('GET', `https://check-id-game.p.rapidapi.com/api/rapid_api/cek_game_ml/${userId}/${zoneId}`);
+            xhr.setRequestHeader('x-rapidapi-key', RAPIDAPI_CONFIG.key);
+            xhr.setRequestHeader('x-rapidapi-host', RAPIDAPI_CONFIG.host);
+            xhr.timeout = 10000; // 10 second timeout
+            
+            xhr.send();
+        });
+    } catch (error) {
+        console.error('❌ Error checking Mobile Legends ID:', error);
+        throw { success: false, error: 'Failed to check Player ID' };
+    }
+}
+
+/**
+ * Display PUBG player information
+ */
+function displayPUBGPlayerInfo(data, containerId) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+    
+    container.innerHTML = `
+        <div class="game-id-result success">
+            <div class="player-card">
+                <div class="player-header">
+                    <span class="game-icon">🎮</span>
+                    <h4>PUBG Mobile Player</h4>
+                </div>
+                <div class="player-info">
+                    <div class="info-row">
+                        <span class="label">Player ID:</span>
+                        <span class="value">${data.id_pubg}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Username:</span>
+                        <span class="value highlight">${data.username}</span>
+                    </div>
+                    ${data.region ? `
+                    <div class="info-row">
+                        <span class="label">Region:</span>
+                        <span class="value">${data.region}</span>
+                    </div>
+                    ` : ''}
+                    ${data.server ? `
+                    <div class="info-row">
+                        <span class="label">Server:</span>
+                        <span class="value">${data.server}</span>
+                    </div>
+                    ` : ''}
+                </div>
+                <div class="success-badge">✅ Player Found</div>
+            </div>
+        </div>
+    `;
+}
+
+/**
+ * Display Mobile Legends player information
+ */
+function displayMLPlayerInfo(data, containerId) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+    
+    container.innerHTML = `
+        <div class="game-id-result success">
+            <div class="player-card">
+                <div class="player-header">
+                    <span class="game-icon">⚔️</span>
+                    <h4>Mobile Legends Player</h4>
+                </div>
+                <div class="player-info">
+                    <div class="info-row">
+                        <span class="label">User ID:</span>
+                        <span class="value">${data.Userid_and_Zone}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Username:</span>
+                        <span class="value highlight">${data.username}</span>
+                    </div>
+                    ${data.country ? `
+                    <div class="info-row">
+                        <span class="label">Country:</span>
+                        <span class="value">${data.country.toUpperCase()}</span>
+                    </div>
+                    ` : ''}
+                </div>
+                <div class="success-badge">✅ Player Found</div>
+            </div>
+        </div>
+    `;
+}
+
+/**
+ * Display error message for game ID check
+ */
+function displayGameIdError(message, containerId) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+    
+    container.innerHTML = `
+        <div class="game-id-result error">
+            <div class="error-card">
+                <span class="error-icon">❌</span>
+                <p>${message}</p>
+            </div>
+        </div>
+    `;
+}
+
+/**
+ * Display loading state for game ID check
+ */
+function displayGameIdLoading(containerId) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+    
+    container.innerHTML = `
+        <div class="game-id-result loading">
+            <div class="loading-card">
+                <div class="spinner-small"></div>
+                <p>Checking Player ID...</p>
+            </div>
+        </div>
+    `;
+}
+
+/**
+ * Clear game ID check result
+ */
+function clearGameIdResult(containerId) {
+    const container = document.getElementById(containerId);
+    if (container) {
+        container.innerHTML = '';
+    }
+}
+
+/**
+ * Add ID checker styles to document
+ */
+function addIdCheckerStyles() {
+    const style = document.createElement('style');
+    style.textContent = `
+        .game-id-checker {
+            margin-top: 12px;
+        }
+        
+        .game-id-result {
+            margin-top: 16px;
+            animation: fadeInUp 0.4s ease;
+        }
+        
+        .player-card, .error-card, .loading-card {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-lg);
+            padding: 16px;
+            box-shadow: var(--shadow-md);
+        }
+        
+        .player-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border-light);
+        }
+        
+        .game-icon {
+            font-size: 24px;
+        }
+        
+        .player-header h4 {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+            font-family: 'Orbitron', sans-serif;
+        }
+        
+        .player-info {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 12px;
+            background: var(--bg-card);
+            border-radius: var(--radius-sm);
+        }
+        
+        .info-row .label {
+            font-size: 13px;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+        
+        .info-row .value {
+            font-size: 13px;
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+        
+        .info-row .value.highlight {
+            color: var(--primary-color);
+            font-size: 14px;
+            font-family: 'Orbitron', sans-serif;
+        }
+        
+        .success-badge {
+            margin-top: 12px;
+            padding: 8px 16px;
+            background: rgba(16, 185, 129, 0.15);
+            border: 1px solid var(--success-color);
+            border-radius: var(--radius-md);
+            color: var(--success-color);
+            font-size: 13px;
+            font-weight: 600;
+            text-align: center;
+            font-family: 'Orbitron', sans-serif;
+        }
+        
+        .error-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .error-icon {
+            font-size: 32px;
+        }
+        
+        .error-card p {
+            font-size: 14px;
+            color: var(--error-color);
+            font-weight: 500;
+        }
+        
+        .loading-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            padding: 20px;
+        }
+        
+        .spinner-small {
+            width: 32px;
+            height: 32px;
+            border: 3px solid var(--border-light);
+            border-top: 3px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        .loading-card p {
+            font-size: 13px;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* ID Check Button */
+        .check-id-btn {
+            margin-top: 8px;
+            padding: 10px 16px;
+            background: var(--gradient-primary);
+            border: none;
+            border-radius: var(--radius-md);
+            color: white;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition-base);
+            width: 100%;
+        }
+        
+        .check-id-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .check-id-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+    `;
+    document.head.appendChild(style);
+}
+
 // ========== INITIALIZATION ==========
 document.addEventListener('DOMContentLoaded', async () => {
-    console.log('ðŸš€ Gaming Store App initializing...');
+    console.log('🚀 Gaming Store App initializing...');
     addAnimationStyles();
+    addIdCheckerStyles();
     await testDatabaseConnection();
     await loadWebsiteSettings();
     checkAuth();
@@ -206,7 +698,7 @@ async function testDatabaseConnection() {
     
     try {
         statusText.textContent = 'Testing database connection...';
-        console.log('ðŸ” Testing database connection...');
+        console.log('🔍 Testing database connection...');
         
         const { data, error } = await supabase
             .from('website_settings')
@@ -216,9 +708,9 @@ async function testDatabaseConnection() {
         if (error) throw error;
         
         statusEl.classList.add('connected');
-        statusIcon.textContent = 'âœ…';
+        statusIcon.textContent = '✅';
         statusText.textContent = 'Database connected successfully!';
-        console.log('âœ… Database connection successful');
+        console.log('✅ Database connection successful');
         
         setTimeout(() => {
             statusEl.classList.add('hide');
@@ -227,9 +719,9 @@ async function testDatabaseConnection() {
         
     } catch (error) {
         statusEl.classList.add('error');
-        statusIcon.textContent = 'âŒ';
+        statusIcon.textContent = '❌';
         statusText.textContent = 'Database connection failed!';
-        console.error('âŒ Database connection failed:', error);
+        console.error('❌ Database connection failed:', error);
         setTimeout(() => statusEl.classList.add('hide'), 10000);
     }
 }
@@ -349,7 +841,7 @@ async function handleSignup() {
     } catch (error) {
         hideLoading();
         showToast('An error occurred during signup', 'error');
-        console.error('âŒ Signup error:', error);
+        console.error('❌ Signup error:', error);
     }
 }
 
@@ -392,7 +884,7 @@ async function handleLogin() {
     } catch (error) {
         hideLoading();
         showToast('An error occurred during login', 'error');
-        console.error('âŒ Login error:', error);
+        console.error('❌ Login error:', error);
     }
 }
 
@@ -403,6 +895,10 @@ function handleLogout() {
     setTimeout(() => {
         location.reload();
     }, 1500);
+}
+
+function validateEmail(email) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
 // ========== WEBSITE SETTINGS ==========
@@ -418,7 +914,7 @@ async function loadWebsiteSettings() {
             applyWebsiteSettings();
         }
     } catch (error) {
-        console.error('âŒ Error loading settings:', error);
+        console.error('❌ Error loading settings:', error);
     }
 }
 
@@ -504,7 +1000,7 @@ async function loadBanners() {
             document.getElementById('bannerSection').style.display = 'none';
         }
     } catch (error) {
-        console.error('âŒ Error loading banners:', error);
+        console.error('❌ Error loading banners:', error);
         document.getElementById('bannerSection').style.display = 'none';
     }
 }
@@ -591,7 +1087,7 @@ async function loadCategories() {
             displayCategories(data);
         }
     } catch (error) {
-        console.error('âŒ Error loading categories:', error);
+        console.error('❌ Error loading categories:', error);
     }
 }
 
@@ -645,9 +1141,37 @@ function displayCategoryButtons(categoryId, buttons) {
     });
 }
 
-// ========== IMPROVED PURCHASE MODAL ==========
+// ========== PAGE NAVIGATION ==========
+function switchPage(pageName) {
+    // Update pages
+    document.querySelectorAll('.page').forEach(page => {
+        page.classList.remove('active');
+    });
+    document.getElementById(`${pageName}Page`).classList.add('active');
+
+    // Update nav
+    document.querySelectorAll('.nav-item').forEach(item => {
+        item.classList.remove('active');
+    });
+    document.querySelector(`[data-page="${pageName}"]`).classList.add('active');
+
+    // Reload data if needed
+    if (pageName === 'history') {
+        loadOrderHistory();
+    } else if (pageName === 'contacts') {
+        loadContacts();
+    } else if (pageName === 'mi') {
+        loadProfile();
+    }
+}
+
+function showHomePage() {
+    switchPage('home');
+}
+
+// ========== IMPROVED PURCHASE MODAL WITH ID CHECKER ==========
 async function openCategoryPage(categoryId, buttonId) {
-    console.log('\nðŸŽ® ========== OPENING CATEGORY PAGE ==========');
+    console.log('\n🎮 ========== OPENING CATEGORY PAGE ==========');
     console.log('Category ID:', categoryId);
     console.log('Button ID:', buttonId);
     
@@ -681,7 +1205,7 @@ async function openCategoryPage(categoryId, buttonId) {
         window.appState.allMenus = menus;
         window.appState.currentTables = tables;
 
-        console.log('âœ… Loaded data:');
+        console.log('✅ Loaded data:');
         console.log('  - Tables:', tables.length);
         console.log('  - Menus:', menus.length);
         console.log('  - Videos:', videos.length);
@@ -697,13 +1221,13 @@ async function openCategoryPage(categoryId, buttonId) {
 
     } catch (error) {
         hideLoading();
-        console.error('âŒ Error loading category data:', error);
+        console.error('❌ Error loading category data:', error);
         showToast('Error loading products. Please try again.', 'error');
     }
 }
 
 function showPurchaseModal(tables, menus, videos) {
-    console.log('\nðŸ“¦ ========== SHOWING PURCHASE MODAL ==========');
+    console.log('\n📦 ========== SHOWING PURCHASE MODAL ==========');
     console.log('Tables:', tables.length);
     console.log('Menus:', menus.length);
     console.log('Videos:', videos.length);
@@ -713,18 +1237,42 @@ function showPurchaseModal(tables, menus, videos) {
     
     let html = '<div class="purchase-form">';
 
-    // Input Tables
+    // Input Tables with ID Checker Support
     if (tables && tables.length > 0) {
         html += '<div class="input-tables" style="margin-bottom: 24px;">';
+        
+        // Check for PUBG Mobile ID checker
+        const pubgTable = tables.find(t => t.name && t.name.toLowerCase() === 'id_pubg');
+        
+        // Check for Mobile Legends ID checker
+        const mlUserIdTable = tables.find(t => t.name && t.name.toLowerCase() === 'userid_and_zone');
+        
         tables.forEach(table => {
+            const isPUBGTable = table.name && table.name.toLowerCase() === 'id_pubg';
+            const isMLTable = table.name && table.name.toLowerCase() === 'userid_and_zone';
+            
             html += `
                 <div class="form-group">
                     <label data-table-label="${table.id}" style="font-weight: 600; color: var(--text-primary);"></label>
                     <input type="text" 
                            id="table-${table.id}" 
                            data-table-id="${table.id}"
+                           data-table-name="${table.name}"
                            placeholder="${table.instruction || ''}"
+                           ${isPUBGTable || isMLTable ? 'class="game-id-input"' : ''}
                            required>
+                    ${isPUBGTable ? `
+                        <button type="button" class="check-id-btn" onclick="handlePUBGCheck(${table.id})">
+                            🎮 Check PUBG ID
+                        </button>
+                        <div id="pubg-result-${table.id}" class="game-id-checker"></div>
+                    ` : ''}
+                    ${isMLTable ? `
+                        <button type="button" class="check-id-btn" onclick="handleMLCheck(${table.id})">
+                            ⚔️ Check ML ID
+                        </button>
+                        <div id="ml-result-${table.id}" class="game-id-checker"></div>
+                    ` : ''}
                 </div>
             `;
         });
@@ -774,7 +1322,7 @@ function showPurchaseModal(tables, menus, videos) {
 
     // Apply animations and attach events
     setTimeout(() => {
-        console.log('ðŸŽ¨ Applying animations and attaching events...');
+        console.log('🎨 Applying animations and attaching events...');
         
         // Render table labels
         tables.forEach(table => {
@@ -806,14 +1354,14 @@ function showPurchaseModal(tables, menus, videos) {
 
         // Attach menu item click events
         const menuItems = document.querySelectorAll('.menu-item');
-        console.log('ðŸ“Œ Attaching click events to', menuItems.length, 'menu items');
+        console.log('🔌 Attaching click events to', menuItems.length, 'menu items');
         
         menuItems.forEach(item => {
             const menuId = parseInt(item.getAttribute('data-menu-id'));
             item.addEventListener('click', function(e) {
                 e.preventDefault();
                 e.stopPropagation();
-                console.log('ðŸ–±ï¸ Menu item clicked:', menuId);
+                console.log('🖱️ Menu item clicked:', menuId);
                 selectMenuItem(menuId);
             });
         });
@@ -824,22 +1372,132 @@ function showPurchaseModal(tables, menus, videos) {
             buyBtn.addEventListener('click', function(e) {
                 e.preventDefault();
                 e.stopPropagation();
-                console.log('ðŸ›’ Buy button clicked');
+                console.log('🛒 Buy button clicked');
                 proceedToPurchase();
             });
         }
 
-        console.log('âœ… Events attached successfully');
+        console.log('✅ Events attached successfully');
     }, 150);
 }
 
+// ========== GAME ID CHECKER HANDLERS ==========
+
+/**
+ * Handle PUBG ID Check
+ */
+window.handlePUBGCheck = async function(tableId) {
+    const input = document.getElementById(`table-${tableId}`);
+    const resultContainer = `pubg-result-${tableId}`;
+    
+    if (!input) return;
+    
+    const pubgId = input.value.trim();
+    
+    if (!pubgId) {
+        showToast('Please enter your PUBG Mobile Player ID', 'warning');
+        return;
+    }
+    
+    // Validate PUBG ID (should be numeric and reasonable length)
+    if (!/^\d{5,15}$/.test(pubgId)) {
+        displayGameIdError('Invalid PUBG ID format. Please enter a valid numeric Player ID.', resultContainer);
+        return;
+    }
+    
+    try {
+        displayGameIdLoading(resultContainer);
+        
+        const result = await checkPUBGId(pubgId);
+        
+        if (result.success && result.data) {
+            displayPUBGPlayerInfo(result.data, resultContainer);
+            showToast(`✅ PUBG Player Found: ${result.data.username}`, 'success', 6000);
+        } else {
+            displayGameIdError('Player ID not found. Please check your ID and try again.', resultContainer);
+            showToast('Player ID not found', 'error');
+        }
+    } catch (error) {
+        console.error('❌ Error checking PUBG ID:', error);
+        displayGameIdError(error.error || 'Failed to check Player ID. Please try again.', resultContainer);
+        showToast('Failed to check Player ID', 'error');
+    }
+};
+
+/**
+ * Handle Mobile Legends ID Check
+ */
+window.handleMLCheck = async function(tableId) {
+    const input = document.getElementById(`table-${tableId}`);
+    const resultContainer = `ml-result-${tableId}`;
+    
+    if (!input) return;
+    
+    const mlId = input.value.trim();
+    
+    if (!mlId) {
+        showToast('Please enter your Mobile Legends User ID and Zone ID', 'warning');
+        return;
+    }
+    
+    // Expected format: UserID(ZoneID) or just UserID and ZoneID separated
+    // Try to parse different formats
+    let userId, zoneId;
+    
+    // Format 1: 838384475(12322)
+    const format1 = mlId.match(/^(\d+)\((\d+)\)$/);
+    if (format1) {
+        userId = format1[1];
+        zoneId = format1[2];
+    } else {
+        // Format 2: 838384475 12322 or 83838447512322
+        const format2 = mlId.match(/^(\d{5,12})\s*(\d{4,6})$/);
+        if (format2) {
+            userId = format2[1];
+            zoneId = format2[2];
+        } else {
+            // Try to split if continuous numbers (last 4-5 digits as zone)
+            if (/^\d{9,18}$/.test(mlId)) {
+                userId = mlId.slice(0, -5);
+                zoneId = mlId.slice(-5);
+            } else {
+                displayGameIdError('Invalid format. Please enter User ID and Zone ID (e.g., 838384475(12322) or 838384475 12322)', resultContainer);
+                return;
+            }
+        }
+    }
+    
+    if (!userId || !zoneId) {
+        displayGameIdError('Invalid format. Please enter User ID and Zone ID correctly.', resultContainer);
+        return;
+    }
+    
+    try {
+        displayGameIdLoading(resultContainer);
+        
+        const result = await checkMobileLegends(userId, zoneId);
+        
+        if (result.success && result.data) {
+            displayMLPlayerInfo(result.data, resultContainer);
+            showToast(`✅ Mobile Legends Player Found: ${result.data.username}`, 'success', 6000);
+        } else {
+            displayGameIdError('Player ID not found. Please check your User ID and Zone ID.', resultContainer);
+            showToast('Player ID not found', 'error');
+        }
+    } catch (error) {
+        console.error('❌ Error checking Mobile Legends ID:', error);
+        displayGameIdError(error.error || 'Failed to check Player ID. Please try again.', resultContainer);
+        showToast('Failed to check Player ID', 'error');
+    }
+};
+
 function selectMenuItem(menuId) {
-    console.log('\nðŸ” ========== SELECTING MENU ITEM ==========');
+    console.log('\n🔍 ========== SELECTING MENU ITEM ==========');
     console.log('Menu ID:', menuId, '(type:', typeof menuId, ')');
     console.log('Available menus:', window.appState.allMenus.length);
     
     if (!menuId || isNaN(menuId)) {
-        console.error('âŒ Invalid menu ID');
+        console.error('❌ Invalid menu ID');
         showToast('Invalid product selection', 'error');
         return;
     }
@@ -852,13 +1510,13 @@ function selectMenuItem(menuId) {
     
     if (menu) {
         window.appState.currentMenu = menu;
-        console.log('âœ… Menu found and stored:');
+        console.log('✅ Menu found and stored:');
         console.log('  - ID:', menu.id);
         console.log('  - Name:', menu.name);
         console.log('  - Price:', menu.price);
         console.log('  - Amount:', menu.amount);
     } else {
-        console.error('âŒ Menu not found in stored menus');
+        console.error('❌ Menu not found in stored menus');
         console.log('Available menu IDs:', window.appState.allMenus.map(m => m.id));
         showToast('Product data not found. Please try again.', 'error');
         return;
@@ -872,41 +1530,41 @@ function selectMenuItem(menuId) {
     const selectedItem = document.querySelector(`[data-menu-id="${parsedMenuId}"]`);
     if (selectedItem) {
         selectedItem.classList.add('selected');
-        console.log('âœ… UI updated - item marked as selected');
+        console.log('✅ UI updated - item marked as selected');
     } else {
-        console.warn('âš ï¸ Could not find menu item element to mark as selected');
+        console.warn('⚠️ Could not find menu item element to mark as selected');
     }
 }
 
 function closePurchaseModal() {
-    console.log('ðŸšª Closing purchase modal');
+    console.log('🚪 Closing purchase modal');
     document.getElementById('purchaseModal').classList.remove('active');
 }
 
 async function proceedToPurchase() {
-    console.log('\nðŸ›’ ========== PROCEEDING TO PURCHASE ==========');
+    console.log('\n🛒 ========== PROCEEDING TO PURCHASE ==========');
     console.log('Selected menu ID:', window.appState.selectedMenuItem);
     console.log('Current menu:', window.appState.currentMenu);
     console.log('Button ID:', window.appState.currentButtonId);
     
     // Validation
     if (!window.appState.selectedMenuItem) {
-        console.error('âŒ No menu selected');
+        console.error('❌ No menu selected');
         showToast('Please select a product first', 'warning');
         return;
     }
 
     if (!window.appState.currentMenu) {
-        console.error('âŒ Menu data not found');
+        console.error('❌ Menu data not found');
         console.log('Attempting to recover menu data...');
         
         // Try to recover
         const menu = window.appState.allMenus.find(m => m.id === window.appState.selectedMenuItem);
         if (menu) {
             window.appState.currentMenu = menu;
-            console.log('âœ… Menu data recovered:', menu);
+            console.log('✅ Menu data recovered:', menu);
         } else {
-            console.error('âŒ Could not recover menu data');
+            console.error('❌ Could not recover menu data');
             showToast('Product data not found. Please select the product again.', 'error');
             return;
         }
@@ -916,7 +1574,7 @@ async function proceedToPurchase() {
     const tableData = {};
     let allFilled = true;
 
-    console.log('ðŸ“ Collecting table data from', window.appState.currentTables.length, 'tables');
+    console.log('🔍 Collecting table data from', window.appState.currentTables.length, 'tables');
     
     window.appState.currentTables.forEach(table => {
         const inputEl = document.querySelector(`[data-table-id="${table.id}"]`);
@@ -928,22 +1586,22 @@ async function proceedToPurchase() {
             }
             tableData[table.name] = value; // Use table name as key
         } else {
-            console.warn(`âš ï¸ Input element not found for table ${table.id}`);
+            console.warn(`⚠️ Input element not found for table ${table.id}`);
         }
     });
 
     if (window.appState.currentTables.length > 0 && !allFilled) {
-        console.error('âŒ Not all required fields filled');
+        console.error('❌ Not all required fields filled');
         showToast('Please fill in all required fields', 'warning');
         return;
     }
 
     window.appState.currentTableData = tableData;
-    console.log('âœ… Table data collected:', tableData);
+    console.log('✅ Table data collected:', tableData);
 
     closePurchaseModal();
     
-    console.log('âž¡ï¸ Moving to payment modal...');
+    console.log('➡️ Moving to payment modal...');
     await showPaymentModal();
 }
 
@@ -958,22 +1616,22 @@ async function loadPayments() {
         if (error) throw error;
 
         window.appState.payments = data || [];
-        console.log(`âœ… Loaded ${data?.length || 0} payment methods`);
+        console.log(`✅ Loaded ${data?.length || 0} payment methods`);
         return data || [];
     } catch (error) {
-        console.error('âŒ Error loading payments:', error);
+        console.error('❌ Error loading payments:', error);
         window.appState.payments = [];
         return [];
     }
 }
 
 async function showPaymentModal() {
-    console.log('\nðŸ’³ ========== SHOWING PAYMENT MODAL ==========');
+    console.log('\n💳 ========== SHOWING PAYMENT MODAL ==========');
     
     const menu = window.appState.currentMenu;
     
     if (!menu) {
-        console.error('âŒ Menu data not found in payment modal');
+        console.error('❌ Menu data not found in payment modal');
         console.log('State:', {
             selectedMenuItem: window.appState.selectedMenuItem,
             currentMenu: window.appState.currentMenu,
@@ -983,7 +1641,7 @@ async function showPaymentModal() {
         return;
     }
 
-    console.log('âœ… Menu data available:');
+    console.log('✅ Menu data available:');
     console.log('  - Name:', menu.name);
     console.log('  - Price:', menu.price);
     console.log('  - Amount:', menu.amount);
@@ -995,14 +1653,14 @@ async function showPaymentModal() {
 
     // Load payments if not loaded
     if (!window.appState.payments || window.appState.payments.length === 0) {
-        console.log('ðŸ“¥ Loading payment methods...');
+        console.log('📥 Loading payment methods...');
         await loadPayments();
     }
 
     hideLoading();
 
     const payments = window.appState.payments;
-    console.log('ðŸ’³ Available payment methods:', payments.length);
+    console.log('💳 Available payment methods:', payments.length);
 
     let html = '<div class="payment-selection">';
     
@@ -1017,7 +1675,7 @@ async function showPaymentModal() {
     
     // Payment Methods
     if (payments.length === 0) {
-        html += '<div style="text-align: center; color: var(--warning-color); padding: 40px; background: rgba(245, 158, 11, 0.1); border-radius: var(--border-radius); margin: 20px 0;"><p>âš ï¸ No payment methods available</p><p style="font-size: 14px; margin-top: 8px; color: var(--text-muted);">Please contact admin to set up payment methods</p></div>';
+        html += '<div style="text-align: center; color: var(--warning-color); padding: 40px; background: rgba(245, 158, 11, 0.1); border-radius: var(--border-radius); margin: 20px 0;"><p>⚠️ No payment methods available</p><p style="font-size: 14px; margin-top: 8px; color: var(--text-muted);">Please contact admin to set up payment methods</p></div>';
     } else {
         html += '<div class="payment-methods">';
         payments.forEach(payment => {
@@ -1040,7 +1698,7 @@ async function showPaymentModal() {
 
     // Apply animations and attach events
     setTimeout(() => {
-        console.log('ðŸŽ¨ Rendering payment modal content...');
+        console.log('🎨 Rendering payment modal content...');
         
         // Render order summary
         const summaryNameEl = document.querySelector('[data-order-summary-name]');
@@ -1056,14 +1714,14 @@ async function showPaymentModal() {
 
         // Attach payment method click events
         const paymentMethods = document.querySelectorAll('.payment-method');
-        console.log('ðŸ“Œ Attaching click events to', paymentMethods.length, 'payment methods');
+        console.log('🔌 Attaching click events to', paymentMethods.length, 'payment methods');
         
         paymentMethods.forEach(item => {
             const paymentId = parseInt(item.getAttribute('data-payment-id'));
             item.addEventListener('click', function(e) {
                 e.preventDefault();
                 e.stopPropagation();
-                console.log('ðŸ–±ï¸ Payment method clicked:', paymentId);
+                console.log('🖱️ Payment method clicked:', paymentId);
                 selectPayment(paymentId);
             });
         });
@@ -1074,17 +1732,17 @@ async function showPaymentModal() {
             submitBtn.addEventListener('click', function(e) {
                 e.preventDefault();
                 e.stopPropagation();
-                console.log('ðŸ“¤ Submit order button clicked');
+                console.log('📤 Submit order button clicked');
                 submitOrder();
             });
         }
 
-        console.log('âœ… Payment modal events attached');
+        console.log('✅ Payment modal events attached');
     }, 150);
 }
 
 async function selectPayment(paymentId) {
-    console.log('\nðŸ’³ ========== SELECTING PAYMENT ==========');
+    console.log('\n💳 ========== SELECTING PAYMENT ==========');
     console.log('Payment ID:', paymentId);
     
     window.appState.selectedPayment = parseInt(paymentId);
@@ -1097,7 +1755,7 @@ async function selectPayment(paymentId) {
     const selectedEl = document.querySelector(`[data-payment-id="${paymentId}"]`);
     if (selectedEl) {
         selectedEl.classList.add('selected');
-        console.log('âœ… Payment method marked as selected');
+        console.log('✅ Payment method marked as selected');
     }
 
     // Load payment details
@@ -1110,7 +1768,7 @@ async function selectPayment(paymentId) {
 
         if (error) throw error;
 
-        console.log('âœ… Payment details loaded:', payment.name);
+        console.log('✅ Payment details loaded:', payment.name);
 
         const detailsDiv = document.getElementById('paymentDetails');
         if (detailsDiv && payment) {
@@ -1139,18 +1797,18 @@ async function selectPayment(paymentId) {
             }, 50);
         }
     } catch (error) {
-        console.error('âŒ Error loading payment details:', error);
+        console.error('❌ Error loading payment details:', error);
         showToast('Error loading payment details', 'error');
     }
 }
 
 function closePaymentModal() {
-    console.log('ðŸšª Closing payment modal');
+    console.log('🚪 Closing payment modal');
     document.getElementById('paymentModal').classList.remove('active');
 }
 
 async function submitOrder() {
-    console.log('\nðŸ“¤ ========== SUBMITTING ORDER ==========');
+    console.log('\n📤 ========== SUBMITTING ORDER ==========');
     console.log('State check:');
     console.log('  - User ID:', window.appState.currentUser?.id);
     console.log('  - Menu ID:', window.appState.selectedMenuItem);
@@ -1160,20 +1818,20 @@ async function submitOrder() {
 
     // Validation
     if (!window.appState.selectedPayment) {
-        console.error('âŒ No payment method selected');
+        console.error('❌ No payment method selected');
         showToast('Please select a payment method', 'warning');
         return;
     }
 
     const transactionCode = document.getElementById('transactionCode')?.value;
     if (!transactionCode || transactionCode.trim().length !== 6) {
-        console.error('âŒ Invalid transaction code');
+        console.error('❌ Invalid transaction code');
         showToast('Please enter last 6 digits of transaction ID', 'warning');
         return;
     }
 
     if (!window.appState.selectedMenuItem || !window.appState.currentButtonId) {
-        console.error('âŒ Missing order information');
+        console.error('❌ Missing order information');
         showToast('Error: Missing order information. Please try again.', 'error');
         return;
     }
@@ -1192,7 +1850,7 @@ async function submitOrder() {
             created_at: new Date().toISOString()
         };
 
-        console.log('ðŸ“¦ Order data prepared:', orderData);
+        console.log('📦 Order data prepared:', orderData);
 
         const { data, error } = await supabase
             .from('orders')
@@ -1202,13 +1860,12 @@ async function submitOrder() {
 
         if (error) throw error;
 
-        console.log('âœ… Order submitted successfully:', data);
+        console.log('✅ Order submitted successfully:', data);
 
         hideLoading();
         closePaymentModal();
         
-        const menu = window.appState.currentMenu;
-        showToast(`ðŸŽ‰ Order Placed Successfully! Order ID: #${data.id}`, 'success', 8000);
+        showToast(`🎉 Order Placed Successfully! Order ID: #${data.id}`, 'success', 8000);
 
         // Reset state
         window.appState.selectedMenuItem = null;
@@ -1224,7 +1881,7 @@ async function submitOrder() {
 
     } catch (error) {
         hideLoading();
-        console.error('âŒ Order submission failed:', error);
+        console.error('❌ Order submission failed:', error);
         showToast('Error submitting order: ' + error.message, 'error');
     }
 }
@@ -1246,7 +1903,7 @@ async function loadOrderHistory() {
 
         displayOrderHistory(data || []);
     } catch (error) {
-        console.error('âŒ Error loading orders:', error);
+        console.error('❌ Error loading orders:', error);
     }
 }
 
@@ -1265,14 +1922,14 @@ function displayOrderHistory(orders) {
         item.className = 'history-item';
 
         let statusClass = 'pending';
-        let statusIcon = 'â³';
+        let statusIcon = '⏳';
         if (order.status === 'approved') {
             statusClass = 'approved';
-            statusIcon = 'âœ…';
+            statusIcon = '✅';
         }
         if (order.status === 'rejected') {
             statusClass = 'rejected';
-            statusIcon = 'âŒ';
+            statusIcon = '❌';
         }
 
         item.innerHTML = `
@@ -1299,7 +1956,9 @@ function displayOrderHistory(orders) {
             if (nameEl) applyAnimationRendering(nameEl, order.menus?.name || 'Unknown Product');
             if (amountEl) applyAnimationRendering(amountEl, order.menus?.amount || '');
             if (paymentEl) applyAnimationRendering(paymentEl, order.payment_methods?.name || 'N/A');
-            if (messageEl) applyAnimationRendering(messageEl, `<strong style="color: var(--warning-color);">ðŸ“¢ Admin Message:</strong><br>${order.admin_message}`);
+            if (messageEl && order.admin_message) {
+                applyAnimationRendering(messageEl, `<strong>Admin Message:</strong><br>${order.admin_message}`);
+            }
         }, 50);
     });
 }
@@ -1316,7 +1975,7 @@ async function loadContacts() {
 
         displayContacts(data || []);
     } catch (error) {
-        console.error('âŒ Error loading contacts:', error);
+        console.error('❌ Error loading contacts:', error);
     }
 }
 
@@ -1333,146 +1992,100 @@ function displayContacts(contacts) {
     contacts.forEach(contact => {
         const item = document.createElement('div');
         item.className = 'contact-item';
-
-        if (contact.link) {
-            item.style.cursor = 'pointer';
-            item.addEventListener('click', () => {
-                window.open(contact.link, '_blank');
-                showToast(`Opening ${contact.name}...`, 'success', 2000);
-            });
-        }
-
         item.innerHTML = `
-            <img src="${contact.icon_url}" class="contact-icon" alt="${contact.name}">
+            <img src="${contact.icon_url}" alt="${contact.name}">
             <div class="contact-info">
-                <h3 data-contact-name="${contact.id}" style="font-size: 18px; font-weight: 600; margin-bottom: 6px;"></h3>
-                <p data-contact-desc="${contact.id}" style="color: var(--text-secondary); margin-bottom: 4px;"></p>
-                ${!contact.link && contact.address ? `<p data-contact-address="${contact.id}" style="font-size: 14px; color: var(--text-muted);"></p>` : ''}
-                ${contact.link ? '<p style="font-size: 12px; color: var(--accent-color); margin-top: 8px;">ðŸ‘† Click to open</p>' : ''}
+                <h3 data-contact-name="${contact.id}"></h3>
+                <p data-contact-link="${contact.id}"></p>
             </div>
         `;
 
         container.appendChild(item);
 
+        // Add click to open link
+        item.addEventListener('click', () => {
+            window.open(contact.link, '_blank');
+        });
+
         setTimeout(() => {
             const nameEl = document.querySelector(`[data-contact-name="${contact.id}"]`);
-            const descEl = document.querySelector(`[data-contact-desc="${contact.id}"]`);
-            const addressEl = document.querySelector(`[data-contact-address="${contact.id}"]`);
-
+            const linkEl = document.querySelector(`[data-contact-link="${contact.id}"]`);
             if (nameEl) applyAnimationRendering(nameEl, contact.name);
-            if (descEl) applyAnimationRendering(descEl, contact.description || '');
-            if (addressEl) applyAnimationRendering(addressEl, contact.address || '');
+            if (linkEl) applyAnimationRendering(linkEl, contact.link);
         }, 50);
     });
 }
 
 // ========== PROFILE ==========
-function loadProfile() {
+async function loadProfile() {
     const user = window.appState.currentUser;
+    if (!user) return;
+
     document.getElementById('profileName').value = user.name;
     document.getElementById('profileUsername').value = user.username;
     document.getElementById('profileEmail').value = user.email;
 
+    // Generate avatar initial
     const avatar = document.getElementById('profileAvatar');
-    const initials = user.name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
-    avatar.textContent = initials;
-
-    const hue = (user.id * 137) % 360;
-    avatar.style.background = `linear-gradient(135deg, hsl(${hue}, 70%, 60%), hsl(${hue + 60}, 70%, 60%))`;
+    if (avatar) {
+        avatar.textContent = user.name.charAt(0).toUpperCase();
+    }
 }
 
 async function updateProfile() {
     const currentPassword = document.getElementById('currentPassword').value;
     const newPassword = document.getElementById('newPassword').value;
 
-    if (!newPassword) {
-        showToast('Please enter a new password', 'error');
+    if (!currentPassword && !newPassword) {
+        showToast('No changes to save', 'warning');
         return;
     }
 
-    if (currentPassword !== window.appState.currentUser.password) {
-        showToast('Current password is incorrect', 'error');
+    if (currentPassword && !newPassword) {
+        showToast('Please enter a new password', 'warning');
+        return;
+    }
+
+    if (!currentPassword && newPassword) {
+        showToast('Please enter current password', 'warning');
         return;
     }
 
     showLoading();
 
     try {
-        const { data, error } = await supabase
+        const user = window.appState.currentUser;
+
+        // Verify current password
+        if (user.password !== currentPassword) {
+            hideLoading();
+            showToast('Current password is incorrect', 'error');
+            return;
+        }
+
+        // Update password
+        const { error } = await supabase
             .from('users')
             .update({ password: newPassword })
-            .eq('id', window.appState.currentUser.id)
-            .select()
-            .single();
+            .eq('id', user.id);
 
         if (error) throw error;
 
+        // Update local state
+        user.password = newPassword;
+        window.appState.currentUser = user;
+        localStorage.setItem('currentUser', JSON.stringify(user));
+
         hideLoading();
-        window.appState.currentUser = data;
-        localStorage.setItem('currentUser', JSON.stringify(data));
-        
+        showToast('Password updated successfully!', 'success');
+
+        // Clear inputs
         document.getElementById('currentPassword').value = '';
         document.getElementById('newPassword').value = '';
-        
-        showToast('Password updated successfully! ðŸ”’', 'success');
 
     } catch (error) {
         hideLoading();
-        showToast('Error updating password', 'error');
-        console.error('âŒ Update error:', error);
+        console.error('❌ Error updating profile:', error);
+        showToast('Error updating profile', 'error');
     }
 }
-
-// ========== NAVIGATION ==========
-function switchPage(pageName) {
-    document.querySelectorAll('.page').forEach(page => {
-        page.classList.remove('active');
-    });
-
-    document.getElementById(pageName + 'Page').classList.add('active');
-
-    document.querySelectorAll('.nav-item').forEach(item => {
-        item.classList.remove('active');
-    });
-    
-    const activeNav = document.querySelector(`[data-page="${pageName}"]`);
-    if (activeNav) activeNav.classList.add('active');
-
-    // Load data when switching to specific pages
-    if (pageName === 'history') {
-        loadOrderHistory();
-    } else if (pageName === 'contacts') {
-        loadContacts();
-    }
-}
-
-// ========== UTILITY FUNCTIONS ==========
-function validateEmail(email) {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-}
-
-function showError(element, message) {
-    if (element) {
-        element.textContent = message;
-        element.classList.add('show');
-        setTimeout(() => element.classList.remove('show'), 5000);
-    }
-}
-
-function showSuccess(element, message) {
-    if (element) {
-        element.textContent = message;
-        element.classList.add('show');
-        setTimeout(() => element.classList.remove('show'), 5000);
-    }
-}
-
-// ========== CLEANUP ==========
-window.addEventListener('beforeunload', () => {
-    // Clear banner interval
-    if (window.appState.bannerInterval) {
-        clearInterval(window.appState.bannerInterval);
-    }
-});
-
-console.log('âœ… Enhanced Gaming Store App initialized with improved UI/UX!');
