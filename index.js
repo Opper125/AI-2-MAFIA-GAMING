@@ -1,8 +1,11 @@
 
-
 // Supabase Configuration
 const SUPABASE_URL = 'https://qcbzxalqpcppiorffpas.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFjYnp4YWxxcGNwcGlvcmZmcGFzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAwOTg0NTAsImV4cCI6MjA3NTY3NDQ1MH0.EQ-Wc_FJ65tuCBF3a_1_7IrKO6bJmZgN4-cJqapNoRg';
+
+// RapidAPI Configuration for Game ID Checker
+const RAPIDAPI_KEY = 'e2f6ae1ea0mshb1c6aaad419cea7p11237cjsn9c7a7458679a';
+const RAPIDAPI_HOST = 'id-game-checker.p.rapidapi.com';
 
 // Initialize Supabase Client
 let supabase;
@@ -28,18 +31,8 @@ window.appState = {
     allMenus: [],
     currentTables: [],
     currentBannerIndex: 0,
-    bannerInterval: null
-};
-
-// ========== GAME ID CHECKER CACHE ==========
-// LocalStorage keys for caching game ID checks
-const GAME_ID_CACHE_PREFIX = 'gameIdCache_';
-const CACHE_EXPIRY_HOURS = 24; // Cache expires after 24 hours
-
-// API Configuration for Game ID Checkers
-const RAPIDAPI_CONFIG = {
-    key: 'e9dca4286emsh4d7cdfebdedad21p12269cjsn0581391f6ed3',
-    host: 'check-id-game.p.rapidapi.com'
+    bannerInterval: null,
+    gameIdCheckerData: {} // Store checked game ID data
 };
 
 // ========== DISABLE RIGHT CLICK & CONTEXT MENU ==========
@@ -202,488 +195,226 @@ function addAnimationStyles() {
 
 // ========== GAME ID CHECKER FUNCTIONS ==========
 
-/**
- * Get cached game ID result from localStorage
- */
-function getCachedGameId(gameType, gameId) {
+// Check PUBG Mobile ID
+async function checkPUBGID(gameId) {
     try {
-        const cacheKey = `${GAME_ID_CACHE_PREFIX}${gameType}_${gameId}`;
-        const cached = localStorage.getItem(cacheKey);
+        console.log('🎮 Checking PUBG Mobile ID:', gameId);
         
-        if (cached) {
-            const data = JSON.parse(cached);
-            const now = new Date().getTime();
-            const cacheTime = new Date(data.timestamp).getTime();
-            const expiryTime = CACHE_EXPIRY_HOURS * 60 * 60 * 1000;
-            
-            if (now - cacheTime < expiryTime) {
-                console.log(`✅ Using cached result for ${gameType} ID: ${gameId}`);
-                return data.result;
-            } else {
-                // Cache expired, remove it
-                localStorage.removeItem(cacheKey);
+        const response = await fetch(`https://${RAPIDAPI_HOST}/pubgm-global/${gameId}`, {
+            method: 'GET',
+            headers: {
+                'x-rapidapi-key': RAPIDAPI_KEY,
+                'x-rapidapi-host': RAPIDAPI_HOST
             }
+        });
+
+        const data = await response.json();
+        console.log('✅ PUBG API Response:', data);
+
+        if (data.error === false && data.status === 200 && data.msg === 'id_found') {
+            return {
+                success: true,
+                data: {
+                    id: data.data.id,
+                    username: data.data.username,
+                    is_ban: data.data.is_ban
+                }
+            };
+        } else {
+            return {
+                success: false,
+                message: 'Player ID not found or invalid'
+            };
         }
     } catch (error) {
-        console.error('❌ Error reading cache:', error);
-    }
-    return null;
-}
-
-/**
- * Save game ID result to localStorage
- */
-function cacheGameId(gameType, gameId, result) {
-    try {
-        const cacheKey = `${GAME_ID_CACHE_PREFIX}${gameType}_${gameId}`;
-        const data = {
-            timestamp: new Date().toISOString(),
-            result: result
+        console.error('❌ PUBG ID Check Error:', error);
+        return {
+            success: false,
+            message: 'Failed to check Player ID. Please try again.'
         };
-        localStorage.setItem(cacheKey, JSON.stringify(data));
-        console.log(`💾 Cached result for ${gameType} ID: ${gameId}`);
-    } catch (error) {
-        console.error('❌ Error saving cache:', error);
     }
 }
 
-/**
- * Check PUBG Mobile ID
- * @param {string} pubgId - PUBG Mobile Player ID
- * @returns {Promise<Object>} - Player data or error
- */
-async function checkPUBGId(pubgId) {
-    console.log(`🎮 Checking PUBG Mobile ID: ${pubgId}`);
-    
-    // Check cache first
-    const cached = getCachedGameId('pubg', pubgId);
-    if (cached) {
-        return cached;
-    }
-    
+// Check Mobile Legends ID
+async function checkMLBBID(gameId, serverId) {
     try {
-        const xhr = new XMLHttpRequest();
+        console.log('🎮 Checking Mobile Legends ID:', gameId, 'Server:', serverId);
         
-        return new Promise((resolve, reject) => {
-            xhr.addEventListener('readystatechange', function () {
-                if (this.readyState === this.DONE) {
-                    try {
-                        const response = JSON.parse(this.responseText);
-                        
-                        if (response.success && response.data) {
-                            console.log('✅ PUBG ID found:', response.data.username);
-                            // Cache the result
-                            cacheGameId('pubg', pubgId, response);
-                            resolve(response);
-                        } else {
-                            console.log('❌ PUBG ID not found');
-                            const errorResponse = {
-                                success: false,
-                                error: 'Player ID not found'
-                            };
-                            // Cache the error result too
-                            cacheGameId('pubg', pubgId, errorResponse);
-                            reject(errorResponse);
-                        }
-                    } catch (error) {
-                        console.error('❌ Error parsing PUBG response:', error);
-                        reject({ success: false, error: 'Invalid response from server' });
-                    }
-                }
-            });
-            
-            xhr.addEventListener('error', function() {
-                console.error('❌ Network error checking PUBG ID');
-                reject({ success: false, error: 'Network error. Please try again.' });
-            });
-            
-            xhr.addEventListener('timeout', function() {
-                console.error('❌ Timeout checking PUBG ID');
-                reject({ success: false, error: 'Request timeout. Please try again.' });
-            });
-            
-            xhr.open('GET', `https://check-id-game.p.rapidapi.com/api/rapid_api/cekpubgmobile/${pubgId}`);
-            xhr.setRequestHeader('x-rapidapi-key', RAPIDAPI_CONFIG.key);
-            xhr.setRequestHeader('x-rapidapi-host', RAPIDAPI_CONFIG.host);
-            xhr.timeout = 10000; // 10 second timeout
-            
-            xhr.send();
+        const response = await fetch(`https://${RAPIDAPI_HOST}/mobile-legends/${gameId}/${serverId}`, {
+            method: 'GET',
+            headers: {
+                'x-rapidapi-key': RAPIDAPI_KEY,
+                'x-rapidapi-host': RAPIDAPI_HOST
+            }
         });
+
+        const data = await response.json();
+        console.log('✅ MLBB API Response:', data);
+
+        if (data.error === false && data.status === 200 && data.msg === 'id_found') {
+            return {
+                success: true,
+                data: {
+                    id: data.data.id,
+                    server: data.data.server,
+                    username: data.data.username,
+                    region: data.data.region || 'Unknown',
+                    shop_events: data.data.shop_events || []
+                }
+            };
+        } else {
+            return {
+                success: false,
+                message: 'Player ID or Server not found or invalid'
+            };
+        }
     } catch (error) {
-        console.error('❌ Error checking PUBG ID:', error);
-        throw { success: false, error: 'Failed to check Player ID' };
+        console.error('❌ MLBB ID Check Error:', error);
+        return {
+            success: false,
+            message: 'Failed to check Player ID. Please try again.'
+        };
     }
 }
 
-/**
- * Check Mobile Legends ID
- * @param {string} userId - Mobile Legends User ID
- * @param {string} zoneId - Mobile Legends Zone ID
- * @returns {Promise<Object>} - Player data or error
- */
-async function checkMobileLegends(userId, zoneId) {
-    console.log(`🎮 Checking Mobile Legends ID: ${userId} (${zoneId})`);
-    
-    const combinedId = `${userId}_${zoneId}`;
-    
-    // Check cache first
-    const cached = getCachedGameId('ml', combinedId);
-    if (cached) {
-        return cached;
+// Render ID Checker Result
+function renderIDCheckerResult(result, containerEl, gameType) {
+    if (!containerEl) return;
+
+    if (result.success) {
+        const username = result.data.username;
+        const firstLetter = username.charAt(0).toUpperCase();
+        
+        let regionBadge = '';
+        if (gameType === 'mlbb' && result.data.region) {
+            regionBadge = `<span class="id-checker-region">${result.data.region}</span>`;
+        }
+
+        containerEl.innerHTML = `
+            <div class="id-checker-result">
+                <div class="id-checker-avatar">${firstLetter}</div>
+                <div class="id-checker-info">
+                    <div class="id-checker-username">${username}</div>
+                    <div class="id-checker-id">ID: ${result.data.id}${result.data.server ? ' | Server: ' + result.data.server : ''}</div>
+                    ${regionBadge}
+                </div>
+            </div>
+        `;
+
+        // Store in global state
+        window.appState.gameIdCheckerData = {
+            gameType: gameType,
+            ...result.data
+        };
+
+        showToast('✅ Player ID verified successfully!', 'success');
+    } else {
+        containerEl.innerHTML = `
+            <div class="id-checker-error">
+                ❌ ${result.message || 'Player ID not found'}
+            </div>
+        `;
+        window.appState.gameIdCheckerData = {};
+        showToast(result.message || 'Player ID not found', 'error');
     }
-    
+}
+
+// Handle PUBG ID Check Button Click
+async function handlePUBGIDCheck(inputEl, containerEl) {
+    const gameId = inputEl.value.trim();
+
+    if (!gameId) {
+        showToast('Please enter your PUBG Mobile ID', 'warning');
+        return;
+    }
+
+    // Show loading
+    containerEl.innerHTML = `
+        <div class="id-checker-loading">
+            <div class="id-checker-loading-spinner"></div>
+            <span>Checking Player ID...</span>
+        </div>
+    `;
+
+    const result = await checkPUBGID(gameId);
+    renderIDCheckerResult(result, containerEl, 'pubg');
+}
+
+// Handle MLBB ID Check Button Click
+async function handleMLBBIDCheck(idInputEl, serverInputEl, containerEl) {
+    const gameId = idInputEl.value.trim();
+    const serverId = serverInputEl.value.trim();
+
+    if (!gameId || !serverId) {
+        showToast('Please enter both Player ID and Server ID', 'warning');
+        return;
+    }
+
+    // Show loading
+    containerEl.innerHTML = `
+        <div class="id-checker-loading">
+            <div class="id-checker-loading-spinner"></div>
+            <span>Checking Player ID...</span>
+        </div>
+    `;
+
+    const result = await checkMLBBID(gameId, serverId);
+    renderIDCheckerResult(result, containerEl, 'mlbb');
+}
+
+// Auto Topup Diamond for MLBB (when admin approves order)
+async function autoTopupMLBBDiamond(orderId, gameId, serverId, diamondAmount) {
     try {
-        const xhr = new XMLHttpRequest();
-        
-        return new Promise((resolve, reject) => {
-            xhr.addEventListener('readystatechange', function () {
-                if (this.readyState === this.DONE) {
-                    try {
-                        const response = JSON.parse(this.responseText);
-                        
-                        if (response.success && response.data) {
-                            console.log('✅ Mobile Legends ID found:', response.data.username);
-                            // Cache the result
-                            cacheGameId('ml', combinedId, response);
-                            resolve(response);
-                        } else {
-                            console.log('❌ Mobile Legends ID not found');
-                            const errorResponse = {
-                                success: false,
-                                error: 'Player ID not found'
-                            };
-                            // Cache the error result too
-                            cacheGameId('ml', combinedId, errorResponse);
-                            reject(errorResponse);
-                        }
-                    } catch (error) {
-                        console.error('❌ Error parsing Mobile Legends response:', error);
-                        reject({ success: false, error: 'Invalid response from server' });
-                    }
-                }
-            });
-            
-            xhr.addEventListener('error', function() {
-                console.error('❌ Network error checking Mobile Legends ID');
-                reject({ success: false, error: 'Network error. Please try again.' });
-            });
-            
-            xhr.addEventListener('timeout', function() {
-                console.error('❌ Timeout checking Mobile Legends ID');
-                reject({ success: false, error: 'Request timeout. Please try again.' });
-            });
-            
-            xhr.open('GET', `https://check-id-game.p.rapidapi.com/api/rapid_api/cek_game_ml/${userId}/${zoneId}`);
-            xhr.setRequestHeader('x-rapidapi-key', RAPIDAPI_CONFIG.key);
-            xhr.setRequestHeader('x-rapidapi-host', RAPIDAPI_CONFIG.host);
-            xhr.timeout = 10000; // 10 second timeout
-            
-            xhr.send();
+        console.log('💎 Auto Topup MLBB Diamond:', {
+            orderId,
+            gameId,
+            serverId,
+            diamondAmount
         });
+
+        // Using LocalStorage to simulate diamond topup
+        // In production, you would integrate with actual MLBB topup API
+        
+        const topupData = {
+            orderId: orderId,
+            gameId: gameId,
+            serverId: serverId,
+            diamondAmount: diamondAmount,
+            status: 'processing',
+            timestamp: new Date().toISOString()
+        };
+
+        // Store in localStorage
+        const storageKey = `mlbb_topup_${orderId}`;
+        localStorage.setItem(storageKey, JSON.stringify(topupData));
+
+        // Simulate topup process (2 seconds delay)
+        await new Promise(resolve => setTimeout(resolve, 2000));
+
+        // Update status to completed
+        topupData.status = 'completed';
+        localStorage.setItem(storageKey, JSON.stringify(topupData));
+
+        console.log('✅ MLBB Diamond topup completed:', topupData);
+
+        return {
+            success: true,
+            message: `Successfully topped up ${diamondAmount} diamonds to ID: ${gameId} (Server: ${serverId})`
+        };
+
     } catch (error) {
-        console.error('❌ Error checking Mobile Legends ID:', error);
-        throw { success: false, error: 'Failed to check Player ID' };
+        console.error('❌ MLBB Diamond topup failed:', error);
+        return {
+            success: false,
+            message: 'Failed to topup diamonds. Please contact support.'
+        };
     }
-}
-
-/**
- * Display PUBG player information
- */
-function displayPUBGPlayerInfo(data, containerId) {
-    const container = document.getElementById(containerId);
-    if (!container) return;
-    
-    container.innerHTML = `
-        <div class="game-id-result success">
-            <div class="player-card">
-                <div class="player-header">
-                    <span class="game-icon">🎮</span>
-                    <h4>PUBG Mobile Player</h4>
-                </div>
-                <div class="player-info">
-                    <div class="info-row">
-                        <span class="label">Player ID:</span>
-                        <span class="value">${data.id_pubg}</span>
-                    </div>
-                    <div class="info-row">
-                        <span class="label">Username:</span>
-                        <span class="value highlight">${data.username}</span>
-                    </div>
-                    ${data.region ? `
-                    <div class="info-row">
-                        <span class="label">Region:</span>
-                        <span class="value">${data.region}</span>
-                    </div>
-                    ` : ''}
-                    ${data.server ? `
-                    <div class="info-row">
-                        <span class="label">Server:</span>
-                        <span class="value">${data.server}</span>
-                    </div>
-                    ` : ''}
-                </div>
-                <div class="success-badge">✅ Player Found</div>
-            </div>
-        </div>
-    `;
-}
-
-/**
- * Display Mobile Legends player information
- */
-function displayMLPlayerInfo(data, containerId) {
-    const container = document.getElementById(containerId);
-    if (!container) return;
-    
-    container.innerHTML = `
-        <div class="game-id-result success">
-            <div class="player-card">
-                <div class="player-header">
-                    <span class="game-icon">⚔️</span>
-                    <h4>Mobile Legends Player</h4>
-                </div>
-                <div class="player-info">
-                    <div class="info-row">
-                        <span class="label">User ID:</span>
-                        <span class="value">${data.Userid_and_Zone}</span>
-                    </div>
-                    <div class="info-row">
-                        <span class="label">Username:</span>
-                        <span class="value highlight">${data.username}</span>
-                    </div>
-                    ${data.country ? `
-                    <div class="info-row">
-                        <span class="label">Country:</span>
-                        <span class="value">${data.country.toUpperCase()}</span>
-                    </div>
-                    ` : ''}
-                </div>
-                <div class="success-badge">✅ Player Found</div>
-            </div>
-        </div>
-    `;
-}
-
-/**
- * Display error message for game ID check
- */
-function displayGameIdError(message, containerId) {
-    const container = document.getElementById(containerId);
-    if (!container) return;
-    
-    container.innerHTML = `
-        <div class="game-id-result error">
-            <div class="error-card">
-                <span class="error-icon">❌</span>
-                <p>${message}</p>
-            </div>
-        </div>
-    `;
-}
-
-/**
- * Display loading state for game ID check
- */
-function displayGameIdLoading(containerId) {
-    const container = document.getElementById(containerId);
-    if (!container) return;
-    
-    container.innerHTML = `
-        <div class="game-id-result loading">
-            <div class="loading-card">
-                <div class="spinner-small"></div>
-                <p>Checking Player ID...</p>
-            </div>
-        </div>
-    `;
-}
-
-/**
- * Clear game ID check result
- */
-function clearGameIdResult(containerId) {
-    const container = document.getElementById(containerId);
-    if (container) {
-        container.innerHTML = '';
-    }
-}
-
-/**
- * Add ID checker styles to document
- */
-function addIdCheckerStyles() {
-    const style = document.createElement('style');
-    style.textContent = `
-        .game-id-checker {
-            margin-top: 12px;
-        }
-        
-        .game-id-result {
-            margin-top: 16px;
-            animation: fadeInUp 0.4s ease;
-        }
-        
-        .player-card, .error-card, .loading-card {
-            background: var(--bg-tertiary);
-            border: 1px solid var(--border-light);
-            border-radius: var(--radius-lg);
-            padding: 16px;
-            box-shadow: var(--shadow-md);
-        }
-        
-        .player-header {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 16px;
-            padding-bottom: 12px;
-            border-bottom: 1px solid var(--border-light);
-        }
-        
-        .game-icon {
-            font-size: 24px;
-        }
-        
-        .player-header h4 {
-            font-size: 16px;
-            font-weight: 600;
-            color: var(--text-primary);
-            font-family: 'Orbitron', sans-serif;
-        }
-        
-        .player-info {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-        
-        .info-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 8px 12px;
-            background: var(--bg-card);
-            border-radius: var(--radius-sm);
-        }
-        
-        .info-row .label {
-            font-size: 13px;
-            color: var(--text-muted);
-            font-weight: 500;
-        }
-        
-        .info-row .value {
-            font-size: 13px;
-            color: var(--text-secondary);
-            font-weight: 600;
-        }
-        
-        .info-row .value.highlight {
-            color: var(--primary-color);
-            font-size: 14px;
-            font-family: 'Orbitron', sans-serif;
-        }
-        
-        .success-badge {
-            margin-top: 12px;
-            padding: 8px 16px;
-            background: rgba(16, 185, 129, 0.15);
-            border: 1px solid var(--success-color);
-            border-radius: var(--radius-md);
-            color: var(--success-color);
-            font-size: 13px;
-            font-weight: 600;
-            text-align: center;
-            font-family: 'Orbitron', sans-serif;
-        }
-        
-        .error-card {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 10px;
-            padding: 20px;
-            text-align: center;
-        }
-        
-        .error-icon {
-            font-size: 32px;
-        }
-        
-        .error-card p {
-            font-size: 14px;
-            color: var(--error-color);
-            font-weight: 500;
-        }
-        
-        .loading-card {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 12px;
-            padding: 20px;
-        }
-        
-        .spinner-small {
-            width: 32px;
-            height: 32px;
-            border: 3px solid var(--border-light);
-            border-top: 3px solid var(--primary-color);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-        
-        .loading-card p {
-            font-size: 13px;
-            color: var(--text-muted);
-            font-weight: 500;
-        }
-        
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
-        /* ID Check Button */
-        .check-id-btn {
-            margin-top: 8px;
-            padding: 10px 16px;
-            background: var(--gradient-primary);
-            border: none;
-            border-radius: var(--radius-md);
-            color: white;
-            font-size: 13px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: var(--transition-base);
-            width: 100%;
-        }
-        
-        .check-id-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-lg);
-        }
-        
-        .check-id-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            transform: none;
-        }
-    `;
-    document.head.appendChild(style);
 }
 
 // ========== INITIALIZATION ==========
 document.addEventListener('DOMContentLoaded', async () => {
     console.log('🚀 Gaming Store App initializing...');
     addAnimationStyles();
-    addIdCheckerStyles();
     await testDatabaseConnection();
     await loadWebsiteSettings();
     checkAuth();
@@ -898,7 +629,8 @@ function handleLogout() {
 }
 
 function validateEmail(email) {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return re.test(email);
 }
 
 // ========== WEBSITE SETTINGS ==========
@@ -1141,35 +873,7 @@ function displayCategoryButtons(categoryId, buttons) {
     });
 }
 
-// ========== PAGE NAVIGATION ==========
-function switchPage(pageName) {
-    // Update pages
-    document.querySelectorAll('.page').forEach(page => {
-        page.classList.remove('active');
-    });
-    document.getElementById(`${pageName}Page`).classList.add('active');
-
-    // Update nav
-    document.querySelectorAll('.nav-item').forEach(item => {
-        item.classList.remove('active');
-    });
-    document.querySelector(`[data-page="${pageName}"]`).classList.add('active');
-
-    // Reload data if needed
-    if (pageName === 'history') {
-        loadOrderHistory();
-    } else if (pageName === 'contacts') {
-        loadContacts();
-    } else if (pageName === 'mi') {
-        loadProfile();
-    }
-}
-
-function showHomePage() {
-    switchPage('home');
-}
-
-// ========== IMPROVED PURCHASE MODAL WITH ID CHECKER ==========
+// ========== IMPROVED PURCHASE MODAL WITH GAME ID CHECKER ==========
 async function openCategoryPage(categoryId, buttonId) {
     console.log('\n🎮 ========== OPENING CATEGORY PAGE ==========');
     console.log('Category ID:', categoryId);
@@ -1185,6 +889,7 @@ async function openCategoryPage(categoryId, buttonId) {
         window.appState.currentTableData = {};
         window.appState.allMenus = [];
         window.appState.currentTables = [];
+        window.appState.gameIdCheckerData = {};
         
         // Load data
         const [tablesResult, menusResult, videosResult] = await Promise.all([
@@ -1237,20 +942,41 @@ function showPurchaseModal(tables, menus, videos) {
     
     let html = '<div class="purchase-form">';
 
-    // Input Tables with ID Checker Support
+    // Detect Game ID Checker Type
+    let hasIdPubg = false;
+    let hasIdAndServer = false;
+    let idTableId = null;
+    let serverTableId = null;
+
+    tables.forEach(table => {
+        const tableName = table.name.toLowerCase().trim();
+        if (tableName === 'id_pubg') {
+            hasIdPubg = true;
+        }
+        if (tableName === 'id') {
+            idTableId = table.id;
+        }
+        if (tableName === 'server') {
+            serverTableId = table.id;
+        }
+    });
+
+    if (idTableId && serverTableId) {
+        hasIdAndServer = true;
+    }
+
+    console.log('🔍 Game ID Checker Detection:', {
+        hasIdPubg,
+        hasIdAndServer,
+        idTableId,
+        serverTableId
+    });
+
+    // Input Tables
     if (tables && tables.length > 0) {
         html += '<div class="input-tables" style="margin-bottom: 24px;">';
         
-        // Check for PUBG Mobile ID checker
-        const pubgTable = tables.find(t => t.name && t.name.toLowerCase() === 'id_pubg');
-        
-        // Check for Mobile Legends ID checker
-        const mlUserIdTable = tables.find(t => t.name && t.name.toLowerCase() === 'userid_and_zone');
-        
         tables.forEach(table => {
-            const isPUBGTable = table.name && table.name.toLowerCase() === 'id_pubg';
-            const isMLTable = table.name && table.name.toLowerCase() === 'userid_and_zone';
-            
             html += `
                 <div class="form-group">
                     <label data-table-label="${table.id}" style="font-weight: 600; color: var(--text-primary);"></label>
@@ -1259,23 +985,28 @@ function showPurchaseModal(tables, menus, videos) {
                            data-table-id="${table.id}"
                            data-table-name="${table.name}"
                            placeholder="${table.instruction || ''}"
-                           ${isPUBGTable || isMLTable ? 'class="game-id-input"' : ''}
                            required>
-                    ${isPUBGTable ? `
-                        <button type="button" class="check-id-btn" onclick="handlePUBGCheck(${table.id})">
-                            🎮 Check PUBG ID
-                        </button>
-                        <div id="pubg-result-${table.id}" class="game-id-checker"></div>
-                    ` : ''}
-                    ${isMLTable ? `
-                        <button type="button" class="check-id-btn" onclick="handleMLCheck(${table.id})">
-                            ⚔️ Check ML ID
-                        </button>
-                        <div id="ml-result-${table.id}" class="game-id-checker"></div>
-                    ` : ''}
                 </div>
             `;
         });
+
+        // Add Game ID Checker Button
+        if (hasIdPubg) {
+            html += `
+                <button type="button" class="check-id-button" id="checkPubgIdBtn">
+                    🔍 Verify PUBG Mobile ID
+                </button>
+                <div id="idCheckerResult" class="id-checker-container" style="display: none;"></div>
+            `;
+        } else if (hasIdAndServer) {
+            html += `
+                <button type="button" class="check-id-button" id="checkMlbbIdBtn">
+                    🔍 Verify Mobile Legends ID
+                </button>
+                <div id="idCheckerResult" class="id-checker-container" style="display: none;"></div>
+            `;
+        }
+
         html += '</div>';
     }
 
@@ -1352,9 +1083,40 @@ function showPurchaseModal(tables, menus, videos) {
             }
         });
 
+        // Attach Game ID Checker Events
+        if (hasIdPubg) {
+            const checkBtn = document.getElementById('checkPubgIdBtn');
+            const resultContainer = document.getElementById('idCheckerResult');
+            
+            if (checkBtn) {
+                checkBtn.addEventListener('click', async function() {
+                    const idInput = document.querySelector('[data-table-name="id_pubg"]');
+                    if (idInput && resultContainer) {
+                        resultContainer.style.display = 'block';
+                        await handlePUBGIDCheck(idInput, resultContainer);
+                    }
+                });
+            }
+        } else if (hasIdAndServer) {
+            const checkBtn = document.getElementById('checkMlbbIdBtn');
+            const resultContainer = document.getElementById('idCheckerResult');
+            
+            if (checkBtn) {
+                checkBtn.addEventListener('click', async function() {
+                    const idInput = document.querySelector('[data-table-name="id"]');
+                    const serverInput = document.querySelector('[data-table-name="server"]');
+                    
+                    if (idInput && serverInput && resultContainer) {
+                        resultContainer.style.display = 'block';
+                        await handleMLBBIDCheck(idInput, serverInput, resultContainer);
+                    }
+                });
+            }
+        }
+
         // Attach menu item click events
         const menuItems = document.querySelectorAll('.menu-item');
-        console.log('🔌 Attaching click events to', menuItems.length, 'menu items');
+        console.log('📌 Attaching click events to', menuItems.length, 'menu items');
         
         menuItems.forEach(item => {
             const menuId = parseInt(item.getAttribute('data-menu-id'));
@@ -1380,116 +1142,6 @@ function showPurchaseModal(tables, menus, videos) {
         console.log('✅ Events attached successfully');
     }, 150);
 }
-
-// ========== GAME ID CHECKER HANDLERS ==========
-
-/**
- * Handle PUBG ID Check
- */
-window.handlePUBGCheck = async function(tableId) {
-    const input = document.getElementById(`table-${tableId}`);
-    const resultContainer = `pubg-result-${tableId}`;
-    
-    if (!input) return;
-    
-    const pubgId = input.value.trim();
-    
-    if (!pubgId) {
-        showToast('Please enter your PUBG Mobile Player ID', 'warning');
-        return;
-    }
-    
-    // Validate PUBG ID (should be numeric and reasonable length)
-    if (!/^\d{5,15}$/.test(pubgId)) {
-        displayGameIdError('Invalid PUBG ID format. Please enter a valid numeric Player ID.', resultContainer);
-        return;
-    }
-    
-    try {
-        displayGameIdLoading(resultContainer);
-        
-        const result = await checkPUBGId(pubgId);
-        
-        if (result.success && result.data) {
-            displayPUBGPlayerInfo(result.data, resultContainer);
-            showToast(`✅ PUBG Player Found: ${result.data.username}`, 'success', 6000);
-        } else {
-            displayGameIdError('Player ID not found. Please check your ID and try again.', resultContainer);
-            showToast('Player ID not found', 'error');
-        }
-    } catch (error) {
-        console.error('❌ Error checking PUBG ID:', error);
-        displayGameIdError(error.error || 'Failed to check Player ID. Please try again.', resultContainer);
-        showToast('Failed to check Player ID', 'error');
-    }
-};
-
-/**
- * Handle Mobile Legends ID Check
- */
-window.handleMLCheck = async function(tableId) {
-    const input = document.getElementById(`table-${tableId}`);
-    const resultContainer = `ml-result-${tableId}`;
-    
-    if (!input) return;
-    
-    const mlId = input.value.trim();
-    
-    if (!mlId) {
-        showToast('Please enter your Mobile Legends User ID and Zone ID', 'warning');
-        return;
-    }
-    
-    // Expected format: UserID(ZoneID) or just UserID and ZoneID separated
-    // Try to parse different formats
-    let userId, zoneId;
-    
-    // Format 1: 838384475(12322)
-    const format1 = mlId.match(/^(\d+)\((\d+)\)$/);
-    if (format1) {
-        userId = format1[1];
-        zoneId = format1[2];
-    } else {
-        // Format 2: 838384475 12322 or 83838447512322
-        const format2 = mlId.match(/^(\d{5,12})\s*(\d{4,6})$/);
-        if (format2) {
-            userId = format2[1];
-            zoneId = format2[2];
-        } else {
-            // Try to split if continuous numbers (last 4-5 digits as zone)
-            if (/^\d{9,18}$/.test(mlId)) {
-                userId = mlId.slice(0, -5);
-                zoneId = mlId.slice(-5);
-            } else {
-                displayGameIdError('Invalid format. Please enter User ID and Zone ID (e.g., 838384475(12322) or 838384475 12322)', resultContainer);
-                return;
-            }
-        }
-    }
-    
-    if (!userId || !zoneId) {
-        displayGameIdError('Invalid format. Please enter User ID and Zone ID correctly.', resultContainer);
-        return;
-    }
-    
-    try {
-        displayGameIdLoading(resultContainer);
-        
-        const result = await checkMobileLegends(userId, zoneId);
-        
-        if (result.success && result.data) {
-            displayMLPlayerInfo(result.data, resultContainer);
-            showToast(`✅ Mobile Legends Player Found: ${result.data.username}`, 'success', 6000);
-        } else {
-            displayGameIdError('Player ID not found. Please check your User ID and Zone ID.', resultContainer);
-            showToast('Player ID not found', 'error');
-        }
-    } catch (error) {
-        console.error('❌ Error checking Mobile Legends ID:', error);
-        displayGameIdError(error.error || 'Failed to check Player ID. Please try again.', resultContainer);
-        showToast('Failed to check Player ID', 'error');
-    }
-};
 
 function selectMenuItem(menuId) {
     console.log('\n🔍 ========== SELECTING MENU ITEM ==========');
@@ -1584,7 +1236,7 @@ async function proceedToPurchase() {
             if (!value) {
                 allFilled = false;
             }
-            tableData[table.name] = value; // Use table name as key
+            tableData[table.name] = value;
         } else {
             console.warn(`⚠️ Input element not found for table ${table.id}`);
         }
@@ -1714,7 +1366,7 @@ async function showPaymentModal() {
 
         // Attach payment method click events
         const paymentMethods = document.querySelectorAll('.payment-method');
-        console.log('🔌 Attaching click events to', paymentMethods.length, 'payment methods');
+        console.log('📌 Attaching click events to', paymentMethods.length, 'payment methods');
         
         paymentMethods.forEach(item => {
             const paymentId = parseInt(item.getAttribute('data-payment-id'));
@@ -1815,6 +1467,7 @@ async function submitOrder() {
     console.log('  - Button ID:', window.appState.currentButtonId);
     console.log('  - Payment ID:', window.appState.selectedPayment);
     console.log('  - Table data:', window.appState.currentTableData);
+    console.log('  - Game ID Checker data:', window.appState.gameIdCheckerData);
 
     // Validation
     if (!window.appState.selectedPayment) {
@@ -1865,6 +1518,7 @@ async function submitOrder() {
         hideLoading();
         closePaymentModal();
         
+        const menu = window.appState.currentMenu;
         showToast(`🎉 Order Placed Successfully! Order ID: #${data.id}`, 'success', 8000);
 
         // Reset state
@@ -1874,6 +1528,7 @@ async function submitOrder() {
         window.appState.currentMenu = null;
         window.appState.currentButtonId = null;
         window.appState.currentTables = [];
+        window.appState.gameIdCheckerData = {};
         
         // Reload history and switch to history page
         await loadOrderHistory();
@@ -1955,14 +1610,13 @@ function displayOrderHistory(orders) {
 
             if (nameEl) applyAnimationRendering(nameEl, order.menus?.name || 'Unknown Product');
             if (amountEl) applyAnimationRendering(amountEl, order.menus?.amount || '');
-            if (paymentEl) applyAnimationRendering(paymentEl, order.payment_methods?.name || 'N/A');
-            if (messageEl && order.admin_message) {
-                applyAnimationRendering(messageEl, `<strong>Admin Message:</strong><br>${order.admin_message}`);
-            }
-        }, 50);
+            if (paymentEl) applyAnimationRendering(paymentEl, order.payment_methods?.name || 'Unknown');
+            if (messageEl && order.admin_message) applyAnimationRendering(messageEl, `<strong>Admin Message:</strong><br>${order.admin_message}`);
+        }, 100);
     });
 }
 
+// ========== CONTACTS ==========
 // ========== CONTACTS ==========
 async function loadContacts() {
     try {
@@ -1970,9 +1624,9 @@ async function loadContacts() {
             .from('contacts')
             .select('*')
             .order('created_at', { ascending: true });
-
+        
         if (error) throw error;
-
+        
         displayContacts(data || []);
     } catch (error) {
         console.error('❌ Error loading contacts:', error);
@@ -1986,9 +1640,9 @@ function displayContacts(contacts) {
         container.innerHTML = '<div style="text-align:center;color:var(--text-muted);padding:60px 20px;"><h3 style="margin-bottom:12px;">No Contacts Available</h3><p>Contact information will be displayed here.</p></div>';
         return;
     }
-
+    
     container.innerHTML = '';
-
+    
     contacts.forEach(contact => {
         const item = document.createElement('div');
         item.className = 'contact-item';
@@ -1999,14 +1653,14 @@ function displayContacts(contacts) {
                 <p data-contact-link="${contact.id}"></p>
             </div>
         `;
-
+        
         container.appendChild(item);
-
+        
         // Add click to open link
         item.addEventListener('click', () => {
             window.open(contact.link, '_blank');
         });
-
+        
         setTimeout(() => {
             const nameEl = document.querySelector(`[data-contact-name="${contact.id}"]`);
             const linkEl = document.querySelector(`[data-contact-link="${contact.id}"]`);
@@ -2025,7 +1679,7 @@ async function loadProfile() {
     document.getElementById('profileUsername').value = user.username;
     document.getElementById('profileEmail').value = user.email;
 
-    // Generate avatar initial
+    // Set avatar
     const avatar = document.getElementById('profileAvatar');
     if (avatar) {
         avatar.textContent = user.name.charAt(0).toUpperCase();
@@ -2042,7 +1696,7 @@ async function updateProfile() {
     }
 
     if (currentPassword && !newPassword) {
-        showToast('Please enter a new password', 'warning');
+        showToast('Please enter new password', 'warning');
         return;
     }
 
@@ -2051,41 +1705,76 @@ async function updateProfile() {
         return;
     }
 
+    const user = window.appState.currentUser;
+
+    if (currentPassword !== user.password) {
+        showToast('Current password is incorrect', 'error');
+        return;
+    }
+
     showLoading();
 
     try {
-        const user = window.appState.currentUser;
-
-        // Verify current password
-        if (user.password !== currentPassword) {
-            hideLoading();
-            showToast('Current password is incorrect', 'error');
-            return;
-        }
-
-        // Update password
-        const { error } = await supabase
+        const { data, error } = await supabase
             .from('users')
             .update({ password: newPassword })
-            .eq('id', user.id);
+            .eq('id', user.id)
+            .select()
+            .single();
 
         if (error) throw error;
 
-        // Update local state
-        user.password = newPassword;
-        window.appState.currentUser = user;
-        localStorage.setItem('currentUser', JSON.stringify(user));
+        window.appState.currentUser = data;
+        localStorage.setItem('currentUser', JSON.stringify(data));
+
+        document.getElementById('currentPassword').value = '';
+        document.getElementById('newPassword').value = '';
 
         hideLoading();
         showToast('Password updated successfully!', 'success');
 
-        // Clear inputs
-        document.getElementById('currentPassword').value = '';
-        document.getElementById('newPassword').value = '';
-
     } catch (error) {
         hideLoading();
-        console.error('❌ Error updating profile:', error);
-        showToast('Error updating profile', 'error');
+        showToast('Failed to update password', 'error');
+        console.error('❌ Profile update error:', error);
     }
+}
+
+// ========== PAGE NAVIGATION ==========
+function switchPage(page) {
+    console.log('🔄 Switching to page:', page);
+
+    // Hide all pages
+    document.querySelectorAll('.page').forEach(p => {
+        p.classList.remove('active');
+    });
+
+    // Show selected page
+    const pageElement = document.getElementById(`${page}Page`);
+    if (pageElement) {
+        pageElement.classList.add('active');
+    }
+
+    // Update navigation
+    document.querySelectorAll('.nav-item').forEach(item => {
+        item.classList.remove('active');
+    });
+
+    const navItem = document.querySelector(`[data-page="${page}"]`);
+    if (navItem) {
+        navItem.classList.add('active');
+    }
+
+    // Reload data for specific pages
+    if (page === 'history') {
+        loadOrderHistory();
+    } else if (page === 'contacts') {
+        loadContacts();
+    } else if (page === 'mi') {
+        loadProfile();
+    }
+}
+
+function showHomePage() {
+    switchPage('home');
 }
