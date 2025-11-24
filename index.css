@@ -1,7 +1,7 @@
 /* ========================================
-   🎮 MAFIA GAMING STORE - COMPLETE PREMIUM EDITION
-   Ultra Modern Glass Morphism Design - Full Version
-   All Features Included & Enhanced
+   🎮 MAFIA GAMING STORE - ULTIMATE 3D EDITION
+   Dark Purple-Black Theme with 3D Effects
+   Premium Gaming Design - Complete Version
    ======================================== */
 
 /* ============================================
@@ -15,14 +15,20 @@
 }
 
 :root {
-    /* 🎨 IMPROVED: Modern Color Palette - Vibrant Gaming Theme */
-    --primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    --primary-solid: #667eea;
-    --primary-dark: #5568d3;
-    --secondary: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-    --secondary-solid: #f5576c;
-    --accent: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-    --accent-solid: #00f2fe;
+    /* 🎨 IMPROVED: Dark Purple-Black-White Theme - Sophisticated Mix */
+    --primary: linear-gradient(135deg, #2d1b4e 0%, #1a0f2e 100%);
+    --primary-solid: #2d1b4e;
+    --primary-dark: #1a0f2e;
+    --primary-light: #4a2d6e;
+    
+    --secondary: linear-gradient(135deg, #4a1942 0%, #2e0f3e 100%);
+    --secondary-solid: #4a1942;
+    --secondary-dark: #2e0f3e;
+    
+    --accent: linear-gradient(135deg, #6b4e7e 0%, #8e7ea8 100%);
+    --accent-solid: #6b4e7e;
+    --accent-light: #8e7ea8;
+    
     --success: #10b981;
     --success-light: #34d399;
     --error: #ef4444;
@@ -32,31 +38,31 @@
     --info: #3b82f6;
     --info-light: #60a5fa;
     
-    /* Text Colors - Enhanced Contrast */
+    /* Text Colors - Enhanced with 3D Support */
     --text-primary: #ffffff;
-    --text-secondary: #e2e8f0;
-    --text-muted: #94a3b8;
-    --text-dark: #1e293b;
-    --text-disabled: #64748b;
+    --text-secondary: #e8e3f0;
+    --text-muted: #a79bb8;
+    --text-dark: #1a0f2e;
+    --text-disabled: #6b5a7e;
     
-    /* 🌟 IMPROVED: Background Colors - More Transparent & Clear */
-    --bg-primary: #0f172a;
-    --bg-secondary: rgba(30, 41, 59, 0.45);      /* Reduced opacity */
-    --bg-tertiary: rgba(51, 65, 85, 0.35);       /* Reduced opacity */
-    --bg-card: rgba(255, 255, 255, 0.06);        /* Lighter */
-    --bg-glass: rgba(255, 255, 255, 0.08);       /* Lighter */
-    --bg-glass-hover: rgba(255, 255, 255, 0.12); /* Lighter */
-    --bg-overlay: rgba(15, 23, 42, 0.85);
-    --bg-modal: rgba(15, 23, 42, 0.75);
+    /* Background Colors - Dark Purple-Black Mix */
+    --bg-primary: #0d0a15;
+    --bg-secondary: rgba(29, 20, 45, 0.45);
+    --bg-tertiary: rgba(45, 27, 78, 0.35);
+    --bg-card: rgba(74, 25, 66, 0.08);
+    --bg-glass: rgba(45, 27, 78, 0.12);
+    --bg-glass-hover: rgba(74, 78, 142, 0.18);
+    --bg-overlay: rgba(13, 10, 21, 0.85);
+    --bg-modal: rgba(13, 10, 21, 0.75);
     
-    /* Border Colors - Enhanced Glow */
-    --border-light: rgba(255, 255, 255, 0.12);
-    --border-medium: rgba(255, 255, 255, 0.2);
-    --border-strong: rgba(255, 255, 255, 0.3);
-    --border-glow: rgba(102, 126, 234, 0.5);
-    --border-glow-strong: rgba(102, 126, 234, 0.8);
+    /* Border Colors - Purple Themed */
+    --border-light: rgba(107, 78, 126, 0.18);
+    --border-medium: rgba(142, 126, 168, 0.28);
+    --border-strong: rgba(167, 155, 184, 0.4);
+    --border-glow: rgba(107, 78, 126, 0.6);
+    --border-glow-strong: rgba(142, 126, 168, 0.8);
     
-    /* 💎 IMPROVED: Border Radius - Softer & More Modern */
+    /* Border Radius - Softer */
     --radius-xs: 8px;
     --radius-sm: 12px;
     --radius-md: 16px;
@@ -66,39 +72,51 @@
     --radius-3xl: 40px;
     --radius-full: 9999px;
     
-    /* 🌈 IMPROVED: Shadows - Premium Quality */
-    --shadow-xs: 0 1px 3px rgba(0, 0, 0, 0.1);
-    --shadow-sm: 0 2px 10px rgba(0, 0, 0, 0.1);
-    --shadow-md: 0 8px 30px rgba(0, 0, 0, 0.12);
-    --shadow-lg: 0 20px 60px rgba(102, 126, 234, 0.3);
-    --shadow-xl: 0 30px 90px rgba(102, 126, 234, 0.4);
-    --shadow-2xl: 0 40px 120px rgba(102, 126, 234, 0.5);
-    --shadow-glow: 0 0 40px rgba(102, 126, 234, 0.6);
-    --shadow-glow-strong: 0 0 60px rgba(102, 126, 234, 0.8);
-    --shadow-inset: inset 0 2px 8px rgba(0, 0, 0, 0.1);
-    --shadow-inset-strong: inset 0 4px 12px rgba(0, 0, 0, 0.2);
+    /* 🔥 IMPROVED: 3D Shadows - Deep & Realistic */
+    --shadow-xs: 0 1px 3px rgba(0, 0, 0, 0.3);
+    --shadow-sm: 0 2px 10px rgba(13, 10, 21, 0.4);
+    --shadow-md: 0 8px 30px rgba(13, 10, 21, 0.5);
+    --shadow-lg: 0 20px 60px rgba(45, 27, 78, 0.6);
+    --shadow-xl: 0 30px 90px rgba(45, 27, 78, 0.7);
+    --shadow-2xl: 0 40px 120px rgba(45, 27, 78, 0.8);
+    --shadow-glow: 0 0 40px rgba(107, 78, 126, 0.7);
+    --shadow-glow-strong: 0 0 60px rgba(142, 126, 168, 0.9);
+    --shadow-inset: inset 0 2px 8px rgba(0, 0, 0, 0.3);
+    --shadow-inset-strong: inset 0 4px 12px rgba(0, 0, 0, 0.5);
     
-    /* ⚡ IMPROVED: Transitions - Ultra Smooth */
+    /* 💎 NEW: 3D Text Shadows */
+    --text-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.5);
+    --text-shadow-md: 0 2px 4px rgba(0, 0, 0, 0.6), 0 4px 8px rgba(13, 10, 21, 0.4);
+    --text-shadow-lg: 0 3px 6px rgba(0, 0, 0, 0.7), 0 6px 12px rgba(13, 10, 21, 0.5), 0 9px 18px rgba(13, 10, 21, 0.3);
+    --text-shadow-3d: 1px 1px 0 rgba(0, 0, 0, 0.3), 2px 2px 0 rgba(0, 0, 0, 0.25), 3px 3px 0 rgba(0, 0, 0, 0.2), 4px 4px 0 rgba(0, 0, 0, 0.15), 5px 5px 10px rgba(0, 0, 0, 0.5);
+    --text-shadow-glow: 0 0 10px rgba(142, 126, 168, 0.8), 0 0 20px rgba(107, 78, 126, 0.6), 0 0 30px rgba(74, 25, 66, 0.4);
+    
+    /* 💎 NEW: 3D Button Shadows */
+    --button-shadow-3d: 0 6px 0 rgba(13, 10, 21, 0.8), 0 8px 15px rgba(0, 0, 0, 0.6);
+    --button-shadow-3d-hover: 0 3px 0 rgba(13, 10, 21, 0.8), 0 5px 12px rgba(0, 0, 0, 0.5);
+    --button-shadow-3d-active: 0 1px 0 rgba(13, 10, 21, 0.8), 0 2px 6px rgba(0, 0, 0, 0.4);
+    
+    /* Transitions */
     --transition-fast: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     --transition-base: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
     --transition-slow: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
     --transition-bounce: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
     --transition-elastic: all 0.7s cubic-bezier(0.68, -0.6, 0.32, 1.6);
     
-    /* 🎨 IMPROVED: Gradients - Premium & Vibrant */
-    --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    --gradient-primary-reverse: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
-    --gradient-secondary: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-    --gradient-accent: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    /* 🎨 IMPROVED: Dark Purple Gradients */
+    --gradient-primary: linear-gradient(135deg, #2d1b4e 0%, #1a0f2e 100%);
+    --gradient-primary-reverse: linear-gradient(135deg, #1a0f2e 0%, #2d1b4e 100%);
+    --gradient-secondary: linear-gradient(135deg, #4a1942 0%, #2e0f3e 100%);
+    --gradient-accent: linear-gradient(135deg, #6b4e7e 0%, #8e7ea8 100%);
     --gradient-success: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
     --gradient-error: linear-gradient(135deg, #eb3349 0%, #f45c43 100%);
     --gradient-warning: linear-gradient(135deg, #f2994a 0%, #f2c94c 100%);
-    --gradient-premium: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
-    --gradient-premium-alt: linear-gradient(135deg, #4facfe 0%, #00f2fe 50%, #667eea 100%);
-    --gradient-shine: linear-gradient(120deg, transparent 0%, rgba(255, 255, 255, 0.3) 50%, transparent 100%);
-    --gradient-overlay: linear-gradient(180deg, transparent 0%, rgba(15, 23, 42, 0.3) 100%);
-    --gradient-overlay-strong: linear-gradient(180deg, transparent 0%, rgba(15, 23, 42, 0.7) 100%);
-    --gradient-radial: radial-gradient(circle at center, rgba(102, 126, 234, 0.2) 0%, transparent 70%);
+    --gradient-premium: linear-gradient(135deg, #2d1b4e 0%, #4a1942 50%, #6b4e7e 100%);
+    --gradient-premium-alt: linear-gradient(135deg, #1a0f2e 0%, #2d1b4e 50%, #4a2d6e 100%);
+    --gradient-shine: linear-gradient(120deg, transparent 0%, rgba(255, 255, 255, 0.15) 50%, transparent 100%);
+    --gradient-overlay: linear-gradient(180deg, transparent 0%, rgba(13, 10, 21, 0.4) 100%);
+    --gradient-overlay-strong: linear-gradient(180deg, transparent 0%, rgba(13, 10, 21, 0.8) 100%);
+    --gradient-radial: radial-gradient(circle at center, rgba(107, 78, 126, 0.3) 0%, transparent 70%);
     
     /* Z-Index Layers */
     --z-background: -2;
@@ -136,13 +154,13 @@
 }
 
 /* ============================================
-   PART 2: TYPOGRAPHY & FONTS
+   PART 2: 💎 PREMIUM FONTS - BEAUTIFUL TYPOGRAPHY
    ============================================ */
 
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&family=Rajdhani:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800;900&family=Playfair+Display:wght@400;500;600;700;800;900&family=Orbitron:wght@400;500;600;700;800;900&family=Exo+2:wght@300;400;500;600;700;800;900&family=Rajdhani:wght@400;500;600;700;800;900&family=Montserrat:wght@300;400;500;600;700;800;900&display=swap');
 
 body {
-    font-family: 'Poppins', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-family: 'Montserrat', 'Exo 2', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     background: var(--bg-primary);
     color: var(--text-primary);
     min-height: 100vh;
@@ -153,11 +171,32 @@ body {
     font-size: var(--text-base);
 }
 
+/* 🔥 3D Text Effects for Headings */
 h1, h2, h3, h4, h5, h6 {
-    font-family: 'Rajdhani', sans-serif;
+    font-family: 'Cinzel', 'Orbitron', serif;
     font-weight: 700;
     line-height: 1.2;
-    letter-spacing: 0.5px;
+    letter-spacing: 1px;
+    text-shadow: var(--text-shadow-3d);
+}
+
+h1 {
+    font-size: var(--text-5xl);
+    text-shadow: var(--text-shadow-lg);
+}
+
+h2 {
+    font-size: var(--text-4xl);
+    text-shadow: var(--text-shadow-md);
+}
+
+h3 {
+    font-size: var(--text-3xl);
+    text-shadow: var(--text-shadow-md);
+}
+
+p, span, label {
+    text-shadow: var(--text-shadow-sm);
 }
 
 /* ============================================
@@ -206,7 +245,7 @@ button, a, input, textarea, select, [role="button"] {
 }
 
 /* ============================================
-   PART 4: SCROLLBAR STYLING - PREMIUM
+   PART 4: SCROLLBAR - DARK PURPLE THEME
    ============================================ */
 
 ::-webkit-scrollbar {
@@ -236,7 +275,6 @@ button, a, input, textarea, select, [role="button"] {
     background: var(--bg-secondary);
 }
 
-/* Firefox Scrollbar */
 * {
     scrollbar-width: thin;
     scrollbar-color: var(--primary-solid) var(--bg-secondary);
@@ -254,17 +292,17 @@ button, a, input, textarea, select, [role="button"] {
     vertical-align: middle;
     margin: 0 var(--space-xs);
     border-radius: var(--radius-sm);
-    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.4));
     transition: var(--transition-fast);
 }
 
 .inline-animation:hover {
     transform: scale(1.1);
-    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.5));
 }
 
 /* ============================================
-   PART 6: 🌟 DYNAMIC BACKGROUND - IMPROVED
+   PART 6: 🌟 DYNAMIC BACKGROUND - ULTRA CLEAR
    ============================================ */
 
 .dynamic-background {
@@ -281,32 +319,31 @@ button, a, input, textarea, select, [role="button"] {
     background-repeat: no-repeat;
 }
 
-/* 🔥 IMPROVED: More Transparent & Clear Background Overlay */
+/* 🔥 IMPROVED: Very Clear Background - Minimal Overlay */
 .dynamic-background::after {
     content: '';
     position: absolute;
     inset: 0;
     background: linear-gradient(180deg, 
-        rgba(15, 23, 42, 0.35) 0%,    /* ⬅️ Much lighter than 0.7 */
-        rgba(15, 23, 42, 0.55) 100%   /* ⬅️ Much lighter than 0.9 */
+        rgba(13, 10, 21, 0.35) 0%,
+        rgba(29, 20, 45, 0.55) 100%
     );
-    backdrop-filter: blur(2px);       /* ⬅️ Minimal blur from 8px */
+    backdrop-filter: blur(2px);
     -webkit-backdrop-filter: blur(2px);
     z-index: var(--z-background-overlay);
 }
 
-/* Alternative: Even More Clear Version (Optional) */
 .dynamic-background.ultra-clear::after {
     background: linear-gradient(180deg, 
-        rgba(15, 23, 42, 0.25) 0%,
-        rgba(15, 23, 42, 0.45) 100%
+        rgba(13, 10, 21, 0.25) 0%,
+        rgba(29, 20, 45, 0.45) 100%
     );
     backdrop-filter: blur(1px);
     -webkit-backdrop-filter: blur(1px);
 }
 
 /* ============================================
-   PART 7: CONNECTION STATUS - MODERN
+   PART 7: CONNECTION STATUS
    ============================================ */
 
 .connection-status {
@@ -351,6 +388,7 @@ button, a, input, textarea, select, [role="button"] {
 .status-icon {
     font-size: 18px;
     animation: pulse 2.5s ease-in-out infinite;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
 }
 
 @keyframes pulse {
@@ -369,6 +407,7 @@ button, a, input, textarea, select, [role="button"] {
     font-weight: 600;
     color: var(--text-secondary);
     letter-spacing: 0.5px;
+    text-shadow: var(--text-shadow-sm);
 }
 
 .connection-status.connected .connection-indicator {
@@ -403,13 +442,13 @@ button, a, input, textarea, select, [role="button"] {
 }
 
 /* ============================================
-   PART 8: LOADING SCREEN - PREMIUM
+   PART 8: LOADING SCREEN
    ============================================ */
 
 .loading-screen {
     position: fixed;
     inset: 0;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+    background: linear-gradient(135deg, #2d1b4e 0%, #4a1942 50%, #6b4e7e 100%);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -439,7 +478,7 @@ button, a, input, textarea, select, [role="button"] {
     max-width: 180px;
     max-height: 180px;
     object-fit: contain;
-    filter: drop-shadow(0 10px 40px rgba(0, 0, 0, 0.4));
+    filter: drop-shadow(0 10px 40px rgba(0, 0, 0, 0.6));
     border-radius: var(--radius-xl);
 }
 
@@ -451,7 +490,7 @@ button, a, input, textarea, select, [role="button"] {
     border-radius: 50%;
     animation: spin 0.8s linear infinite;
     margin: 0 auto var(--space-xl);
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
 }
 
 @keyframes spin {
@@ -461,11 +500,11 @@ button, a, input, textarea, select, [role="button"] {
 .loading-animation p {
     font-size: var(--text-base);
     font-weight: 700;
-    font-family: 'Rajdhani', sans-serif;
+    font-family: 'Cinzel', serif;
     text-transform: uppercase;
     letter-spacing: 3px;
     margin-top: var(--space-md);
-    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    text-shadow: var(--text-shadow-lg);
     color: white;
 }
 
@@ -481,7 +520,7 @@ button, a, input, textarea, select, [role="button"] {
     align-items: center;
     z-index: var(--z-modal);
     padding: var(--space-2xl);
-    background: rgba(15, 23, 42, 0.5);
+    background: rgba(13, 10, 21, 0.5);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
 }
@@ -540,27 +579,27 @@ button, a, input, textarea, select, [role="button"] {
     margin-bottom: var(--space-4xl);
 }
 
+/* 🔥 IMPROVED: Flexible Logo - Supports All Image Shapes */
 .auth-logo {
-    width: 95px;
-    height: 95px;
-    border-radius: 50%;
+    max-width: 160px;
+    max-height: 100px;
+    width: auto;
+    height: auto;
     margin: 0 auto var(--space-xl);
-    border: 3px solid transparent;
-    background: var(--gradient-primary);
-    background-clip: padding-box;
-    box-shadow: var(--shadow-glow);
+    display: block;
+    object-fit: contain;
+    filter: drop-shadow(0 8px 24px rgba(107, 78, 126, 0.8));
     transition: var(--transition-base);
     animation: float 3s ease-in-out infinite;
-    display: block;
 }
 
 .auth-logo:hover {
-    transform: scale(1.1) rotate(5deg);
-    box-shadow: var(--shadow-glow-strong);
+    transform: scale(1.05);
+    filter: drop-shadow(0 12px 32px rgba(142, 126, 168, 0.9));
 }
 
 .auth-header h1 {
-    font-family: 'Rajdhani', sans-serif;
+    font-family: 'Cinzel', serif;
     font-size: var(--text-4xl);
     font-weight: 900;
     background: var(--gradient-premium);
@@ -569,16 +608,19 @@ button, a, input, textarea, select, [role="button"] {
     background-clip: text;
     letter-spacing: 2px;
     text-transform: uppercase;
+    text-shadow: none;
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.5));
 }
 
 .auth-header p {
     color: var(--text-muted);
     font-size: var(--text-sm);
     margin-top: var(--space-sm);
+    text-shadow: var(--text-shadow-sm);
 }
 
 /* ============================================
-   PART 10: AUTH FORMS - ENHANCED
+   PART 10: AUTH FORMS
    ============================================ */
 
 .auth-form {
@@ -602,7 +644,7 @@ button, a, input, textarea, select, [role="button"] {
 }
 
 .auth-form h2 {
-    font-family: 'Rajdhani', sans-serif;
+    font-family: 'Cinzel', serif;
     font-size: var(--text-2xl);
     font-weight: 700;
     text-align: center;
@@ -610,6 +652,7 @@ button, a, input, textarea, select, [role="button"] {
     color: var(--text-primary);
     text-transform: uppercase;
     letter-spacing: 1px;
+    text-shadow: var(--text-shadow-md);
 }
 
 .form-group {
@@ -622,7 +665,8 @@ button, a, input, textarea, select, [role="button"] {
     font-weight: 600;
     color: var(--text-secondary);
     margin-bottom: var(--space-md);
-    letter-spacing: 0.3px;
+    letter-spacing: 0.5px;
+    text-shadow: var(--text-shadow-sm);
 }
 
 .form-group label .required {
@@ -642,14 +686,15 @@ button, a, input, textarea, select, [role="button"] {
     font-size: var(--text-base);
     font-weight: 500;
     transition: var(--transition-base);
-    font-family: inherit;
+    font-family: 'Montserrat', sans-serif;
+    box-shadow: var(--shadow-inset);
 }
 
 .form-group input:focus {
     outline: none;
     border-color: var(--primary-solid);
     background: var(--bg-glass-hover);
-    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.15);
+    box-shadow: 0 0 0 4px rgba(107, 78, 126, 0.2), var(--shadow-inset);
     transform: translateY(-2px);
 }
 
@@ -688,19 +733,19 @@ button, a, input, textarea, select, [role="button"] {
 }
 
 .checkbox-group label a {
-    color: var(--primary-solid);
+    color: var(--accent-solid);
     text-decoration: none;
     font-weight: 600;
     transition: var(--transition-fast);
 }
 
 .checkbox-group label a:hover {
-    color: var(--accent-solid);
+    color: var(--accent-light);
     text-decoration: underline;
 }
 
 /* ============================================
-   PART 11: 🔥 BUTTONS - PREMIUM STYLE
+   PART 11: 🔥 3D BUTTONS - PREMIUM STYLE
    ============================================ */
 
 .btn-primary,
@@ -723,12 +768,15 @@ button, a, input, textarea, select, [role="button"] {
     align-items: center;
     justify-content: center;
     gap: var(--space-sm);
+    text-shadow: var(--text-shadow-md);
 }
 
+/* 💎 3D Primary Button */
 .btn-primary {
     background: var(--gradient-primary);
     color: white;
-    box-shadow: var(--shadow-lg);
+    box-shadow: var(--button-shadow-3d);
+    transform: translateY(0);
 }
 
 .btn-primary::before {
@@ -751,20 +799,22 @@ button, a, input, textarea, select, [role="button"] {
 
 .btn-primary:hover {
     transform: translateY(-3px);
-    box-shadow: var(--shadow-xl);
+    box-shadow: var(--button-shadow-3d-hover), var(--shadow-glow);
 }
 
 .btn-primary:active {
-    transform: translateY(-1px);
+    transform: translateY(2px);
+    box-shadow: var(--button-shadow-3d-active);
 }
 
 .btn-primary:disabled {
     opacity: 0.5;
     cursor: not-allowed;
     transform: none;
-    box-shadow: none;
+    box-shadow: var(--shadow-sm);
 }
 
+/* 💎 3D Secondary Button */
 .btn-secondary {
     background: var(--bg-glass);
     backdrop-filter: blur(10px);
@@ -772,13 +822,18 @@ button, a, input, textarea, select, [role="button"] {
     color: var(--text-primary);
     border: 1.5px solid var(--border-light);
     margin-top: var(--space-md);
+    box-shadow: var(--shadow-md);
 }
 
 .btn-secondary:hover {
     background: var(--bg-glass-hover);
     border-color: var(--primary-solid);
-    box-shadow: 0 0 20px rgba(102, 126, 234, 0.3);
+    box-shadow: 0 0 20px rgba(107, 78, 126, 0.5), var(--shadow-lg);
     transform: translateY(-2px);
+}
+
+.btn-secondary:active {
+    transform: translateY(1px);
 }
 
 .btn-tertiary {
@@ -787,12 +842,14 @@ button, a, input, textarea, select, [role="button"] {
     border: 1.5px solid var(--border-light);
     padding: var(--space-md) var(--space-xl);
     font-size: var(--text-sm);
+    box-shadow: var(--shadow-sm);
 }
 
 .btn-tertiary:hover {
     background: var(--bg-glass);
     border-color: var(--primary-solid);
     color: var(--text-primary);
+    box-shadow: var(--shadow-md);
 }
 
 /* Button Sizes */
@@ -836,30 +893,35 @@ button, a, input, textarea, select, [role="button"] {
     align-items: center;
     justify-content: center;
     gap: var(--space-sm);
+    text-shadow: var(--text-shadow-sm);
 }
 
 .error-message {
     color: var(--error);
     background: rgba(239, 68, 68, 0.1);
     border: 1.5px solid var(--error);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
 }
 
 .success-message {
     color: var(--success);
     background: rgba(16, 185, 129, 0.1);
     border: 1.5px solid var(--success);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
 }
 
 .warning-message {
     color: var(--warning);
     background: rgba(245, 158, 11, 0.1);
     border: 1.5px solid var(--warning);
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
 }
 
 .info-message {
     color: var(--info);
     background: rgba(59, 130, 246, 0.1);
     border: 1.5px solid var(--info);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
 }
 
 @keyframes shake {
@@ -876,15 +938,16 @@ button, a, input, textarea, select, [role="button"] {
 }
 
 .auth-switch span {
-    color: var(--primary-solid);
+    color: var(--accent-solid);
     cursor: pointer;
     font-weight: 600;
     transition: var(--transition-fast);
 }
 
 .auth-switch span:hover {
-    color: var(--accent-solid);
+    color: var(--accent-light);
     text-decoration: underline;
+    text-shadow: var(--text-shadow-glow);
 }
 
 /* ============================================
@@ -915,25 +978,25 @@ button, a, input, textarea, select, [role="button"] {
     box-shadow: var(--shadow-md);
 }
 
+/* 🔥 IMPROVED: Flexible Header Logo */
 .header-logo {
-    width: 52px;
-    height: 52px;
-    border-radius: 50%;
-    border: 3px solid transparent;
-    background: var(--gradient-primary);
-    background-clip: padding-box;
-    box-shadow: var(--shadow-glow);
+    max-width: 120px;
+    max-height: 52px;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    filter: drop-shadow(0 6px 20px rgba(107, 78, 126, 0.8));
     transition: var(--transition-bounce);
     cursor: pointer;
 }
 
 .header-logo:hover {
-    transform: scale(1.1) rotate(360deg);
-    box-shadow: var(--shadow-glow-strong);
+    transform: scale(1.08);
+    filter: drop-shadow(0 8px 28px rgba(142, 126, 168, 0.9));
 }
 
 .app-header h1 {
-    font-family: 'Rajdhani', sans-serif;
+    font-family: 'Cinzel', serif;
     font-size: var(--text-2xl);
     font-weight: 900;
     background: var(--gradient-premium);
@@ -942,6 +1005,8 @@ button, a, input, textarea, select, [role="button"] {
     background-clip: text;
     letter-spacing: 1px;
     flex: 1;
+    text-shadow: none;
+    filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.5));
 }
 
 .header-actions {
@@ -959,12 +1024,14 @@ button, a, input, textarea, select, [role="button"] {
     font-weight: 600;
     cursor: pointer;
     transition: var(--transition-base);
+    box-shadow: var(--shadow-sm);
 }
 
 .header-btn:hover {
     background: var(--bg-glass-hover);
     border-color: var(--primary-solid);
     box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
 }
 
 /* ============================================
@@ -987,7 +1054,7 @@ button, a, input, textarea, select, [role="button"] {
 }
 
 .page-title {
-    font-family: 'Rajdhani', sans-serif;
+    font-family: 'Cinzel', serif;
     font-size: var(--text-3xl);
     font-weight: 800;
     text-align: center;
@@ -998,6 +1065,8 @@ button, a, input, textarea, select, [role="button"] {
     background-clip: text;
     text-transform: uppercase;
     letter-spacing: 2px;
+    text-shadow: none;
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.5));
 }
 
 .page-subtitle {
@@ -1006,10 +1075,11 @@ button, a, input, textarea, select, [role="button"] {
     font-size: var(--text-base);
     margin-top: calc(var(--space-md) * -1);
     margin-bottom: var(--space-3xl);
+    text-shadow: var(--text-shadow-sm);
 }
 
 /* ============================================
-   PART 16: 🎯 BANNER SECTION - MODERN
+   PART 16: 🎯 BANNER SECTION
    ============================================ */
 
 .banner-section {
@@ -1069,20 +1139,21 @@ button, a, input, textarea, select, [role="button"] {
     width: 10px;
     height: 10px;
     border-radius: 50%;
-    background: rgba(255, 255, 255, 0.3);
+    background: rgba(167, 155, 184, 0.3);
     cursor: pointer;
     transition: var(--transition-base);
     border: none;
+    box-shadow: var(--shadow-xs);
 }
 
 .banner-dot:hover {
-    background: rgba(255, 255, 255, 0.5);
+    background: rgba(167, 155, 184, 0.5);
     transform: scale(1.3);
 }
 
 .banner-dot.active {
     background: var(--gradient-primary);
-    box-shadow: 0 0 12px var(--primary-solid);
+    box-shadow: 0 0 12px rgba(107, 78, 126, 0.8);
     width: 36px;
     border-radius: var(--radius-sm);
 }
@@ -1105,6 +1176,7 @@ button, a, input, textarea, select, [role="button"] {
     color: white;
     font-size: 20px;
     z-index: 10;
+    box-shadow: var(--shadow-md);
 }
 
 .banner-nav:hover {
@@ -1145,6 +1217,7 @@ button, a, input, textarea, select, [role="button"] {
     display: flex;
     align-items: center;
     gap: var(--space-md);
+    text-shadow: var(--text-shadow-md);
 }
 
 .category-title::before {
@@ -1153,10 +1226,11 @@ button, a, input, textarea, select, [role="button"] {
     height: 24px;
     background: var(--gradient-primary);
     border-radius: var(--radius-sm);
+    box-shadow: 0 0 10px rgba(107, 78, 126, 0.6);
 }
 
 /* ============================================
-   PART 18: 🎮 CATEGORY BUTTONS - PREMIUM
+   PART 18: 🎮 CATEGORY BUTTONS - 3D CARDS
    ============================================ */
 
 .category-buttons {
@@ -1198,6 +1272,7 @@ button, a, input, textarea, select, [role="button"] {
     transition: var(--transition-base);
     flex-shrink: 0;
     overflow: hidden;
+    box-shadow: var(--shadow-md);
 }
 
 .category-button::before {
@@ -1214,14 +1289,15 @@ button, a, input, textarea, select, [role="button"] {
 }
 
 .category-button:hover {
-    transform: translateY(-6px);
+    transform: translateY(-8px);
     border-color: var(--primary-solid);
     background: var(--bg-glass-hover);
-    box-shadow: var(--shadow-lg);
+    box-shadow: var(--shadow-lg), 0 12px 0 rgba(13, 10, 21, 0.5);
 }
 
 .category-button:active {
     transform: translateY(-4px);
+    box-shadow: var(--shadow-md), 0 6px 0 rgba(13, 10, 21, 0.5);
 }
 
 .category-button img {
@@ -1251,16 +1327,17 @@ button, a, input, textarea, select, [role="button"] {
     line-height: 1.4;
     word-break: break-word;
     max-width: 155px;
-    letter-spacing: 0.3px;
+    letter-spacing: 0.5px;
     position: relative;
     z-index: 1;
+    text-shadow: var(--text-shadow-md);
 }
 
 .category-button .badge {
     position: absolute;
     top: var(--space-md);
     right: var(--space-md);
-    background: var(--gradient-primary);
+    background: var(--gradient-error);
     color: white;
     font-size: var(--text-xs);
     font-weight: 700;
@@ -1268,6 +1345,7 @@ button, a, input, textarea, select, [role="button"] {
     border-radius: var(--radius-full);
     z-index: 2;
     box-shadow: var(--shadow-md);
+    text-shadow: var(--text-shadow-sm);
 }
 
 /* ============================================
@@ -1290,6 +1368,8 @@ button, a, input, textarea, select, [role="button"] {
     cursor: pointer;
     transition: var(--transition-base);
     margin-bottom: var(--space-2xl);
+    box-shadow: var(--shadow-sm);
+    text-shadow: var(--text-shadow-sm);
 }
 
 .back-button:hover {
@@ -1305,7 +1385,7 @@ button, a, input, textarea, select, [role="button"] {
 }
 
 /* ============================================
-   PART 20: 💎 MENU ITEMS - PREMIUM GRID
+   PART 20: 💎 MENU ITEMS - 3D GRID
    ============================================ */
 
 .menu-items {
@@ -1331,6 +1411,7 @@ button, a, input, textarea, select, [role="button"] {
     gap: var(--space-lg);
     position: relative;
     overflow: hidden;
+    box-shadow: var(--shadow-md);
 }
 
 .menu-item::before {
@@ -1354,14 +1435,14 @@ button, a, input, textarea, select, [role="button"] {
 }
 
 .menu-item:hover {
-    transform: translateY(-6px) scale(1.02);
+    transform: translateY(-8px) scale(1.02);
     border-color: var(--primary-solid);
-    box-shadow: var(--shadow-lg);
+    box-shadow: var(--shadow-lg), 0 12px 0 rgba(13, 10, 21, 0.5);
 }
 
 .menu-item.selected {
     background: var(--bg-glass-hover);
-    box-shadow: var(--shadow-glow);
+    box-shadow: var(--shadow-glow), 0 8px 0 rgba(13, 10, 21, 0.5);
     border-color: transparent;
 }
 
@@ -1392,7 +1473,8 @@ button, a, input, textarea, select, [role="button"] {
     color: var(--text-primary);
     margin-bottom: var(--space-sm);
     line-height: 1.4;
-    letter-spacing: 0.3px;
+    letter-spacing: 0.5px;
+    text-shadow: var(--text-shadow-md);
 }
 
 .menu-item-amount {
@@ -1400,21 +1482,25 @@ button, a, input, textarea, select, [role="button"] {
     color: var(--text-secondary);
     margin-bottom: var(--space-md);
     line-height: 1.4;
+    text-shadow: var(--text-shadow-sm);
 }
 
 .menu-item-price {
     font-family: 'Rajdhani', sans-serif;
     font-size: var(--text-xl);
     font-weight: 800;
-    background: var(--gradient-primary);
+    background: var(--gradient-accent);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
     padding: var(--space-sm) var(--space-lg);
     border-radius: var(--radius-sm);
-    border: 1.5px solid var(--primary-solid);
+    border: 1.5px solid var(--accent-solid);
     display: inline-block;
     letter-spacing: 0.5px;
+    text-shadow: none;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.4));
+    box-shadow: var(--shadow-sm);
 }
 
 .menu-item .discount-badge {
@@ -1428,17 +1514,19 @@ button, a, input, textarea, select, [role="button"] {
     padding: var(--space-xs) var(--space-sm);
     border-radius: var(--radius-full);
     z-index: 2;
+    box-shadow: var(--shadow-md);
+    text-shadow: var(--text-shadow-sm);
 }
 
 /* ============================================
-   PART 21: 🎬 MODALS - GLASS DESIGN
+   PART 21: 🎬 MODALS - 3D GLASS
    ============================================ */
 
 .modal {
     display: none;
     position: fixed;
     inset: 0;
-    background: rgba(15, 23, 42, 0.7);
+    background: rgba(13, 10, 21, 0.75);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
     z-index: var(--z-modal);
@@ -1489,6 +1577,7 @@ button, a, input, textarea, select, [role="button"] {
     border-radius: 50%;
     background: var(--bg-glass);
     border: 1px solid var(--border-light);
+    box-shadow: var(--shadow-sm);
 }
 
 .close-modal:hover {
@@ -1496,10 +1585,11 @@ button, a, input, textarea, select, [role="button"] {
     background: var(--bg-glass-hover);
     transform: rotate(90deg);
     border-color: var(--error);
+    box-shadow: var(--shadow-md);
 }
 
 .modal-content h2 {
-    font-family: 'Rajdhani', sans-serif;
+    font-family: 'Cinzel', serif;
     font-size: var(--text-2xl);
     font-weight: 800;
     text-align: center;
@@ -1507,6 +1597,7 @@ button, a, input, textarea, select, [role="button"] {
     color: var(--text-primary);
     text-transform: uppercase;
     letter-spacing: 1px;
+    text-shadow: var(--text-shadow-md);
 }
 
 .modal-content h3 {
@@ -1516,6 +1607,7 @@ button, a, input, textarea, select, [role="button"] {
     color: var(--text-primary);
     margin-bottom: var(--space-lg);
     text-transform: uppercase;
+    text-shadow: var(--text-shadow-sm);
 }
 
 /* ============================================
@@ -1536,6 +1628,7 @@ button, a, input, textarea, select, [role="button"] {
     font-weight: 600;
     color: var(--text-secondary);
     margin-bottom: var(--space-md);
+    text-shadow: var(--text-shadow-sm);
 }
 
 .input-tables input,
@@ -1552,7 +1645,8 @@ button, a, input, textarea, select, [role="button"] {
     font-size: var(--text-base);
     font-weight: 500;
     transition: var(--transition-base);
-    font-family: inherit;
+    font-family: 'Montserrat', sans-serif;
+    box-shadow: var(--shadow-inset);
 }
 
 .input-tables input:focus,
@@ -1561,7 +1655,7 @@ button, a, input, textarea, select, [role="button"] {
     outline: none;
     border-color: var(--primary-solid);
     background: var(--bg-glass-hover);
-    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.15);
+    box-shadow: 0 0 0 4px rgba(107, 78, 126, 0.2), var(--shadow-inset);
 }
 
 .input-tables textarea {
@@ -1570,7 +1664,7 @@ button, a, input, textarea, select, [role="button"] {
 }
 
 /* ============================================
-   PART 23: 🎯 ID CHECKER - ENHANCED
+   PART 23: 🎯 ID CHECKER
    ============================================ */
 
 .id-checker-container {
@@ -1582,6 +1676,7 @@ button, a, input, textarea, select, [role="button"] {
     border: 1.5px solid var(--border-light);
     border-radius: var(--radius-lg);
     animation: fadeIn 0.4s ease;
+    box-shadow: var(--shadow-md);
 }
 
 .id-checker-result {
@@ -1593,7 +1688,7 @@ button, a, input, textarea, select, [role="button"] {
     border: 2px solid var(--success);
     border-radius: var(--radius-lg);
     animation: slideInUp 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-    box-shadow: 0 8px 32px rgba(16, 185, 129, 0.2);
+    box-shadow: 0 8px 32px rgba(16, 185, 129, 0.3);
 }
 
 @keyframes slideInUp {
@@ -1620,8 +1715,9 @@ button, a, input, textarea, select, [role="button"] {
     font-weight: 800;
     color: white;
     font-family: 'Rajdhani', sans-serif;
-    box-shadow: 0 4px 20px rgba(16, 185, 129, 0.4);
+    box-shadow: 0 4px 20px rgba(16, 185, 129, 0.5);
     flex-shrink: 0;
+    text-shadow: var(--text-shadow-md);
 }
 
 .id-checker-info {
@@ -1634,12 +1730,14 @@ button, a, input, textarea, select, [role="button"] {
     color: var(--text-primary);
     margin-bottom: var(--space-sm);
     font-family: 'Rajdhani', sans-serif;
+    text-shadow: var(--text-shadow-md);
 }
 
 .id-checker-id {
     font-size: var(--text-sm);
     color: var(--text-muted);
     margin-bottom: var(--space-sm);
+    text-shadow: var(--text-shadow-sm);
 }
 
 .id-checker-region {
@@ -1653,6 +1751,7 @@ button, a, input, textarea, select, [role="button"] {
     color: var(--success);
     text-transform: uppercase;
     letter-spacing: 1px;
+    text-shadow: var(--text-shadow-sm);
 }
 
 .id-checker-loading {
@@ -1665,6 +1764,7 @@ button, a, input, textarea, select, [role="button"] {
     border-radius: var(--radius-lg);
     color: var(--text-secondary);
     font-size: var(--text-sm);
+    text-shadow: var(--text-shadow-sm);
 }
 
 .id-checker-loading-spinner {
@@ -1685,6 +1785,7 @@ button, a, input, textarea, select, [role="button"] {
     font-size: var(--text-sm);
     text-align: center;
     animation: shake 0.5s ease;
+    text-shadow: var(--text-shadow-sm);
 }
 
 .check-id-button {
@@ -1702,15 +1803,18 @@ button, a, input, textarea, select, [role="button"] {
     cursor: pointer;
     transition: var(--transition-base);
     margin-top: var(--space-md);
+    box-shadow: var(--button-shadow-3d);
+    text-shadow: var(--text-shadow-md);
 }
 
 .check-id-button:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-lg);
+    transform: translateY(-3px);
+    box-shadow: var(--button-shadow-3d-hover);
 }
 
 .check-id-button:active {
-    transform: translateY(0);
+    transform: translateY(2px);
+    box-shadow: var(--button-shadow-3d-active);
 }
 
 .check-id-button:disabled {
@@ -1733,6 +1837,7 @@ button, a, input, textarea, select, [role="button"] {
     color: var(--text-primary);
     margin-bottom: var(--space-lg);
     text-transform: uppercase;
+    text-shadow: var(--text-shadow-md);
 }
 
 .video-item {
@@ -1747,6 +1852,7 @@ button, a, input, textarea, select, [role="button"] {
     display: flex;
     align-items: center;
     gap: var(--space-lg);
+    box-shadow: var(--shadow-sm);
 }
 
 .video-item:hover {
@@ -1767,6 +1873,7 @@ button, a, input, textarea, select, [role="button"] {
 
 .video-item:hover img {
     border-color: var(--primary-solid);
+    box-shadow: var(--shadow-sm);
 }
 
 .video-item p {
@@ -1774,12 +1881,14 @@ button, a, input, textarea, select, [role="button"] {
     color: var(--text-secondary);
     line-height: 1.5;
     flex: 1;
+    text-shadow: var(--text-shadow-sm);
 }
 
 .video-item .play-icon {
     font-size: 24px;
     color: var(--primary-solid);
     flex-shrink: 0;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.4));
 }
 
 /* ============================================
@@ -1798,6 +1907,7 @@ button, a, input, textarea, select, [role="button"] {
     padding: var(--space-2xl);
     margin-bottom: var(--space-3xl);
     text-align: center;
+    box-shadow: var(--shadow-md);
 }
 
 .order-summary h3 {
@@ -1805,6 +1915,7 @@ button, a, input, textarea, select, [role="button"] {
     font-weight: 700;
     color: var(--text-primary);
     margin-bottom: var(--space-sm);
+    text-shadow: var(--text-shadow-md);
 }
 
 .order-summary p {
@@ -1812,25 +1923,29 @@ button, a, input, textarea, select, [role="button"] {
     color: var(--text-secondary);
     margin-bottom: var(--space-lg);
     line-height: 1.6;
+    text-shadow: var(--text-shadow-sm);
 }
 
 .order-summary .price {
     font-family: 'Rajdhani', sans-serif;
     font-size: var(--text-3xl);
     font-weight: 800;
-    background: var(--gradient-primary);
+    background: var(--gradient-accent);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
     padding: var(--space-md) var(--space-xl);
     border-radius: var(--radius-md);
-    border: 2px solid var(--primary-solid);
+    border: 2px solid var(--accent-solid);
     display: inline-block;
     letter-spacing: 1px;
+    text-shadow: none;
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.5));
+    box-shadow: var(--shadow-sm);
 }
 
 /* ============================================
-   PART 26: 💳 PAYMENT METHODS - GRID
+   PART 26: 💳 PAYMENT METHODS - 3D GRID
    ============================================ */
 
 .payment-methods {
@@ -1855,6 +1970,7 @@ button, a, input, textarea, select, [role="button"] {
     gap: var(--space-md);
     position: relative;
     overflow: hidden;
+    box-shadow: var(--shadow-md);
 }
 
 .payment-method::before {
@@ -1878,14 +1994,14 @@ button, a, input, textarea, select, [role="button"] {
 }
 
 .payment-method:hover {
-    transform: translateY(-4px);
+    transform: translateY(-6px);
     border-color: var(--primary-solid);
-    box-shadow: var(--shadow-lg);
+    box-shadow: var(--shadow-lg), 0 10px 0 rgba(13, 10, 21, 0.5);
 }
 
 .payment-method.selected {
     background: var(--bg-glass-hover);
-    box-shadow: var(--shadow-glow);
+    box-shadow: var(--shadow-glow), 0 8px 0 rgba(13, 10, 21, 0.5);
     border-color: transparent;
 }
 
@@ -1910,6 +2026,7 @@ button, a, input, textarea, select, [role="button"] {
     font-weight: 600;
     color: var(--text-primary);
     line-height: 1.3;
+    text-shadow: var(--text-shadow-sm);
 }
 
 .payment-info {
@@ -1919,6 +2036,7 @@ button, a, input, textarea, select, [role="button"] {
     border-radius: var(--radius-lg);
     padding: var(--space-xl);
     margin-top: var(--space-xl);
+    box-shadow: var(--shadow-sm);
 }
 
 .payment-info h4 {
@@ -1926,6 +2044,7 @@ button, a, input, textarea, select, [role="button"] {
     font-weight: 700;
     color: var(--text-primary);
     margin-bottom: var(--space-md);
+    text-shadow: var(--text-shadow-sm);
 }
 
 .payment-info p {
@@ -1933,15 +2052,16 @@ button, a, input, textarea, select, [role="button"] {
     color: var(--text-secondary);
     line-height: 1.6;
     margin-bottom: var(--space-md);
+    text-shadow: var(--text-shadow-sm);
 }
 
 .payment-info .highlight {
-    color: var(--primary-solid);
+    color: var(--accent-solid);
     font-weight: 600;
 }
 
 /* ============================================
-   PART 27: 📱 BOTTOM NAVIGATION - PREMIUM
+   PART 27: 📱 BOTTOM NAVIGATION - 3D STYLE
    ============================================ */
 
 .bottom-nav {
@@ -1958,7 +2078,7 @@ button, a, input, textarea, select, [role="button"] {
     justify-content: space-around;
     align-items: center;
     z-index: var(--z-navigation);
-    box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 -8px 32px rgba(13, 10, 21, 0.5);
 }
 
 .nav-item {
@@ -1989,7 +2109,7 @@ button, a, input, textarea, select, [role="button"] {
     border-radius: 0 0 4px 4px;
     opacity: 0;
     transition: opacity 0.4s;
-    box-shadow: 0 2px 10px var(--primary-solid);
+    box-shadow: 0 2px 10px rgba(107, 78, 126, 0.8);
 }
 
 .nav-item.active::before {
@@ -1997,12 +2117,13 @@ button, a, input, textarea, select, [role="button"] {
 }
 
 .nav-item.active {
-    color: var(--primary-solid);
+    color: var(--accent-solid);
     background: var(--bg-glass-hover);
+    box-shadow: var(--shadow-sm);
 }
 
 .nav-item:hover {
-    color: var(--primary-solid);
+    color: var(--accent-solid);
     transform: translateY(-3px);
 }
 
@@ -2015,13 +2136,14 @@ button, a, input, textarea, select, [role="button"] {
 
 .nav-item.active img,
 .nav-item:hover img {
-    filter: grayscale(0) brightness(1) drop-shadow(0 2px 8px var(--primary-solid));
+    filter: grayscale(0) brightness(1) drop-shadow(0 2px 8px rgba(107, 78, 126, 0.8));
 }
 
 .nav-item span {
     font-size: var(--text-xs);
     font-weight: 700;
     letter-spacing: 0.5px;
+    text-shadow: var(--text-shadow-sm);
 }
 
 .nav-item .badge {
@@ -2036,6 +2158,8 @@ button, a, input, textarea, select, [role="button"] {
     border-radius: var(--radius-full);
     min-width: 18px;
     text-align: center;
+    box-shadow: var(--shadow-sm);
+    text-shadow: var(--text-shadow-sm);
 }
 
 /* ============================================
@@ -2069,6 +2193,7 @@ button, a, input, textarea, select, [role="button"] {
     box-shadow: var(--shadow-glow);
     font-family: 'Rajdhani', sans-serif;
     position: relative;
+    text-shadow: var(--text-shadow-lg);
 }
 
 .profile-avatar::after {
@@ -2105,14 +2230,16 @@ button, a, input, textarea, select, [role="button"] {
     border-radius: var(--radius-md);
     text-align: center;
     border: 1.5px solid var(--border-light);
+    box-shadow: var(--shadow-sm);
 }
 
 .stat-value {
     font-family: 'Rajdhani', sans-serif;
     font-size: var(--text-2xl);
     font-weight: 800;
-    color: var(--primary-solid);
+    color: var(--accent-solid);
     margin-bottom: var(--space-xs);
+    text-shadow: var(--text-shadow-md);
 }
 
 .stat-label {
@@ -2120,6 +2247,7 @@ button, a, input, textarea, select, [role="button"] {
     color: var(--text-muted);
     text-transform: uppercase;
     letter-spacing: 0.5px;
+    text-shadow: var(--text-shadow-sm);
 }
 
 /* ============================================
@@ -2141,6 +2269,7 @@ button, a, input, textarea, select, [role="button"] {
     padding: var(--space-xl);
     margin-bottom: var(--space-lg);
     transition: var(--transition-base);
+    box-shadow: var(--shadow-md);
 }
 
 .history-item:hover,
@@ -2160,6 +2289,7 @@ button, a, input, textarea, select, [role="button"] {
     text-transform: uppercase;
     letter-spacing: 0.8px;
     margin-bottom: var(--space-md);
+    text-shadow: var(--text-shadow-sm);
 }
 
 .history-status.pending {
@@ -2192,6 +2322,7 @@ button, a, input, textarea, select, [role="button"] {
     font-weight: 700;
     color: var(--text-primary);
     margin-bottom: var(--space-sm);
+    text-shadow: var(--text-shadow-md);
 }
 
 .history-item p,
@@ -2200,6 +2331,7 @@ button, a, input, textarea, select, [role="button"] {
     color: var(--text-secondary);
     line-height: 1.6;
     margin-bottom: var(--space-sm);
+    text-shadow: var(--text-shadow-sm);
 }
 
 .history-item .timestamp {
@@ -2208,7 +2340,6 @@ button, a, input, textarea, select, [role="button"] {
     margin-top: var(--space-md);
 }
 
-/* Contact Card Styling */
 .contact-item {
     display: flex;
     align-items: center;
@@ -2251,15 +2382,18 @@ button, a, input, textarea, select, [role="button"] {
     font-weight: 600;
     cursor: pointer;
     transition: var(--transition-base);
+    box-shadow: var(--shadow-xs);
+    text-shadow: var(--text-shadow-sm);
 }
 
 .contact-btn:hover {
     background: var(--bg-glass-hover);
     border-color: var(--primary-solid);
+    box-shadow: var(--shadow-sm);
 }
 
 /* ============================================
-   PART 30: 🔔 TOAST NOTIFICATIONS - PREMIUM
+   PART 30: 🔔 TOAST NOTIFICATIONS - 3D
    ============================================ */
 
 .toast-container {
@@ -2309,35 +2443,36 @@ button, a, input, textarea, select, [role="button"] {
 .toast.success {
     border-color: var(--success);
     background: rgba(16, 185, 129, 0.15);
-    box-shadow: 0 8px 32px rgba(16, 185, 129, 0.3);
+    box-shadow: 0 8px 32px rgba(16, 185, 129, 0.4);
 }
 
 .toast.error {
     border-color: var(--error);
     background: rgba(239, 68, 68, 0.15);
-    box-shadow: 0 8px 32px rgba(239, 68, 68, 0.3);
+    box-shadow: 0 8px 32px rgba(239, 68, 68, 0.4);
 }
 
 .toast.warning {
     border-color: var(--warning);
     background: rgba(245, 158, 11, 0.15);
-    box-shadow: 0 8px 32px rgba(245, 158, 11, 0.3);
+    box-shadow: 0 8px 32px rgba(245, 158, 11, 0.4);
 }
 
 .toast.info {
     border-color: var(--info);
     background: rgba(59, 130, 246, 0.15);
-    box-shadow: 0 8px 32px rgba(59, 130, 246, 0.3);
+    box-shadow: 0 8px 32px rgba(59, 130, 246, 0.4);
 }
 
 .toast-icon {
     font-size: 24px;
     flex-shrink: 0;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.4));
 }
 
 .toast.success .toast-icon { color: var(--success); }
 .toast.error .toast-icon { color: var(--error); }
-.toast.warning .toast-icon { color: --warning); }
+.toast.warning .toast-icon { color: var(--warning); }
 .toast.info .toast-icon { color: var(--info); }
 
 .toast-message {
@@ -2346,6 +2481,7 @@ button, a, input, textarea, select, [role="button"] {
     font-weight: 600;
     color: var(--text-primary);
     line-height: 1.5;
+    text-shadow: var(--text-shadow-sm);
 }
 
 .toast-close {
@@ -2368,6 +2504,7 @@ button, a, input, textarea, select, [role="button"] {
 .toast-close:hover {
     background: var(--bg-glass-hover);
     color: var(--error);
+    box-shadow: var(--shadow-xs);
 }
 
 /* ============================================
@@ -2387,6 +2524,7 @@ button, a, input, textarea, select, [role="button"] {
     padding: var(--space-3xl);
     margin-bottom: var(--space-3xl);
     text-align: center;
+    box-shadow: var(--shadow-lg);
 }
 
 .category-header img {
@@ -2399,22 +2537,23 @@ button, a, input, textarea, select, [role="button"] {
 }
 
 .category-header h2 {
-    font-family: 'Rajdhani', sans-serif;
+    font-family: 'Cinzel', serif;
     font-size: var(--text-3xl);
     font-weight: 800;
     margin-bottom: var(--space-sm);
+    text-shadow: var(--text-shadow-lg);
 }
 
 .category-header p {
     color: var(--text-secondary);
     font-size: var(--text-base);
+    text-shadow: var(--text-shadow-sm);
 }
 
 /* ============================================
    PART 32: UTILITY CLASSES
    ============================================ */
 
-/* Spacing Utilities */
 .mt-1 { margin-top: var(--space-xs); }
 .mt-2 { margin-top: var(--space-sm); }
 .mt-3 { margin-top: var(--space-md); }
@@ -2433,7 +2572,6 @@ button, a, input, textarea, select, [role="button"] {
 .p-4 { padding: var(--space-lg); }
 .p-5 { padding: var(--space-xl); }
 
-/* Text Utilities */
 .text-center { text-align: center; }
 .text-left { text-align: left; }
 .text-right { text-align: right; }
@@ -2448,14 +2586,12 @@ button, a, input, textarea, select, [role="button"] {
 .font-semibold { font-weight: 600; }
 .font-medium { font-weight: 500; }
 
-/* Display Utilities */
 .hidden { display: none; }
 .block { display: block; }
 .flex { display: flex; }
 .inline-flex { display: inline-flex; }
 .grid { display: grid; }
 
-/* Flex Utilities */
 .items-center { align-items: center; }
 .justify-center { justify-content: center; }
 .justify-between { justify-content: space-between; }
@@ -2466,12 +2602,13 @@ button, a, input, textarea, select, [role="button"] {
 .gap-4 { gap: var(--space-lg); }
 
 /* ============================================
-   PART 33: 📱 RESPONSIVE DESIGN - MOBILE OPTIMIZED
+   PART 33: 📱 RESPONSIVE DESIGN
    ============================================ */
 
 @media (max-width: 1024px) {
     :root {
-        --text-4xl: 36px;
+        --text-5xl: 36px;
+        --text-4xl: 30px;
         --text-3xl: 26px;
         --text-2xl: 22px;
     }
@@ -2483,7 +2620,8 @@ button, a, input, textarea, select, [role="button"] {
 
 @media (max-width: 768px) {
     :root {
-        --text-4xl: 32px;
+        --text-5xl: 32px;
+        --text-4xl: 28px;
         --text-3xl: 24px;
         --text-2xl: 20px;
     }
@@ -2533,7 +2671,8 @@ button, a, input, textarea, select, [role="button"] {
 
 @media (max-width: 480px) {
     :root {
-        --text-4xl: 28px;
+        --text-5xl: 28px;
+        --text-4xl: 24px;
         --text-3xl: 22px;
         --text-2xl: 18px;
         --space-5xl: 36px;
@@ -2593,6 +2732,17 @@ button, a, input, textarea, select, [role="button"] {
     .modal-content {
         padding: var(--space-2xl) var(--space-lg);
     }
+    
+    /* Logo responsive adjustments */
+    .auth-logo {
+        max-width: 140px;
+        max-height: 85px;
+    }
+    
+    .header-logo {
+        max-width: 100px;
+        max-height: 45px;
+    }
 }
 
 @media (max-width: 360px) {
@@ -2606,13 +2756,17 @@ button, a, input, textarea, select, [role="button"] {
         width: 95px;
         height: 95px;
     }
+    
+    .auth-logo {
+        max-width: 120px;
+        max-height: 75px;
+    }
 }
 
 /* ============================================
-   PART 34: ACCESSIBILITY & PREFERENCES
+   PART 34: ACCESSIBILITY
    ============================================ */
 
-/* Reduced Motion */
 @media (prefers-reduced-motion: reduce) {
     *,
     *::before,
@@ -2624,20 +2778,13 @@ button, a, input, textarea, select, [role="button"] {
     }
 }
 
-/* High Contrast Mode */
 @media (prefers-contrast: high) {
     :root {
-        --border-light: rgba(255, 255, 255, 0.3);
-        --bg-glass: rgba(255, 255, 255, 0.15);
+        --border-light: rgba(167, 155, 184, 0.4);
+        --bg-glass: rgba(74, 25, 66, 0.2);
     }
 }
 
-/* Dark Mode Support (if needed) */
-@media (prefers-color-scheme: dark) {
-    /* Already dark by default */
-}
-
-/* Focus Visible for Accessibility */
 *:focus-visible {
     outline: 2px solid var(--primary-solid);
     outline-offset: 2px;
@@ -2679,27 +2826,7 @@ select:focus-visible {
 }
 
 /* ============================================
-   PART 36: CUSTOM SCROLLBAR FOR SPECIFIC AREAS
-   ============================================ */
-
-.modal-content::-webkit-scrollbar,
-.category-buttons::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
-}
-
-.modal-content::-webkit-scrollbar-track,
-.category-buttons::-webkit-scrollbar-track {
-    background: transparent;
-}
-
-.modal-content::-webkit-scrollbar-thumb,
-.category-buttons::-webkit-scrollbar-thumb {
-    background: var(--primary-solid);
-    border-radius: 10px;
-}
-
-/* ============================================
-   END OF CSS - COMPLETE VERSION
-   Total: 1650+ Lines of Premium Code
+   END OF CSS - ULTIMATE 3D EDITION
+   Total: 1700+ Lines of Premium 3D Code
+   Dark Purple-Black Theme with Full Features
    ============================================ */
