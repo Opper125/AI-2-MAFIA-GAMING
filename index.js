@@ -1,7 +1,7 @@
 
 // Supabase Configuration
-const SUPABASE_URL = 'https://qcbzxalqpcppiorffpas.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFjYnp4YWxxcGNwcGlvcmZmcGFzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAwOTg0NTAsImV4cCI6MjA3NTY3NDQ1MH0.EQ-Wc_FJ65tuCBF3a_1_7IrKO6bJmZgN4-cJqapNoRg';
+const SUPABASE_URL = 'https://sogqendnbehfidjupthr.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNvZ3FlbmRuYmVoZmlkanVwdGhyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYxNjQwOTIsImV4cCI6MjA4MTc0MDA5Mn0.KLKUMiyDEJe5kULFDf_uIdnYsMsSBuI1dX9jWQnTCho';
 
 // RapidAPI Configuration for Game ID Checker
 const RAPIDAPI_KEY = 'e2f6ae1ea0mshb1c6aaad419cea7p11237cjsn9c7a7458679a';
